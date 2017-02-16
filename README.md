@@ -10,11 +10,11 @@ Felipe Bergo, February 2017.
 
 ##Directories
 
-- libip
+- **libip**
  image processing library used by IVS and Aftervoxel
-- aftervoxel
+- **aftervoxel**
  3D segmentation/visualization tool, GTK+-based GUI
-- ivs 
+- **ivs**
  3D semi-automatic segmentation tool,  implements the differential IFT. The algorithms and this software are described in [Falcao2004]. This directory also contains the dicom2scn conversion tool and a few SCN-related command-line utilities (scntool, scn2ana, ana2scn)
 
 
@@ -24,7 +24,7 @@ the time as a glorified PGM. A description of the format is available as a man p
 ##External dependencies:
 - Perl 5 (for configuration scripts)
 - GTK+ 2.x and its development libraries
-- libpng, libjpeg, zlib and its development headers (-devel packages in RedHat-ish distros).
+- libpng, libjpeg, zlib and their development headers (-devel packages in RedHat-ish distros).
 
 
 ## References
