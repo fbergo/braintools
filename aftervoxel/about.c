@@ -81,10 +81,10 @@ void about_dialog() {
   
   snprintf(z,1024,
 	   "Aftervoxel %s\n"\
-	   "(c) 2004-2012 Felipe Bergo <fbergo@gmail.com>\n"\
-	   "http://www.liv.ic.unicamp.br/~bergo/aftervoxel\n"\
-	   "http://www.bergo.eng.br/aftervoxel\n\n"\
-	   "This software is freeware and comes with no warranty.\n",
+	   "(c) 2004-2017 Felipe Bergo <fbergo\x40gmail.com>\n"\
+	   "http://www.lni.hc.unicamp.br/app/aftervoxel\n"\
+	   "https://github.com/fbergo/braintools\n\n"\
+	   "This is free software and comes with no warranty.\n",
 	   VERSION);
   gtk_label_set_text(GTK_LABEL(text), z);		       
 

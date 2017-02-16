@@ -5,7 +5,7 @@
 #include <libip.h>
 #include "util.h"
 
-#define VERSION "2.6"
+#define VERSION "2.7"
 
 #define APPNAME    "Aftervoxel"
 #define APPBG      0xddccaa
