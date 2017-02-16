@@ -1,0 +1,55 @@
+Summary: Interactive Volume Segmentation tool.
+Name: ivs
+Version: VERSION
+Release: unicamp
+URL: http://www.ic.unicamp.br/~afalcao
+Source0: ivs-VERSION.tar.gz
+License: Restricted Use Inside Unicamp
+Group: Sciences/Other
+BuildRoot: %{_tmppath}/%{name}-root
+
+%description
+IVS is the Interactive Volume Segmentation tool developed
+at the Institute of Computing of Unicamp (State University
+of Campinas, SP, Brazil). It provides interactive
+watershed-based 3D medical image segmentation, as well as
+pre-processing filters and volumetric analysis.
+This is a local version, with most stable options enabled.
+
+%prep
+%setup -q
+
+%build
+cd ivs ; ./configure unicamp ; cd ..
+make -C ivs
+
+%install
+rm -rf $RPM_BUILD_ROOT
+make DESTDIR=$RPM_BUILD_ROOT -C ivs rpminstall
+
+%clean
+rm -rf $RPM_BUILD_ROOT
+
+%files
+%defattr(-,root,root)
+%doc LICENSE
+/usr/bin/ivs
+/usr/bin/minctoscn
+/usr/bin/dicom2scn
+/usr/bin/ana2scn
+/usr/bin/scn2ana
+/usr/bin/scntool
+/usr/bin/scnsunfix
+/usr/man/man1/ivs.1.gz
+/usr/man/man1/ana2scn.1.gz
+/usr/man/man1/scn2ana.1.gz
+/usr/man/man1/dicom2scn.1.gz
+/usr/man/man1/scntool.1.gz
+/usr/man/man5/scn.5.gz
+/usr/man/man5/mvf.5.gz
+
+%changelog
+* Mon Apr 14 2003 Felipe Bergo <bergo@seul.org>
+- Initial build.
+
+

@@ -1,0 +1,85 @@
+#!/usr/bin/perl
+
+if ($#ARGV != 1) {
+    print "convert MINC files to 16-bit (12-bit quantization) SCN files\n";
+    print "syntax: minctoscn <minc-file> <scn-file>\n\n";
+    exit(1);
+}
+
+# testa se o arquivo minc pode ser lido
+open(INFILE, "$ARGV[0]") or die("Cannot open input file $ARGV[0]");
+close(INFILE);
+
+# obtem informacoes do cabecalho com mincinfo
+open(INFO,"mincinfo $ARGV[0]|") or die("Unable to run mincinfo");
+
+$state = 0;
+$x = "nada";
+$y = "nada";
+$z = "nada";
+
+$xsize = 0;
+$xstep = 0;
+
+$ysize = 0;
+$ystep = 0;
+
+$zsize = 0;
+$zstep = 0;
+
+while($_=<INFO>) {
+    if ($state == 0 && /^image dimensions: (\w*)\s*(\w*)\s*(\w*)/) {
+	$z = $1;
+	$y = $2;
+	$x = $3;
+	$state = 1;
+	next;
+    }
+    if ($state > 0) {
+	if (/$x\s*(\d*)\s*-?([\d\.]*)\s/) {
+	    $xsize = $1;
+	    $xstep = $2;
+	    ++$state;
+	    next;
+	}
+	if (/$y\s*(\d*)\s*-?([\d\.]*)\s/) {
+	    $ysize = $1;
+	    $ystep = $2;
+	    ++$state;
+	    next;
+	}
+	if (/$z\s*(\d*)\s*-?([\d\.]*)\s/) {
+	    $zsize = $1;
+	    $zstep = $2;
+	    ++$state;
+	    next;
+	}
+    }
+}
+
+close(INFO);
+if ($state != 4) {
+    print "Unable to parse mincinfo output.\n";
+} else {
+    print "Size: $xsize x $ysize x $zsize\n";
+    print "Voxel Size: $xstep x $ystep x $zstep\n";
+}
+
+print "converting (range 0-4095) ...\n";
+
+open(OUTPUT,">$ARGV[1]") or die("Unable to open output file $ARGV[1]");
+print OUTPUT "SCN\n$xsize $ysize $zsize\n$xstep $ystep $zstep\n16\n";
+close(OUTPUT);
+
+$state = system("mincextract -short -range 0 4095 $ARGV[0] >> $ARGV[1]");
+
+if ($state != 0) {
+    print "mincextract returned an error code (or wasn't found at all),\n";
+    print "check whether the output file is ok.\n";
+    exit(1);
+}
+
+print "done.\n";
+
+exit(0);
+

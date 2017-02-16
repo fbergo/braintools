@@ -1,0 +1,6 @@
+
+2.5 -> 2.6 (Oct 1st 2012)
+ * 10->12 labels
+ * change label colors 3, 4 and 5 to brighter ones
+ * cmdline segmentation loading (aftervoxel base.scn seg.scn)
+ * some loading crashes fixed (lookup computing error)

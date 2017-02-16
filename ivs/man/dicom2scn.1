@@ -1,0 +1,109 @@
+.TH DICOM2SCN 1 "Dec 2010" "dicom2scn 2010.3" "User Manuals"
+.SH NAME
+dicom2scn \- medical image conversion
+
+.SH SYNOPSIS
+.TS
+l l.
+dicom2scn	[ \fB-b\fR \fIframe\fR ] [ \fB-e\fR \fIframe\fR ] [ \fB-r\fR ]
+	[ \fB-n#\fR ] [ \fB-d\fR] [-\fB-xa\fR] [ \fB-i\fR ] \fIinputfile\fR [ \fIoutputfile\fR ]
+
+dicom2scn	\fB-h\fR
+
+dicom2scn	\fB--help\fR
+.TE
+
+.SH DESCRIPTION
+dicom2scn converts sequences of 2D DICOM image files, or a 3D multiframe DICOM file, to
+the SCN volume format (see
+.BR scn (5)
+). It has been reported to work with DICOM sequences from the following scanners: 
+
+.nf
+Elscint Prestige (MR)
+Philips Achieva (MR)
+Philips Gyroscan (MR)
+Toshiba Aquilion (CT)
+.fi
+
+But it is likely to properly convert DICOM files from most scanners.
+
+.SH DICOM NAMING
+For multiframe DICOM files (entire 3D study in a single file), usually only inputfile and outputfile
+are required, without additional options.
+
+When importing studies that are split through several 2D files,
+all DICOM slices belonging to a study should be in a same
+directory, named with a fixed prefix and a numeric suffix, e.g.:
+
+.nf
+SOME_PATIENT1
+SOME_PATIENT2
+(...)
+SOME_PATIENT162
+.fi
+
+The
+.I inputfile
+parameter can be any slice filename (e.g.:
+.I /some/directory/SOME_PATIENT85
+) or the path to a directory that contains
+only DICOM files. If no
+.I outputfile
+is given, the conversion output (if any) is written
+to
+.I dicom.scn
+
+.SH OPTIONS
+.IP "-b frame"
+begins the conversion attempt at the frame-th slice. Applies to sequences of 2D files only.
+.IP "-e frame"
+ends the conversion attempt at the frame-th slice. Applies to sequences of 2D files only.
+.IP "-xa"
+for directories with several 2D files and several studies, makes dicom2scn attempt to convert
+each separate study to a separate SCN file.
+.IP "-d"
+makes a textual dump of DICOM tags to standard output, instead of converting to SCN. When this
+option is used, only one input file can be given/analyzed.
+.IP "-r"
+writes a conversion report to
+.I dicom.txt
+.IP "-i"
+lists the image sequences on these DICOM files and
+some of their properties.
+.IP "-n#"
+change the treatment of negative values. -n0 will keep negative intensities as given in the
+source file. -n1 will set negative values to 0. -n2 will add an offset to all intensities to
+make the lowest intensity be 0. If not provided, -n2 is the default behavior. Negative
+intensities are only an issue in CT images and some specific MR sequences, such as computed
+T2 relaxometry.
+.IP "-h, --help"
+prints a brief usage help to the console and exits.
+
+.SH LIMITATIONS
+It may be common to have multi-study exports, with different
+studies in the same file sequence. With no
+.B -b
+or
+.B -e
+parameters, dicom2scn will fail with a quite verbose error message
+if it crosses the boundary between two studies. The error
+message will provide suggestions for
+.B -b
+and/or
+.B -e
+study boundaries. dicom2scn requires that slices be
+no wider than 2048 pixels.
+
+.SH AUTHORS
+dicom2scn was written by Felipe Bergo <bergo@liv.ic.unicamp.br>.
+Information about IVS and associated utilities can be found at
+
+.I http://www.liv.ic.unicamp.br/~bergo/ivs
+
+.SH "SEE ALSO"
+.BR ivs (1),
+.BR ana2scn (1),
+.BR scn2ana (1),
+.BR scntool (1),
+.BR scn (5)

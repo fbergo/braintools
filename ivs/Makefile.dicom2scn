@@ -1,0 +1,38 @@
+
+CC = gcc
+PREFIX = /usr/local
+
+all: dicom2scn ana2scn scn2ana scntool
+
+dicom2scn: dicom2scn.c
+	$(CC) -Wall -O2 dicom2scn.c -o dicom2scn -lm
+
+ana2scn: ana2scn.c fio.c fio.h
+	$(CC) -Wall ana2scn.c fio.c -o ana2scn
+
+scn2ana: scn2ana.c fio.c fio.h
+	$(CC) -Wall scn2ana.c fio.c -o scn2ana
+
+scntool: scntool.c
+	$(CC) -Wall -O2 scntool.c -o scntool -lm
+
+clean:
+	/bin/rm -f scntool dicom2scn ana2scn scn2ana
+
+install: dicom2scn ana2scn scn2ana scntool
+	install -d $(PREFIX)/bin
+	install -d $(PREFIX)/man
+	install -d $(PREFIX)/man/man1
+	install -d $(PREFIX)/man/man5
+	install dicom2scn  $(PREFIX)/bin
+	install ana2scn    $(PREFIX)/bin
+	install scn2ana    $(PREFIX)/bin
+	install scntool    $(PREFIX)/bin
+	gzip man/*.1 man/*.5
+	install man/dicom2scn.1.gz $(PREFIX)/man/man1
+	install man/scn2ana.1.gz $(PREFIX)/man/man1
+	install man/ana2scn.1.gz $(PREFIX)/man/man1
+	install man/scntool.1.gz $(PREFIX)/man/man1
+	install man/scn.5.gz $(PREFIX)/man/man5
+	gzip -d man/*.1.gz man/*.5.gz
+

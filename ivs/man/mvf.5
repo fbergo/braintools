@@ -1,0 +1,169 @@
+.TH MVF 5 "November 2003" IC-Unicamp "User Manuals"
+.SH NAME
+mvf \- multiple volume file format
+
+.SH DESCRIPTION
+
+MVF is a file format designed to contain several volumetric images of
+the same size, as well as generic data segments. MVF was designed to
+save the desktop and segmentation state in 
+.BR ivs (1).
+
+An MVF file can be seen as a collection of
+.IR segments .
+Each segment may be a volumetric image (like an intensity or label
+map) or a text segment.
+
+An MVF file contains at least an 88-byte main header at the start of
+the file. Any number of 104-byte segment headers may follow (the exact
+number is given in the main header). Actual segment data follow the
+last segment header.
+
+.SH NOTATION
+
+We will use the notation below to describe data encodings
+throughout this man page:
+
+.IP "IntString"
+A zero-terminated ASCII string with an integer number in decimal
+notation, as obtained with printf("%d",value). See 
+.BR printf (3).
+.IP "FloatString"
+A zero-terminated ASCII string with a floating point number
+in decimal notation, as obtained with %f, %.4f and similar
+printf formats.
+.IP "ASCIIZ"
+A zero-terminated ASCII string.
+
+.SH MAIN HEADER
+
+The main header is located at file offset 0, and is 88 bytes long,
+as below:
+
+.TS
+lB lB lB lB
+r r l l.
+Offset	Len	Encoding	Description
+_
+0	4	n/a	4-byte MVF format id, 'MVF\en'
+4	4	n/a	unused
+8	8	IntString	Volume width (W)
+16	8	IntString	Volume height (H)
+24	8	IntString	Volume depth (D)
+32	16	FloatString	Voxel dimension, X direction
+48	16	FloatString	Voxel dimension, Y direction
+64	16	FloatString	Voxel dimension, Z direction
+80	8	IntString	Segment Count
+_
+.TE
+
+The format id at file offset 0, in hexadecimal, is 4d 56 46 0a.  Notice
+that volume dimensions are given in this main header and must be the
+same for all volumes present in the MVF file.
+
+.SH SEGMENT HEADERS
+
+Starting at file offset 88, there are consecutive 104-byte segment
+headers. The number of headers (and segments) is determined by the
+value at offset 80 of the main header.
+
+Each segment header is organized as follows:
+
+.TS
+lB lB lB lB
+r r l l.
+Offset	Len   	Encoding	Description
+_
+X+0	32	ASCIIZ	Segment label (identifier)
+X+32	8	IntString	Segment Type
+X+40	32	IntString	Absolute file offset of data
+X+72	32	IntString	Data length, in bytes.
+_
+.TE
+
+Where X is 88+104*(n-1), for the n-th segment. The segment
+label must be unique within an MVF file. Segment type
+must be 0, 8 or 16:
+
+.IP "0" 
+Text (free-form) segment. The format and presentation
+of the data is application-dependent.
+.IP "8"
+8-bit volume data, with voxel intensities in the 0--255
+range. Data must be presented in the same format as
+the raw volume data section of an 8-bit SCN file (see 
+.BR scn (5)
+).
+
+.IP "16"
+16-but volume data, with voxel intensities in the -32768--32767
+range. Data must be presented in little-endian byte order, in the same
+format as the raw volume data section of a 16-bit SCN file (see
+.BR scn (5)
+).
+
+.SH SEGMENT DATA
+
+Segment data can appear anywhere on the file (except over the
+headers, of course), in any order. While it is common to
+start segment data contiguous to the last segment
+header, MVF readers should not assume it (reserving unused
+space after the last segment header may be useful to allow
+appending more segments later without transposing too much data
+around the file, for example).
+
+.SH IVS'S MVF DIALECT
+
+.BR ivs (1) 
+saves MVF files with the segments listed below:
+
+.IP "ORIG"
+Original volume data (segment type 16).
+.IP "VALUE"
+Current (preprocessed) volume data (segment type 16).
+.IP "COST"
+IFT cost map (segment type 16).
+.IP "LABEL"
+IFT label map (segment type 8).
+.IP "PRED"
+IFT adjacency map, indexed by the adjacency relation (segment type 8).
+.IP "ADJ"
+Adjacency relation, in a free-form segment (type 0), encoded as
+follows: a 16-byte IntString containing N, the number of
+neighbours, followed by N blocks of 40 bytes each. Each
+40-byte block contains 4 IntStrings: dx, dy, dz and dn. dx, dy and
+dz are written with 8 bytes each, dn is written with 16 bytes.
+A neighbour with (dx,dy,dz) = (-1,0,0) means that voxel (X-1,Y,Z) is
+adjacent to (X,Y,Z). dn is an offset used internally by ivs.
+The PRED volume is indexed by this adjacency list, with values
+between 0 and N-1. The first adjacency (index 0) is always
+a self-reference to the voxel (dx,dy,dz = 0,0,0).
+.IP "SEEDS"
+List of seeds marked when the scene was saved, in a free-form
+segment (type 0), encoded as follows: a 16-byte IntString containing
+N, the number of marked seeds, followed by N 24-byte blocks.
+Each 24-byte block contains a 16-byte IntString with the linear
+voxel address within the volume (x + W*y + W*H*z) and an 8-byte
+IntString with the label associated to the seed.
+.IP "MARKS"
+List of voxels marked for tree removal, in a free-form
+segment (type 0). The encoding is the same used in the SEEDS section
+(even though the label values for voxels in this list have no meaning).
+.IP "VIEW"
+This is an optional free-form segment (type 0) describing the viewing
+parameters (view angles, colors, light model, etc.). Segment
+data is encoded as a long sequence of IntStrings and FloatStrings
+that we are not going to cover in this man page, for the sake of
+brevity.
+
+.SH AUTHOR
+This manual page written by Felipe Bergo <bergo@liv.ic.unicamp.br>.
+Information about IVS and associated utilities can be found at
+
+.I http://www.liv.ic.unicamp.br/~bergo/ivs
+
+.SH "SEE ALSO"
+.BR printf (3), 
+.BR ascii  (7), 
+.BR scn    (5),
+.BR ivs    (1)

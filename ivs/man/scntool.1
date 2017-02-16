@@ -1,0 +1,166 @@
+.TH SCNTOOL 1 "November 2003" IC-Unicamp "User Manuals"
+.SH NAME
+scntool \- scn volume transformations
+
+.SH SYNOPSIS
+.TS
+l l.
+scntool	\fIinfile\fR [ \fB-v\fR ] [ \fB-o\fI outfile\fR ]
+	[ \fB-do\fR [ operation1 operation2 ... ] ]
+.TE
+
+.SH DESCRIPTION
+scntool performs transformations and conversions on SCN
+volume files. It also makes you read a long man page
+before you can do anything useful with it.
+
+.SH OPTIONS
+.IP "-do"
+indicates the start of the list of operations to be 
+performed on the volume.
+.IP "-o outfile"
+writes the conversion output to
+.I outfile
+instead of overwriting the input file
+.I infile
+.IP "-v"
+be verbose about the progress of the operations.
+
+.SH OPERATIONS
+All left, right, top, bottom, near and far references
+assume the user is looking to the XY slices, the
+ones with lesser Z coordinate being closer, X
+growing to the right, Y growing to the bottom:
+
+.nf
+                 _.
+  +-------+      /|  growth of Z (near to far)
+ /       /|     /    
++-------+ |    +------> growth of X (left to right)
+|       | |    |    
+|       | |    |    
+|       | +    v growth of Y (top to bottom)
+|       |/               
++-------+                
+.fi
+
+Operation names are case-sensitive, and all angles must be given
+in degrees.
+
+.IP "arotx angle"
+rotates the volume by an arbitrary angle around the X axis,
+rotation direction given by the right hand rule (see rotx).
+.IP "aroty angle"
+rotates the volume by an arbitrary angle around the Y axis,
+rotation direction given by the right hand rule (see rotx).
+.IP "arotz angle"
+rotates the volume by an arbitrary angle around the Z axis,
+rotation direction given by the right hand rule (see rotx).
+.IP "autocrop"
+crops the volume to the minimum box such that only zero-intensity
+voxels are lost.
+.IP "autopad"
+pads the volume, adding zero-intensity voxels around it, such
+that any rotation made with the arot{x,y,z} operators will
+keep all voxels within the scene.
+.IP "bpv { 8 | 16 }"
+changes the bits-per-voxel value of the volume. Valid values
+are 8 and 16. Changing a volume's bpv from 16 to 8 will not
+normalize voxel intensities, but rather threshold it to the
+0--255 range.
+.IP "cropx xmin xmax"
+crops (cuts) the volume, restricting it to the xmin--xmax
+range. You can provide negative values to indicate that you
+do not want to cut in that direction (e.g.: cropx 50 -1 will
+crop only on the left and not on the right).
+.IP "cropy ymin ymax"
+crops (cuts) the volume, restricting it to the ymin--ymax
+range. Negative values have the same meaning as in cropx.
+.IP "cropz zmin zmax"
+crops (cuts) the volume, restricting it to the zmin--zmax
+range. Negative values have the same meaning as in cropx.
+.IP "flipx"
+flips volume data on the X axis (left becomes right, and
+vice versa).
+.IP "flipy"
+flips volume data on the Y axis (top becomes bottom, and
+vice versa).
+.IP "flipz"
+flips volume data on the Z axis (near becomes far, and
+vice versa).
+.IP "info"
+prints information about the volume on the standard output.
+.IP "isoscale"
+applies a voxelsize operation to make the volume isotropic
+(dx = dy = dz). It uses the minimum among the current
+dx, dy and dz as the new dx, dy and dz.
+.IP "normalize min max"
+normalizes voxel intensities to the range min--max.
+.IP "quit"
+terminates scntool without applying the next
+filters nor writing the output volume.
+.IP "rotx angle"
+rotates the volume around the X axis by a multiple of 90 degrees. The
+angle parameter must be 90, 180 or 270 (you can provide 0, but it
+makes no sense). Rotation direction is given by the right hand
+rule (make your right thumb point in the growth direction of the
+axis you're rotating around, the other fingers give you the rotation
+direction). The rot{x,y,z} operators do not
+perform interpolation, and are more accurate than the arot{x,y,z}
+operators.
+.IP "roty angle"
+rotates the volume around the Y axis by a multiple of 90
+degrees. Rotation direction is given by the right hand rule (see rotx).
+.IP "rotz angle"
+rotates the volume around the Z axis by a multiple of 90
+degrees. Rotation direction is given by the right hand rule (see rotx).
+.IP "swap"
+swaps the byte order, possibly fixing a volume file that was
+written in big-endian order by accident. Applies to 16-bit
+volumes only.
+.IP "voxelscale sx sy sz"
+interpolates the scene changing the current voxel size from (dx,dy,dz)
+to (dx*sx, dy*sy, dz*sz). This is just an alternative way to provide
+the parameters to the voxelsize operation.
+.IP "voxelsize dx dy dz"
+interpolates (scales) the scene to the given voxel size. To keep
+the size unchanged in any direction, provide a negative value to
+its parameter.
+
+.SH EXAMPLES
+
+Flip heart.scn on the X axis, rotate it 180 degrees around the
+Z axis, make it 16-bpv  and write it to out.scn:
+
+.B scntool heart.scn -o out.scn -do flipx rotz 180 bpv 16
+
+Print information about heart.scn and quit without overwriting it:
+
+.B scntool heart.scn -do info quit
+
+Arbitrary rotations, padding the volume before and cropping it
+afterwards:
+
+.B scntool heart.scn -o out.scn -do autopad arotx 15 arotz 48 autocrop
+
+Make volume isotropic, 16-bit and normalized in the 0--4095 range:
+
+.B scntool heart.scn -do isoscale bpv 16 normalize 0 4095
+
+.SH DIAGNOSTICS
+scntool exits with status code zero if successful,
+or with a positive status code otherwise.
+
+.SH AUTHORS
+scntool was written by Felipe Bergo <bergo@liv.ic.unicamp.br>. Information
+about IVS and associated utilities can be found at
+
+.I http://www.liv.ic.unicamp.br/~bergo/ivs
+
+.SH "SEE ALSO"
+.BR ivs (1),
+.BR dicom2scn (1),
+.BR ana2scn (1),
+.BR scn2ana (1),
+.BR scn (5)
+

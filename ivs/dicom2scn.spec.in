@@ -1,0 +1,42 @@
+Summary: DICOM to SCN conversion tool.
+Name: dicom2scn
+Version: VERSION
+Release: 1
+URL: http://www.ic.unicamp.br/~afalcao
+Source0: dicom2scn-VERSION.tar.gz
+License: Freeware
+Group: Sciences/Other
+BuildRoot: %{_tmppath}/%{name}-root
+
+%description
+dicom2scn is the DICOM conversion tool developed at
+the Institute of Computing, Unicamp (Campinas, Brazil).
+It converts DICOM image files to Unicamp's SCN format.
+Beware that not all DICOM images may be readable, if
+you find a DICOM that dicom2scn cannot read, please
+contact bergo@seul.org.
+
+%prep
+%setup -q
+
+%build
+cd ivs ; ./configure ; cd ..
+make -C ivs dicom2scn
+
+%install
+rm -rf $RPM_BUILD_ROOT
+make DESTDIR=$RPM_BUILD_ROOT -C ivs rpminstall_dicom2scn
+
+%clean
+rm -rf $RPM_BUILD_ROOT
+
+%files
+%defattr(-,root,root)
+/usr/bin/dicom2scn
+/usr/man/man1/dicom2scn.1.gz
+/usr/man/man5/scn.5.gz
+
+%changelog
+* Wed Jul 14 2004 Felipe Bergo <bergo@seul.org>
+- Initial build.
+

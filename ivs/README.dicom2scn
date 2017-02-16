@@ -1,0 +1,30 @@
+
+dicom2scn and associated tools
+------------------------------
+
+dicom2scn version 2010.3 (december 2010)
+
+This package contains 4 tools for medical image conversion:
+
+dicom2scn - converts DICOM to SCN
+scntool   - implements geometric transformations on SCNs
+ana2scn   - converts Analyze to SCN
+scn2ana   - converts SCN to Analyze
+
+These tools are provided under the GNU General Public License. 
+The license is included in this package, in the COPYING file.
+
+To compile all tools, type:
+
+make
+
+To install the compiled tools to the /usr/local prefix, type (as root):
+
+make install
+
+Documentation for all tools is provided in man pages. The SCN format
+is documented in the scn(5) man page, also provided.
+
+These tools were written by Felipe P.G. Bergo (bergo -at- liv.ic.unicamp.br)
+The SCN format was created by Alexandre Falcao (afalcao -at- ic.unicamp.br)
+

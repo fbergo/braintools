@@ -1,0 +1,47 @@
+.TH ANA2SCN 1 "November 2003" IC-Unicamp "User Manuals"
+.SH NAME
+ana2scn \- medical image conversion
+
+.SH SYNOPSIS
+ana2scn [
+.BI "-o" " outfile"
+]
+.I "infile.hdr"
+
+.SH DESCRIPTION
+ana2scn converts medical images from the Analyze 7.5 format to the SCN
+volume format (used by tools like 
+.BR ivs (1)
+). Analyze data sets are composed by two files each, one with .hdr
+extension and another with .img extension. You must provide the .hdr
+file to ana2scn.
+
+.SH OPTIONS
+.IP "-o outfile"
+writes the conversion output to
+.I outfile
+instead of the default
+.I out.scn
+
+.SH EXAMPLE
+
+Convert (heart.hdr + heart.img) to heart.scn:
+
+.B ana2scn -o heart.scn heart.hdr
+
+.SH DIAGNOSTICS
+ana2scn exits with status code zero if successful,
+or with a positive status code otherwise.
+
+.SH AUTHORS
+ana2scn was written by Felipe Bergo <bergo@liv.ic.unicamp.br>. Information
+about IVS and associated utilities can be found at
+
+.I http://www.liv.ic.unicamp.br/~bergo/ivs
+
+.SH "SEE ALSO"
+.BR ivs (1),
+.BR dicom2scn (1),
+.BR scn2ana (1),
+.BR scntool (1),
+.BR scn (5)

@@ -1,0 +1,25 @@
+
+DONE
+
+-> Help.About
+-> Dx/Dy/Dz (except HDR)
+-> File.Info
+-> Volumetry
+-> Task Log
+-> IVS (MVF) format
+-> Directory refresh
+-> Right-Click Zoomed Info on Scene
+-> save view state to MVF
+-> rename all vlx_ to ivs_
+-> added key help
+-> added extension guide to file dialogs
+-> added file format help
+-> Dx/Dy/Dz (HDR)
+-> Interpolation (MINC)
+
+TODO
+
+
+FRILLS
+
+-> CDF/MINC internal support

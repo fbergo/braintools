@@ -1,0 +1,56 @@
+.TH SCN2ANA 1 "November 2003" IC-Unicamp "User Manuals"
+.SH NAME
+scn2ana \- medical image conversion
+
+.SH SYNOPSIS
+scn2ana [
+.BI "-o" " outfile.hdr"
+] [
+.BI "-max" " value"
+]
+.I "infile"
+
+.SH DESCRIPTION
+scn2ana converts medical images from the SCN volume format (used by
+tools like 
+.BR ivs (1)
+) to the Analyze 7.5 format. Analyze data sets are composed by two
+files each, one with .hdr extension and another with .img
+extension. You must provide the target .hdr file to scn2ana.
+
+.SH OPTIONS
+.IP "-o outfile.hdr"
+writes the conversion output to
+.I outfile
+instead of the default
+.I out.hdr
+.IP "-max value"
+sets the maximum intensity value in the analyze header. If not
+specified, the true maximum is calculated and used. Some applications
+always write 255 on this field, and many applications completely
+ignore the content of this field.
+
+.SH EXAMPLE
+
+Convert heart.scn to (heart.hdr + heart.img):
+
+.B scn2ana -o heart.hdr heart.scn
+
+.SH DIAGNOSTICS
+
+scn2ana exits with status code zero if successful,
+or with a positive status code otherwise.
+
+.SH AUTHORS
+scn2ana was written by Felipe Bergo <bergo@liv.ic.unicamp.br>. Information
+about IVS and associated utilities can be found at
+
+.I http://www.liv.ic.unicamp.br/~bergo/ivs
+
+.SH "SEE ALSO"
+.BR ivs (1),
+.BR dicom2scn (1),
+.BR ana2scn (1),
+.BR scntool (1),
+.BR scn (5)
+

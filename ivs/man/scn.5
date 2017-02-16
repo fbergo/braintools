@@ -1,0 +1,115 @@
+.TH SCN 5 "November 2003" IC-Unicamp "User Manuals"
+.SH NAME
+scn \- simple 3D image file format
+
+.SH DESCRIPTION
+
+SCN is a simple 3D grayscale image format. It does not allow
+unnecessary variations, making clean-slate implementations of SCN
+readers and writers pretty straightforward. The SCN file has an
+ASCII-formatted header followed by a raw image data dump.
+
+.SH ASCII HEADER
+
+The ASCII header must contain exactly 4 lines, in this
+order:
+.IP - 2
+Signature line with the string "SCN". (SCN must be the 3 first characters
+in the file).
+.IP - 2
+Volume dimensions, in voxels, written as 3 integer decimal numbers,
+separated by one or more spaces (ASCII 32) and/or tabs (ASCII 9).
+We will denote these three values by W, H and D (for width, height and
+depth).
+.IP - 2
+Voxel dimensions, in any unit (but usually millimeters), written
+as 3 floating-point decimal numbers, separated by one or more spaces
+(ASCII 32) and/or tabs (ASCII 9).
+.IP - 2
+Number of bits per voxel (BPV), written as an integer decimal number.
+This value must be a multiple of 8. Applications must support at
+least 8- and 16-bit images. Support for other BPV values is
+completely optional.
+
+Each of the 4 lines must be terminated by a LF character (ASCII 10).
+Support for the CR+LF sequence (ASCII 13 followed by ASCII 10), common
+in some grotesque operating systems, is optional. You can safely 
+reject SCN files with header lines ended with CR+LF. The LF character
+that terminates the 4th header line is the last character in the header
+section.
+
+W, H and D must be positive values representable by a signed
+32-bit integer, and thus are restricted to the 0--2147483647
+range. Header lines must contain no more than 255 characters each.
+
+.SH RAW VOLUME DATA
+
+Starting from the byte that immediately follows the LF that ended
+the 4th header line, SCN files contain W*H*D voxel intensity values.
+Samples are stored in order achieved by traversing the
+volume in positive X, Y and Z directions, respectively. That is, 
+a 10x5x3 volume would have samples stored in this order:
+
+(0,0,0), (1,0,0), ..., (9,0,0), (0,1,0), ..., (9,4,0), ..., 
+(0,0,1), ..., (9,4,2)
+
+The C code required to traverse the volume in the proper order is
+
+.nf
+for(k=0;k<D;k++)
+  for(j=0;j<H;j++)
+    for(i=0;i<W;i++)
+      output_sample(i,j,k);
+.fi
+
+Each sample occupies an integer number of bytes. For volumes with
+BPV=8, each byte represents one intensity as an unsigned integer in
+the 0--255 range. For volumes with BPV=16, each two bytes represent
+one intensity, as a signed or unsigned integer -32768--32767 or
+0--65535 ranges. Whether data should be interpreted as signed or
+unsigned is up to the application. Multi-byte data must always be
+stored in little-endian byte order (LSB first, MSB last), regardless
+of the host architecture's byte order.
+
+.SH EXAMPLE
+
+Example of SCN header section:
+
+.nf
+SCN
+256 256 16
+0.9766 0.9766 1.50
+16
+.fi
+
+Example hexadecimal dump of a small SCN volume file,
+for a 2x2x2 volume, voxel size 1.0x1.0x1.0, 16-bit samples
+and all voxels with the same intensity 512 (hex: 0200):
+
+.TS
+lB lB lB
+l l l.
+Position	Hexadecimal Dump	ASCII dump
+_
+00000	53 43 4E 10 32 20 32 20	S  C  N  \en 2     2   
+00008	32 10 31 2E 30 20 31 2E	2  \en 1  .  0     1  .
+00010	30 20 31 2E 30 10 31 36	0     1  .  0  \en 1  6
+00018	10 00 02 00 02 00 02 00	\en
+00020	02 00 02 00 02 00 02 00
+00028	02
+_
+.TE
+
+.SH AUTHOR
+This manual page written by Felipe Bergo <bergo@liv.ic.unicamp.br>.
+Information about IVS and associated utilities can be found at
+
+.I http://www.liv.ic.unicamp.br/~bergo/ivs
+
+.SH "SEE ALSO"
+.BR ascii   (7),
+.BR scntool (1),
+.BR ana2scn (1),
+.BR scn2ana (1),
+.BR dicom2scn (1),
+.BR ivs (1)
