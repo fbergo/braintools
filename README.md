@@ -5,8 +5,7 @@ the Institute of Computing and at the Neuroimaging Laboratory at Unicamp.
 They were originally developed at whatever Linux we used at the labs at the time, and
 have been updated to compile on updated and stricter environments (CentOS 6/7, Fedora 20-25).
 
-All software in this repostory is licensed under the GPL v2.
-Felipe Bergo, February 2017.
+All software in this repository is licensed under the GPL v2.
 
 ##Directories
 
