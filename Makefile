@@ -2,6 +2,7 @@
 SUBDIRS = libip ivs aftervoxel
 CP = /bin/cp -f
 RM = /bin/rm -f
+INSTALL = /usr/bin/install
 
 all: $(SUBDIRS) copybin
 
@@ -11,8 +12,9 @@ $(SUBDIRS):
 	$(MAKE) -C $@
 
 copybin:
-	$(CP) ivs/{ivs,dicom2scn,ana2scn,scn2ana,scntool,scncomp} bin
-	$(CP) aftervoxel/aftervoxel bin
+	$(INSTALL) -d bin
+	$(INSTALL) ivs/{ivs,dicom2scn,ana2scn,scn2ana,scntool,scncomp} bin
+	$(INSTALL) aftervoxel/aftervoxel bin
 
 clean:
 	for dir in $(SUBDIRS) ; do $(MAKE) -C $$dir clean ; done
