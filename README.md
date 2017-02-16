@@ -22,7 +22,7 @@ Felipe Bergo, February 2017.
  - **greg** (GUI, registration tool)
  - **braintag** (curvilinear reformatting as per [Bergo2006] and [Bergo2008] and automatic
    brain segmentation as per [Bergo2007])
-- **spinseseg**
+- **spineseg**
   Tool for measuring spinal cord atrophy in MRI (performs segmentation with automatic tree pruning [Bergo2007]). The
   tool has was described in [Bergo2012], and its usage is mentioned in [Chevis2013] and [Branco2013]
 
