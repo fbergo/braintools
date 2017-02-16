@@ -192,6 +192,7 @@ void *bgtask_main(void *data);
 
 void print_reg_summary();
 
+#pragma GCC diagnostic ignored "-Wwrite-strings"
 static GtkItemFactoryEntry gg_menu[] = {
   { "/_File",                    NULL, NULL, 0, "<Branch>" },
   { "/File/Load Volume _1...",     NULL, GTK_SIGNAL_FUNC(gg_load1),0,NULL},
@@ -1934,10 +1935,8 @@ gboolean gg_press(GtkWidget *w, GdkEventButton *e, gpointer data) {
 }
 
 gboolean gg_release(GtkWidget *w, GdkEventButton *e, gpointer data) {
-  int x,y,b;
+  int b;
 
-  x = (int) e->x;
-  y = (int) e->y;
   b = (int) e->button;
   
   if (b==3 && zs[0]) { zs[0]=0; redraw(canvas); return TRUE; }
@@ -2451,16 +2450,8 @@ void rot_cancel(GtkWidget *w, gpointer data) {
 
 void gg_rot(GtkWidget *w, gpointer data) {
   GtkWidget *ad,*vb,*hb,*l[3],*h[3],*ok,*cancel;
-  GdkPixmap *icon;
-  GdkBitmap *mask;
-  GtkStyle *style;
 
   if (vol1 == NULL || vol2 == NULL) return;
-
-  style=gtk_widget_get_style(mw);
-  icon = gdk_pixmap_create_from_xpm_d (mw->window, &mask,
-				       &style->bg[GTK_STATE_NORMAL],
-				       (gchar **) greg_xpm);
 
   ad = gtk_window_new(GTK_WINDOW_TOPLEVEL);
   gtk_window_set_title(GTK_WINDOW(ad),"Change Orientation");
@@ -2468,6 +2459,7 @@ void gg_rot(GtkWidget *w, gpointer data) {
   gtk_window_set_transient_for(GTK_WINDOW(ad),GTK_WINDOW(mw));
   gtk_container_set_border_width(GTK_CONTAINER(ad),6);
   gtk_widget_realize(ad);
+  set_icon(GTK_WIDGET(ad), greg_xpm, "GREG");
 
   l[0] = gtk_label_new("Image to modify:");
   l[1] = gtk_label_new("Current orientation:");
