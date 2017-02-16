@@ -1,8 +1,9 @@
 /*
 
     SpineSeg
-    http://www.liv.ic.unicamp.br/~bergo/spineseg
-    Copyright (C) 2009-2011 Felipe Paulo Guazzi Bergo
+    http://www.lni.hc.unicamp.br/app/spineseg
+    https://github.com/fbergo/braintools
+    Copyright (C) 2009-2017 Felipe P.G. Bergo
     fbergo/at/gmail/dot/com
 
     This program is free software; you can redistribute it and/or modify
