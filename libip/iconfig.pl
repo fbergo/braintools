@@ -368,9 +368,9 @@ for (@ARGV) {
 set_flush;
 check_platform;
 
-if ($prop{'arch'} eq 'x86') {
-    check_nasm;
-}
+#if ($prop{'arch'} eq 'x86') {
+#    check_nasm;
+#}
 
 #if ($prop{'arch'} eq 'amd64') {
 #    check_yasm;

@@ -1,7 +1,7 @@
 /*
 
    LIBIP - Image Processing Library
-   (C) 2002-2013
+   (C) 2002-2017
    
    Felipe P.G. Bergo <fbergo at gmail dot com>
    Alexandre X. Falcao <afalcao at ic dot unicamp dot br>
@@ -198,7 +198,7 @@ void CImgDrawLine(CImg *z, int x1, int y1, int x2, int y2, int color)
   int x, y;
   int dy = y2 - y1;
   int dx = x2 - x1;
-  int G, DeltaG1, DeltaG2, minG, maxG;	
+  int G, DeltaG1, DeltaG2;	
   int swap;
   int inc = 1;
 
@@ -273,7 +273,6 @@ void CImgDrawLine(CImg *z, int x1, int y1, int x2, int y2, int color)
     y = y1 + 1;
       
     G = 2 * dx - dy;
-    minG = maxG = G;
     DeltaG1 = 2 * (dx - dy);
     DeltaG2 = 2 * dx;
       
@@ -1364,7 +1363,7 @@ LossyImg * EncodeLossy(CImg *src) {
 
 RLEImg * EncodeRLE(CImg *src) {
   RLEImg *rle;
-  int i,j,k,x, N, mr;
+  int i,k,x, N, mr;
   int rl = 0;
   int sz = 4096;
 
@@ -1386,7 +1385,6 @@ RLEImg * EncodeRLE(CImg *src) {
   dv = rle->data;
 
   N = src->W * src->H;
-  j = 0; /* position in the rle stream */
 
   for(i=0;i<N;) {
 
@@ -1590,7 +1588,7 @@ void  FontDestroy(Font *f) {
 }
 
 CImg *CImgFastScale(CImg *src, float factor) {
-  int i,j,nw,nh,nm,ow,oh;
+  int i,j,nw,nh,nm,ow;
   int *lu;
   CImg *dest;
   component *d,*s;
@@ -1600,7 +1598,6 @@ CImg *CImgFastScale(CImg *src, float factor) {
   nw = (int) ((float)(src->W) * factor);
   nh = (int) ((float)(src->H) * factor);
   ow = src->W;
-  oh = src->H;
 
   if (nw<=0 || nh<=0) return 0;
 

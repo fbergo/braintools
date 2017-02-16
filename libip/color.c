@@ -1,7 +1,7 @@
 /*
 
    LIBIP - Image Processing Library
-   (C) 2002-2013
+   (C) 2002-2017
    
    Felipe P.G. Bergo <fbergo at gmail dot com>
    Alexandre X. Falcao <afalcao at ic dot unicamp dot br>
@@ -271,11 +271,10 @@ int mergeColorsRGB(int a,int b,float ratio) {
 */
 int          mergeColorsYCbCr(int a,int b,float ratio) {
   float c[6];
-  int ya,yb;
+  int ya;
   int r[3];
 
   ya=RGB2YCbCr(a);
-  yb=RGB2YCbCr(b);
 
   c[0] = (float) (a >> 16);
   c[1] = (float) (0xff & (a >> 8));

@@ -1,7 +1,7 @@
 /*
 
    LIBIP - Image Processing Library
-   (C) 2002-2013
+   (C) 2002-2017
    
    Felipe P.G. Bergo <fbergo at gmail dot com>
    Alexandre X. Falcao <afalcao at ic dot unicamp dot br>
@@ -406,11 +406,10 @@ void least_squares(i16_t *varx, i16_t *vary, int n, float *a, float *b) {
 /* force B=0 */
 void  pseudo_least_squares(i16_t *varx, i16_t *vary, int n, float *a, float *b)
 {
-  int i,c;
+  int i;
   float s,t,w;
 
   t = 0.0;
-  c = 0;
   w = 0.0;
   for(i=0;i<n;i++) {
     if (varx[i] > 0) {
