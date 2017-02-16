@@ -348,7 +348,7 @@ void georuler_add() {
 }
 
 void georuler_set_point(int x,int y,int append) {
-  int w,h,p,wh,W,H,D,WH;
+  int w,h,p,wh,W,H,WH;
   int *rmap;
   Volume *vol;
 
@@ -360,7 +360,6 @@ void georuler_set_point(int x,int y,int append) {
   vol = voldata.original;
   W = vol->W;
   H = vol->H;
-  D = vol->D;
   WH = W*H;
 
   w = v3d.skin.out->W;

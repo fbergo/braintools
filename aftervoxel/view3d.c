@@ -437,7 +437,7 @@ void view3d_compose(int w,int h,int bg) {
 
 void view3d_draw_scaled_measures(CImg *dest, Transform *rot, float zoom) {
   int i,mc;
-  int W,H,D,WH,W2,H2,D2,w,h,w2,h2,px,py,qx,qy,rx,ry;
+  int W,H,D,W2,H2,D2,w,h,w2,h2,px,py,qx,qy,rx,ry;
   Distance *dt;
   Angle *at;
   Point A,B,C,A1,B1,C1,A0,B0,C0;
@@ -452,7 +452,6 @@ void view3d_draw_scaled_measures(CImg *dest, Transform *rot, float zoom) {
   W = vol->W;
   H = vol->H;
   D = vol->D;
-  WH = W*H;
   W2 = W/2;
   H2 = H/2;
   D2 = D/2;

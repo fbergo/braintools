@@ -396,7 +396,7 @@ void ori_rot(GtkWidget *w,gpointer data) {
 
 void orient_dialog() {
   GtkWidget *v,*hb,*t,*ok,*cancel;
-  GtkWidget *h[3],*f1[3],*f2[3],*r[3],*l,*pl,*imf1,*imf2,*imr,*lf,*lh;
+  GtkWidget *h[3],*f1[3],*f2[3],*r[3],*pl,*imf1,*imf2,*imr,*lf,*lh;
   GtkTooltips *tt;
   GtkWidget *vo,*voh;
   int i;
@@ -474,7 +474,7 @@ void orient_dialog() {
   ori.b[7] = f2[2];
   ori.b[8] = r[2];
 
-  l = gtk_label_new("View:");
+  //l = gtk_label_new("View:");
   ori.mo = dropbox_new(";Saggittal;Coronal;Axial;No Info"); // HERE
   gtk_box_pack_start(GTK_BOX(h[0]),ori.mo->widget,FALSE,TRUE,4);
   dropbox_set_selection(ori.mo,MIN(3,orient.main));

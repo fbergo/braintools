@@ -1101,12 +1101,11 @@ void di_pdestroy(GtkWidget *w, gpointer data) {
 }
 
 gboolean di_pclick1(GtkWidget *w, GdkEventButton *eb, gpointer data) {
-  int ctrl,shift,b,x,y;
+  int ctrl,shift,x,y;
   int i,j,k,f,l;
 
   x = (int) (eb->x);
   y = (int) (eb->y);
-  b = eb->button;
   ctrl  = ((eb->state & GDK_CONTROL_MASK) != 0);
   shift = ((eb->state & GDK_SHIFT_MASK) != 0);
 
