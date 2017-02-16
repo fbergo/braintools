@@ -1,0 +1,42 @@
+.TH SPINESEG 1 "February 2011" "spineseg 2.0" "User Manuals"
+.SH NAME
+spineseg \- Spinal cord segmentation
+
+.SH SYNOPSIS
+spineseg [ \fB-debug\fR ] [ \fB-r\fI value\fR ] [ \fB-g\fI value ] [ \fB-c\fR ]
+
+spineseg [ \fB-h\fR | \fB--help\fR ]
+
+.SH DESCRIPTION
+SpineSeg is an interactive spinal cord segmentation tool developed
+at the Neuroimaging Laboratory at the School of Medical Sciences,
+Unicamp. It displays MR images and segments the spinal cord in
+transversal slices using automatic tree pruning segmentation.
+A usage guide is available from the website listed on the
+bottom of this manual page. 
+
+.SH OPTIONS
+.IP "-debug"
+enables debugging actions, such as saving intermediate segmentation
+states to the current directory.
+.IP "-r value"
+overrides the axial interpolation resolution (given in millimeters).
+If not given, the default resolution of 0.50 mm is used.
+.IP "-g value"
+overrides the morphological gradient radius (given in pixels), 
+used as a preprocessing step for the tree pruning algorithm. 
+If not given, the default radius of 1.0 is used.
+.IP "-c"
+enables compositing each axial slice as an average of the 3 nearest slices,
+effectively multiplying the slice thickness by a factor of 3.
+.IP  "-h, --help"
+displays a brief summary of command line options and exit.
+
+.SH AUTHORS
+IVS was written by Felipe Bergo <felipe@bergo.eng.br>.
+Information about SpineSeg and associated utilities can be found at
+
+.I http://www.liv.ic.unicamp.br/~bergo/spineseg
+
+.SH "SEE ALSO"
+.BR scn (5)

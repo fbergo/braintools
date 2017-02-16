@@ -1,0 +1,27 @@
+
+SpineSeg
+version 2.0 (June 2011)
+
+SpineSeg is a medical analysis tool for semi-automatic segmentation of 
+the spinal cord from magnetic resonance images, developed by
+Felipe Bergo at the Dept. of Neurology, UNICAMP, Brazil.
+
+Usage directions can be found in the PDF guide available at
+
+http://www.liv.ic.unicamp.br/~bergo/spineseg
+
+To compile SpineSeg you will need:
+
+* The GCC compiler.
+* The GTK+ 2.4.x libraries, or any later compatible version.
+* The bzip2 library.
+
+To compile, use
+
+./configure
+make
+
+To install, do
+
+make install (as root)
+
