@@ -2542,7 +2542,7 @@ void gg_about(GtkWidget *w, gpointer data) {
 
   vb = gtk_vbox_new(FALSE,4);
   hb = gtk_hbox_new(FALSE,0);
-  snprintf(z,1024,"GREG version %s\n(C) 2009-2012 Felipe Bergo\n<bergo@liv.ic.unicamp.br>\n\nProgram settings:\n\tUse up to %d CPUs\n\tLogging %s\n\nFor research use only.",
+  snprintf(z,1024,"GREG version %s\n(C) 2009-2012 Felipe Bergo\n<fbergo\x40gmail.com>\n\nProgram settings:\n\tUse up to %d CPUs\n\tLogging %s\n\nThis is free software and comes with no warranty.",
 	   VERSION,ncpus,logging?"enabled":"disabled");
 
   l = gtk_label_new(z);
