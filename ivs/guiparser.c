@@ -134,7 +134,7 @@ GtkWidget * guip_create(const char *desc) {
 }
 
 GtkWidget * guip_create_recursive(const char *desc) {
-  GtkWidget *parent, *child=0;
+  GtkWidget *child=0;
   int  hasname = 0;
   char token[64],name[64],klass[64];
   int  k;
@@ -142,12 +142,6 @@ GtkWidget * guip_create_recursive(const char *desc) {
   static char *p;
 
   //  printf("gc_rec called on [%s]\n\n",desc);
-
-  if (stacktop == -1) {
-    parent = 0;
-  } else {
-    parent = stack[stacktop];
-  }
 
   p = (char *) desc;
   p = eat_alpha_token(p, token);

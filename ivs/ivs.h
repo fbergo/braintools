@@ -144,6 +144,11 @@ void ivs_tog(GtkToggleButton *tog, gpointer data);
 
 /* 
 
+   2017 update: only mode is "public", which is the GPL version on github. I'll
+   eventually clean up this mess.
+
+   * * *
+ 
    IVS now (1.11) can be compiled in 3 different modes, chosen
    by the configure command.
 
@@ -311,7 +316,7 @@ void ivs_tog(GtkToggleButton *tog, gpointer data);
 // building for development, enable everything
 // and the kitchen sink
 
-#define IVS_TAG "unrestricted"
+#define IVS_TAG "public"
 
 #define SEG_OPERATORS ";DIFT/watershed;IFT+/watershed (unreliable);DIFT/fuzzy;DIFT/strict fuzzy;DIFT/DMT;DIFT/lazyshed L1;DIFT/discshed(4-2-1);IFT/Kappaconn"
 
@@ -362,7 +367,7 @@ void ivs_tog(GtkToggleButton *tog, gpointer data);
 #define VM_TRANS  4
 #define VM_PATHS  5
 
-#define TERMS_OF_USE lic_unicamp
+#define TERMS_OF_USE lic_gpl
 
 #endif
 

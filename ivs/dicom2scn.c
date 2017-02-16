@@ -1,7 +1,7 @@
 /* 
 
    dicom2scn
-   Felipe Bergo - bergo@liv.ic.unicamp.br - 2002-2012
+   Felipe Bergo - fbergo at gmail dot com - 2002-2017
 
    limitations (mostly hardcoded defaults, easy to change on
                 source-code level):
@@ -736,7 +736,7 @@ int DicomVolumeConvert(char *inputsample, char *outputscn, int report) {
   FILE *rf=NULL;
   FILE *f;
   int j,k,minval, maxval, om;
-  int fixneg=0, fixrange=0;
+  int fixrange=0;
 
   if (report)
     rf = fopen("dicom.txt", "w");
@@ -763,7 +763,6 @@ int DicomVolumeConvert(char *inputsample, char *outputscn, int report) {
 
   if (negfixmode==2 && minval<0) {
     om = 0;
-    fixneg = 1;
     k = vol->W * vol->H * vol->D;
     for(j=0;j<k;j++)
       vol->data[j] += -minval;
@@ -774,7 +773,6 @@ int DicomVolumeConvert(char *inputsample, char *outputscn, int report) {
   }
   if (negfixmode==1 && minval<0) {
     minval = 0;
-    fixneg = 1;
     k = vol->W * vol->H * vol->D;
     for(j=0;j<k;j++)
       if (vol->data[j] < 0) vol->data[j] = 0;
@@ -823,7 +821,7 @@ void DicomDirectoryConvert(char *inputsample, char *outputscn,
   FILE *f;
   FILE *rf=0;
   int minval, maxval, om;
-  int fixneg=0, fixrange=0;
+  int fixrange=0;
 
   if (report)
     rf = fopen("dicom.txt", "w");
@@ -971,8 +969,6 @@ void DicomDirectoryConvert(char *inputsample, char *outputscn,
 
   if (negfixmode==2 && minval<0) {
     om = 0;
-    fixneg = 1;
-   
     for(i=0;i<nfiles;i++) {
       k = vol[i]->W * vol[i]->H *vol[i]->D;
       for(j=0;j<k;j++)
@@ -986,7 +982,6 @@ void DicomDirectoryConvert(char *inputsample, char *outputscn,
 
   if (negfixmode==1 && minval<0) {
     minval = 0;
-    fixneg = 1;
     for(i=0;i<nfiles;i++) {
       k = vol[i]->W * vol[i]->H *vol[i]->D;
       for(j=0;j<k;j++)
@@ -1549,7 +1544,7 @@ int main(int argc, char **argv) {
 
   argv_prog = argv[0];
 
-  printf("dicom2scn - version %s - (c) 2002-2012 Felipe Bergo - fbergo@gmail.com\n",VERSION);
+  printf("dicom2scn - version %s - (c) 2002-2017 Felipe Bergo - fbergo%cgmail.com\n",VERSION,'@');
 
   for(i=1;i<argc;i++) {
     if (strcmp(argv[i], "-lex")==0) {

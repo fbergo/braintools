@@ -1,20 +1,15 @@
 /* -----------------------------------------------------
 
    IVS - Interactive Volume Segmentation
-   (C) 2002-2010
+   (C) 2002-2017
    
-   Felipe Paulo Guazzi Bergo 
-   <fbergo@gmail.com>
+   Felipe P. G. Bergo 
+   fbergo at gmail.com
 
    and
    
-   Alexandre Xavier Falcao
-   <afalcao@ic.unicamp.br>
-
-   Distribution, trade, publication or bulk reproduction
-   of this source code or any derivative works are
-   strictly forbidden. Source code is provided to allow
-   compilation on different architectures.
+   Alexandre X. Falcao
+   afalcao at ic.unicamp.br
 
    ----------------------------------------------------- */
 

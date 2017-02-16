@@ -1,20 +1,15 @@
 /* -----------------------------------------------------
 
    IVS - Interactive Volume Segmentation
-   (C) 2002-2010
+   (C) 2002-2017
    
-   Felipe Paulo Guazzi Bergo 
-   <fbergo@gmail.com>
+   Felipe P. G. Bergo 
+   fbergo at gmail.com
 
    and
    
-   Alexandre Xavier Falcao
-   <afalcao@ic.unicamp.br>
-
-   Distribution, trade, publication or bulk reproduction
-   of this source code or any derivative works are
-   strictly forbidden. Source code is provided to allow
-   compilation on different architectures.
+   Alexandre X. Falcao
+   afalcao at ic.unicamp.br
 
    ----------------------------------------------------- */
 
@@ -907,7 +902,7 @@ gboolean vmapctl_expose(GtkWidget *widget,GdkEventExpose *ee,
   ViewMapCtl *me = (ViewMapCtl *) data;
   GtkStyle *style;
   int w,h;
-  int i, j, l, x, x0, x1, y0, y1;
+  int i, j, l, x, x0, y1;
   GdkPoint t[3];
   PangoRectangle pri, prl;
 
@@ -922,9 +917,7 @@ gboolean vmapctl_expose(GtkWidget *widget,GdkEventExpose *ee,
   pango_layout_set_text(me->pl, "X", -1);
   pango_layout_get_pixel_extents(me->pl, &pri, &prl);
   x0 = prl.width;
-  y0 = prl.height;
   x0 = x0 + x0/2;
-  x1 = w-x0;
 
   gc_color(me->gc, 0);
   gdk_draw_rectangle(me->pb, me->gc, TRUE, 0, 0, w, h);
@@ -1230,7 +1223,7 @@ gboolean vslide_expose(GtkWidget *widget,GdkEventExpose *ee,
   VSlide *me = (VSlide *) data;
   GtkStyle *style;
   int w,h;
-  int i, l, x, x0, x1, y0, y1;
+  int i, l, x, x0, y1;
   GdkPoint t[3];
   PangoRectangle pri, prl;
 
@@ -1245,9 +1238,7 @@ gboolean vslide_expose(GtkWidget *widget,GdkEventExpose *ee,
   pango_layout_set_text(me->pl, "X", -1);
   pango_layout_get_pixel_extents(me->pl, &pri, &prl);
   x0 = prl.width;
-  y0 = prl.height;
   x0 = x0 + x0/2;
-  x1 = w-x0;
 
   gc_color(me->gc, 0);
   gdk_draw_rectangle(me->pb, me->gc, TRUE, 0, 0, w, h);
@@ -1794,7 +1785,7 @@ gboolean rcurve_expose(GtkWidget *widget,GdkEventExpose *ee,
   float yamp, xamp;
   float fw,fh;
   PangoRectangle pri, prl;
-  int ch,cw;
+  int cw;
   char z[64];
 
   gdk_window_get_size(widget->window, &w, &h);
@@ -1864,7 +1855,6 @@ gboolean rcurve_expose(GtkWidget *widget,GdkEventExpose *ee,
 
   pango_layout_set_text(r->pl, "0123456789", -1);
   pango_layout_get_pixel_extents(r->pl, &pri, &prl);
-  ch = prl.height;
 
   sprintf(z,"%d",r->ymax);
   pango_layout_set_text(r->pl, z, -1);

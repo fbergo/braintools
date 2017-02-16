@@ -1,9 +1,9 @@
 
 /* 
-   scntool - (C) 2003 Felipe Bergo <fbergo@gmail.com>
+   scntool - (C) 2003 Felipe Bergo fbergo at gmail.com
    manual available in man/scntool.1 
 
-   (C) 2003-2010 Felipe P.G. Bergo <bergo@liv.ic.unicamp.br>
+   (C) 2003-2017 Felipe P.G. Bergo fbergo at gmail dot com
 
    This program is free software; you can redistribute it and/or modify
    it under the terms of the GNU General Public License as published by
@@ -661,7 +661,7 @@ void oper_info() {
 void oper_normalize(int nmin, int nmax) {
   SCN *P = scene;
   int i, j, cmin, cmax, dn, dc;
-  float x,y,z, fcmin, fnmin;
+  float x,z, fcmin, fnmin;
 
   if (!P) fatal();
 
@@ -672,7 +672,6 @@ void oper_normalize(int nmin, int nmax) {
   dc = cmax - cmin;
   if (dc == 0) dc = 1;
   x = ((float)(dn)) / ((float)(dc));
-  y = (float) (nmin - cmin);
   fnmin = (float) nmin;
   fcmin = (float) cmin;
 

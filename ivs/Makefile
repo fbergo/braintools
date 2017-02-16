@@ -22,7 +22,7 @@ GFLAGS   = -Wall -O3 -fno-strict-aliasing -DVERSION=\"$(IVSVER)\"
 CFLAGS   = $(GFLAGS) $(GTKFLAGS) $(IPFLAGS)
 
 GTKLIB   = `pkg-config --libs gtk+-2.0`
-IPLIB    = -L../libip -lip -lpthread -lz
+IPLIB    = -L../libip -lip -lpthread -lz -lm
 LIBS     = $(GTKLIB) $(IPLIB)
 
 # thread semaphores on solaris

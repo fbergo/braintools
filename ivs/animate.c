@@ -1,20 +1,15 @@
 /* -----------------------------------------------------
 
    IVS - Interactive Volume Segmentation
-   (C) 2002-2010
+   (C) 2002-2017
    
-   Felipe Paulo Guazzi Bergo 
-   <fbergo@gmail.com>
+   Felipe P. G. Bergo 
+   fbergo at gmail dot com
 
    and
    
-   Alexandre Xavier Falcao
-   <afalcao@ic.unicamp.br>
-
-   Distribution, trade, publication or bulk reproduction
-   of this source code or any derivative works are
-   strictly forbidden. Source code is provided to allow
-   compilation on different architectures.
+   Alexandre X. Falcao
+   afalcao at ic.unicamp.br 
 
    ----------------------------------------------------- */
 
@@ -357,14 +352,13 @@ anim_expose(GtkWidget *widget,GdkEventExpose *ee,
   CImg *decode;
   int ready, current;
   int inframe = -1;
-  int W,H,D;
+  int W,H;
 
   double eta;
   int min, sec;
 
   W = Anim.scn->avol->W;
   H = Anim.scn->avol->H;
-  D = Anim.scn->avol->D;
   
   gdk_window_get_size(widget->window, &ww, &wh);
 

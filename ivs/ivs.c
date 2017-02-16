@@ -1,20 +1,15 @@
 /* -----------------------------------------------------
 
    IVS - Interactive Volume Segmentation
-   (C) 2002-2010
+   (C) 2002-2017
    
-   Felipe Paulo Guazzi Bergo 
-   <fbergo@gmail.com>
+   Felipe P. G. Bergo 
+   fbergo at gmail.com
 
    and
    
-   Alexandre Xavier Falcao
-   <afalcao@ic.unicamp.br>
-
-   Distribution, trade, publication or bulk reproduction
-   of this source code or any derivative works are
-   strictly forbidden. Source code is provided to allow
-   compilation on different architectures.
+   Alexandre X. Falcao
+   afalcao at ic.unicamp.br
 
    ----------------------------------------------------- */
 
@@ -120,6 +115,8 @@ fob FuzzyPars = { 2,
 
 int FirstFuzzyDone = 0;		  
 int fuzzyvariant = 0; // 0=normal, 1=strict
+
+static int static_ints[16] = { 0,1,2,3,4,5,6,7,8,9,10,11,12,13,14,15};
 
 /* menu callbacks */
 
@@ -1006,17 +1003,17 @@ void ivs_create_gui() {
                      GTK_SIGNAL_FUNC(ivs_view_drag), 0);
 
   gtk_signal_connect(GTK_OBJECT(tmp[36]),"clicked",
-                     GTK_SIGNAL_FUNC(ivs_rot_preset), (gpointer) 0);
+                     GTK_SIGNAL_FUNC(ivs_rot_preset), (gpointer) &static_ints[0]);
   gtk_signal_connect(GTK_OBJECT(tmp[37]),"clicked",
-                     GTK_SIGNAL_FUNC(ivs_rot_preset), (gpointer) 1);
+                     GTK_SIGNAL_FUNC(ivs_rot_preset), (gpointer) &static_ints[1]);
   gtk_signal_connect(GTK_OBJECT(tmp[38]),"clicked",
-                     GTK_SIGNAL_FUNC(ivs_rot_preset), (gpointer) 2);
+                     GTK_SIGNAL_FUNC(ivs_rot_preset), (gpointer) &static_ints[2]);
   gtk_signal_connect(GTK_OBJECT(tmp[39]),"clicked",
                      GTK_SIGNAL_FUNC(ivs_clip_preset), (gpointer) 0);
 
   for(i=0;i<NTOOLS;i++)
     gtk_signal_connect(GTK_OBJECT(pane.tools[i]),"toggled",
-		       GTK_SIGNAL_FUNC(ivs_tool), (gpointer) i);
+		       GTK_SIGNAL_FUNC(ivs_tool), (gpointer) &static_ints[i]);
 
   gtk_signal_connect(GTK_OBJECT(pane.rot.preview),"expose_event",
                      GTK_SIGNAL_FUNC(ivs_rot_expose), 0);
@@ -1053,22 +1050,22 @@ void ivs_create_gui() {
 		     GTK_SIGNAL_FUNC(ivs_rot), 0);
 
   gtk_signal_connect(GTK_OBJECT(tmp[52]),"clicked",
-                     GTK_SIGNAL_FUNC(ivs_light_preset), (gpointer) 0);
+                     GTK_SIGNAL_FUNC(ivs_light_preset), (gpointer) &static_ints[0]);
   gtk_signal_connect(GTK_OBJECT(tmp[53]),"clicked",
-                     GTK_SIGNAL_FUNC(ivs_light_preset), (gpointer) 1);
+                     GTK_SIGNAL_FUNC(ivs_light_preset), (gpointer) &static_ints[1]);
   gtk_signal_connect(GTK_OBJECT(tmp[54]),"clicked",
-                     GTK_SIGNAL_FUNC(ivs_light_preset), (gpointer) 2);
+                     GTK_SIGNAL_FUNC(ivs_light_preset), (gpointer) &static_ints[2]);
 
   gtk_signal_connect(GTK_OBJECT(tmp[58]),"clicked",
-                     GTK_SIGNAL_FUNC(ivs_color_preset), (gpointer) 0);
+                     GTK_SIGNAL_FUNC(ivs_color_preset), (gpointer) &static_ints[0]);
   gtk_signal_connect(GTK_OBJECT(tmp[59]),"clicked",
-                     GTK_SIGNAL_FUNC(ivs_color_preset), (gpointer) 1);
+                     GTK_SIGNAL_FUNC(ivs_color_preset), (gpointer) &static_ints[1]);
   gtk_signal_connect(GTK_OBJECT(tmp[60]),"clicked",
-                     GTK_SIGNAL_FUNC(ivs_color_preset), (gpointer) 2);
+                     GTK_SIGNAL_FUNC(ivs_color_preset), (gpointer) &static_ints[2]);
   gtk_signal_connect(GTK_OBJECT(tmp[61]),"clicked",
-                     GTK_SIGNAL_FUNC(ivs_color_preset), (gpointer) 3);
+                     GTK_SIGNAL_FUNC(ivs_color_preset), (gpointer) &static_ints[3]);
   gtk_signal_connect(GTK_OBJECT(tmp[71]),"clicked",
-                     GTK_SIGNAL_FUNC(ivs_color_preset), (gpointer) 4);
+                     GTK_SIGNAL_FUNC(ivs_color_preset), (gpointer) &static_ints[4]);
 
   gtk_signal_connect(GTK_OBJECT(tmp[33]),"clicked",
                      GTK_SIGNAL_FUNC(ivs_clear_addseeds), (gpointer) 0);
@@ -1640,7 +1637,7 @@ ivs_unmark_trees(GtkWidget *w, gpointer data) {
 
 void
 ivs_light_preset(GtkWidget *w, gpointer data) {
-  int i = (int) data;
+  int i = *((int *) data);
   PhongParameters *p;
 
   p = &(pane.light.ps->options.phong);
@@ -1680,7 +1677,7 @@ ivs_light_preset(GtkWidget *w, gpointer data) {
 
 void
 ivs_color_preset(GtkWidget *w, gpointer data) {
-  int i = (int) data;
+  int i = *((int *) data);
   int j;
 
   switch(i) {
@@ -1705,7 +1702,7 @@ ivs_color_preset(GtkWidget *w, gpointer data) {
 
 void
 ivs_rot_preset(GtkWidget *w, gpointer data) {
-  int i = (int) data;
+  int i = *((int *) data);
 
   switch(i) {
   case 0: VectorAssign(&(scene->rotation),   0.0,  0.0, 0.0); break;
@@ -2297,8 +2294,8 @@ gboolean ivs_view_press(GtkWidget *widget, GdkEventButton *eb, gpointer data)
 // MOUSE ACTION (RELEASE)
 gboolean ivs_view_release(GtkWidget *widget,GdkEventButton *eb,gpointer data) 
 {
-  int x,y,b;
-  x = (int) eb->x; y = (int) eb->y; b = eb->button;
+  int b;
+  b = eb->button;
 
   // LEFT mouse button
   if (b==1) {
@@ -2447,7 +2444,7 @@ gboolean ivs_ball_expose(GtkWidget *widget,GdkEventExpose *ee,gpointer data) {
 }
 
 void ivs_tool(GtkToggleButton *w, gpointer data) {
-  int n = (int) data;
+  int n = *((int *) data);
   int i,ia;
 
   ia=gtk_toggle_button_get_active(w);
@@ -2518,7 +2515,7 @@ void compose_vista_2D_overlay() {
   float vtx, vty, vtz, ptx, pty;
   Transform b,c,d;
   Point p,q;
-  int i,j,k,rx,ry,ps,hisz;
+  int i,j,k,rx,ry,hisz;
   int W,H,D,iw,ih;
   int bounds[4];
   char *hitmap;
@@ -2565,8 +2562,6 @@ void compose_vista_2D_overlay() {
   bounds[0] = bounds[1] = 0;
   bounds[2] = iw-1;
   bounds[3] = ih-1;
-
-  ps = ScenePixel(scene);
 
   hitmap = (char *) malloc(iw*ih*sizeof(char));
   if (!hitmap) {
@@ -2689,16 +2684,13 @@ void compose_vista_2D_overlay() {
 }
 
 void draw_vista_2D() {
-  int x,y,bx,by,a,b,ch;
+  int bx,by,a,b,ch;
   GdkRectangle r;
   
   if (!scene->avol) return;
   if (!canvas.fourview) return;
 
   ch = superSat(scene->colors.bg);
-
-  x = canvas.SW; y = canvas.SH;
-
 
   if (canvas.flat[0]) {
     r.x = 0;
@@ -4191,6 +4183,8 @@ static char *lic_unicamp = "RESTRICTED FOR RESEARCH AND EDUCATIONAL USAGE\n"\
 	 "multiple platforms only. Derivative works and redistributions of\n"\
          "the source are not allowed at all.";
 
+static char *lic_gpl = "IVS is free software and comes with no warranty.";
+
 #endif
 
 void ivs_help_about(CBARG) {
@@ -4201,11 +4195,12 @@ void ivs_help_about(CBARG) {
 
   strcat(z,
 	 "Interactive Volume Segmentation\n\n"\
-	 "(C) 2002-2010 Felipe P.G. Bergo and Alexandre X. Falcao\n"\
+	 "(C) 2002-2017 Felipe P.G. Bergo and Alexandre X. Falcao\n"\
 	 "Developed by Felipe P.G. Bergo and Alexandre X. Falcao\n"\
 	 "at the Institute of Computing, Unicamp, Campinas, Brazil.\n\n"\
-	 "Website: http://www.liv.ic.unicamp.br/~bergo/ivs\n"\
-         "Contact: fbergo@gmail.com or afalcao@ic.unicamp.br \n\n");
+	 "Website: http://www.lni.hc.unicamp.br/app/ivs\n"\
+	 "Code: https://github.com/fbergo/braintools\n"\
+         "Contact: fbergo\x40gmail.com or afalcao\40ic.unicamp.br \n\n");
 
   strcat(z, TERMS_OF_USE);
 
