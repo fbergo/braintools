@@ -982,8 +982,8 @@ class Font {
       dx = slot->bitmap_left;
       dy = slot->bitmap_top;
       w = slot->bitmap.width;
-      for(j=0;j<slot->bitmap.rows;j++)
-	for(i=0;i<slot->bitmap.width;i++) {
+      for(j=0;j<(int) slot->bitmap.rows;j++)
+	for(i=0;i<(int) slot->bitmap.width;i++) {
 	  g = slot->bitmap.buffer[i+j*w];
 	  if (g > 10) {
 	    d = p->get(pen_x+i+dx,pen_y+j-dy);
