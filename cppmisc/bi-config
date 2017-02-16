@@ -1,0 +1,23 @@
+#!/usr/bin/perl
+
+my $flags = `freetype-config --cflags`;
+my $libs  = `freetype-config --libs`;
+chomp $flags;
+chomp $libs;
+$libs .= ' -lm -lpthread -lbz2 -lpng -lz';
+
+
+if (@ARGV == 0) {
+    print "usage: bi-config [--cflags] [--libs]\n\n";
+    print "@ARGV \n";
+    exit 1;
+}
+
+foreach $i (@ARGV) {
+
+    print $flags . ' ' if ($i eq '--cflags');
+    print $libs  . ' ' if ($i eq '--libs');
+	
+}
+
+exit 0;
