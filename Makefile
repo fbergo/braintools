@@ -15,12 +15,12 @@ copybin:
 	$(INSTALL) -d bin
 	$(INSTALL) ivs/{ivs,dicom2scn,ana2scn,scn2ana,scntool,scncomp} bin
 	$(INSTALL) aftervoxel/aftervoxel bin
-	$(INSTALL) cppmisc/splitmri bin
+	$(INSTALL) cppmisc/{splitmri,greg,braintag} bin
 
 clean:
 	for dir in $(SUBDIRS) ; do $(MAKE) -C $$dir clean ; done
 	$(RM) bin/{ivs,dicom2scn,ana2scn,scn2ana,scntool,scncomp}
 	$(RM) bin/{aftervoxel}
-	$(RM) bin/{splitmri}
+	$(RM) bin/{splitmri,greg,braintag}
 
 
