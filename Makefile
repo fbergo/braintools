@@ -1,5 +1,5 @@
 
-SUBDIRS = libip ivs aftervoxel
+SUBDIRS = libip ivs aftervoxel cppmisc
 CP = /bin/cp -f
 RM = /bin/rm -f
 INSTALL = /usr/bin/install
@@ -15,8 +15,12 @@ copybin:
 	$(INSTALL) -d bin
 	$(INSTALL) ivs/{ivs,dicom2scn,ana2scn,scn2ana,scntool,scncomp} bin
 	$(INSTALL) aftervoxel/aftervoxel bin
+	$(INSTALL) cppmisc/splitmri bin
 
 clean:
 	for dir in $(SUBDIRS) ; do $(MAKE) -C $$dir clean ; done
-	$(RM) bin/{ivs,dicom2scn,ana2scn,scn2ana,scntool,scncomp,aftervoxel}
+	$(RM) bin/{ivs,dicom2scn,ana2scn,scn2ana,scntool,scncomp}
+	$(RM) bin/{aftervoxel}
+	$(RM) bin/{splitmri}
+
 

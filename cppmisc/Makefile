@@ -1,17 +1,26 @@
 
 
 CXX = c++
-CFLAGS = -Wall -O2 `./bi-config --cflags`
-LDFLAGS = `./bi-config --libs`
+CFLAGS         = -Wall -O2 `./bi-config --cflags`
+CFLAGS_GTK     = $(CFLAGS) `pkg-config --cflags gtk+-2.0`
+LDFLAGS        = `./bi-config --libs`
+LDFLAGS_GTK    = $(LDFLAGS) `pkg-config --libs gtk+-2.0`
 
-PROGS = splitmri
+PROGS = splitmri greg
+
+GREG_SRC = greg.cc greg_chs.cc greg_msgd.cc mygtk.cc
+BI_H     = brain_imaging.h
 
 all: $(PROGS)
 
 
-splitmri: splitmri.cc brain_imaging.h
+splitmri: splitmri.cc $(BI_H)
 	$(CXX) $(CFLAGS) splitmri.cc -o splitmri $(LDFLAGS)
+
+greg: $(GREG_SRC) $(BI_H)
+	$(CXX) $(CFLAGS_GTK) $(GREG_SRC) -o $@ $(LDFLAGS_GTK)
 
 clean:
 	/bin/rm -f $(PROGS) *~
+
 
