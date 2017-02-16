@@ -4172,6 +4172,7 @@ static char *lic_web = "For educational and research use only. COMMERCIAL\n"\
 
 #else
 
+/*
 static char *lic_unicamp = "RESTRICTED FOR RESEARCH AND EDUCATIONAL USAGE\n"\
 	                   "IN UNICAMP FACILITIES.\n"\
 	 "Terms of use: this release of IVS is available for research\n"\
@@ -4182,6 +4183,7 @@ static char *lic_unicamp = "RESTRICTED FOR RESEARCH AND EDUCATIONAL USAGE\n"\
 	 "code, if made available, is for the convenience of compiling on\n"\
 	 "multiple platforms only. Derivative works and redistributions of\n"\
          "the source are not allowed at all.";
+*/
 
 static char *lic_gpl = "IVS is free software and comes with no warranty.";
 
