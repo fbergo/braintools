@@ -21,6 +21,7 @@ All software in this repository is licensed under the GPL v2.
  - **greg** (GUI, registration tool)
  - **braintag** (curvilinear reformatting as per [Bergo2006] and [Bergo2008] and automatic
    brain segmentation as per [Bergo2007])
+ - **t2comp** (command-line, computes T2 relaxometry regression from a set of multi-echo volumes)
 - **spineseg**
   Tool for measuring spinal cord atrophy in MRI (performs segmentation with automatic tree pruning [Bergo2007]). The
   tool has was described in [Bergo2012], and its usage is mentioned in [Chevis2013] and [Branco2013]
