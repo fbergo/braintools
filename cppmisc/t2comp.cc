@@ -5,8 +5,6 @@ void usage();
 vector<int> te;
 Volume<int> *vin[128], *t2map, *m0map;
 
-double t2(double t, double i_t, double offset, double i_max); 
-
 // t2comp te,te,te... output input-files
 int main(int argc, char **argv) {
 
