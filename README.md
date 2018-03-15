@@ -29,7 +29,7 @@ All software in this repository is licensed under the GPL v2.
 Most of these tools operate with the SCN 3D image format, which was created internally at Unicamp at
 the time as a glorified PGM. A description of the format is available as a man page in ivs/man/scn.5
 
-##External dependencies:
+## External dependencies:
 - Perl 5 (for configuration scripts)
 - GTK+ 2.x and its development libraries
 - libpng, libjpeg, zlib and their development headers (-devel packages in RedHat-ish distros).
@@ -54,6 +54,4 @@ the time as a glorified PGM. A description of the format is available as a man p
 - [Falcao2004] A. X. Falcão and F. P. G. Bergo, "Interactive volume segmentation with
   differential image foresting transforms," in IEEE Transactions on Medical Imaging,
   vol. 23(9), Sep. 2004, pp. 1100-1108. https://doi.org/10.1109/TMI.2004.829335
-
-              
 
