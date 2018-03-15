@@ -7,7 +7,7 @@ have been updated to compile on updated and stricter environments (CentOS 6/7, F
 
 All software in this repository is licensed under the GPL v2.
 
-##Directories
+## Directories
 
 - **libip**
  image processing library used by IVS and Aftervoxel
@@ -17,14 +17,14 @@ All software in this repository is licensed under the GPL v2.
  3D semi-automatic segmentation tool,  implements the differential IFT. The algorithms and this software are described in [Falcao2004]. This directory also contains the dicom2scn conversion tool and a few SCN-related command-line utilities (scntool, scn2ana, ana2scn)
 - **cppmisc**
  Miscellaneous tools based on the monolithic C++ header I wrote around 2009-2010, including:
- - **splitmri** (command-line, breaks down multi-echo MRI SCNs)
- - **greg** (GUI, registration tool)
- - **braintag** (curvilinear reformatting as per [Bergo2006] and [Bergo2008] and automatic
+  - **splitmri** (command-line, breaks down multi-echo MRI SCNs)
+  - **greg** (GUI, registration tool)
+  - **braintag** (curvilinear reformatting as per [Bergo2006] and [Bergo2008] and automatic
    brain segmentation as per [Bergo2007])
- - **t2comp** (command-line, computes T2 relaxometry regression from a set of multi-echo volumes)
+  - **t2comp** (command-line, computes T2 relaxometry regression from a set of multi-echo volumes)
 - **spineseg**
   Tool for measuring spinal cord atrophy in MRI (performs segmentation with automatic tree pruning [Bergo2007]). The
-  tool has was described in [Bergo2012], and its usage is mentioned in [Chevis2013] and [Branco2013]
+  tool is described in [Bergo2012], and its usage is mentioned in [Chevis2013] and [Branco2013]
 
 Most of these tools operate with the SCN 3D image format, which was created internally at Unicamp at
 the time as a glorified PGM. A description of the format is available as a man page in ivs/man/scn.5
