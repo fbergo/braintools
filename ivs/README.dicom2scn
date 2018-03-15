@@ -25,6 +25,12 @@ make install
 Documentation for all tools is provided in man pages. The SCN format
 is documented in the scn(5) man page, also provided.
 
-These tools were written by Felipe P.G. Bergo (bergo -at- liv.ic.unicamp.br)
-The SCN format was created by Alexandre Falcao (afalcao -at- ic.unicamp.br)
+These tools were written by Felipe P.G. Bergo (fbergo -at- gmail.com)
+The SCN format was created by Alexandre X. Falcao (afalcao -at- ic.unicamp.br)
+IVS was written by F.P.G. Bergo and A.X. Falcao and described in [Falcao2004]
+
+- [Falcao2004] A. X. Falcão and F. P. G. Bergo, "Interactive volume segmentation with
+  differential image foresting transforms," in IEEE Transactions on Medical Imaging,
+  vol. 23(9), Sep. 2004, pp. 1100-1108. https://doi.org/10.1109/TMI.2004.829335
+
 
