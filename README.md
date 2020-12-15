@@ -47,7 +47,7 @@ the time as a glorified PGM. A description of the format is available as a man p
 - [Bergo2012] F.P.G. Bergo, M.C. França Jr, C.F. Chevis, F. Cendes, "SpineSeg: A Segmentation and Measurement Tool
   for Evaluation of Spinal Cord Atrophy, CISTI'2012,
   Jun 2012, Madrid, Spain, vol. 2, pp. 400-403. http://ieeexplore.ieee.org/document/6263238/?tp=&arnumber=6263238
-- [Branco2013] L. M. T. Branco, M. de Albuquerque, H.M.T. de Andradem F.P.G. Bergo, A. Nucci and M.C. França Jr.,
+- [Branco2013] L. M. T. Branco, M. de Albuquerque, H.M.T. de Andrade, F.P.G. Bergo, A. Nucci and M.C. França Jr.,
   "Spinal cord atrophy correlates with disease duration and severity in amyotrophic lateral sclerosis", ALS and FT Deg, 15(1-2), Mar. 2014, pp. 93-97. http://dx.doi.org/10.3109/21678421.2013.852589
 - [Chevis2013] C.F. Chevis, C.B. da Silva, A. d'Abreu, I. Lopes-Cendes, F. Cendes, F.P.G. Bergo, M.C. França Jr, "Spinal
   Cord Atrophy Correlates with Disability in Friedreich's Ataxia",  Cerebellum, 12(1), Feb 2013, pp. 43-47. https://doi.org/10.1007/s12311-012-0390-6
