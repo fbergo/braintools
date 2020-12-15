@@ -1,3 +1,5 @@
+#pragma GCC diagnostic ignored "-Wformat-overflow"
+
 #include "brain_imaging.h"
 
 void usage();

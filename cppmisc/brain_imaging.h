@@ -911,8 +911,12 @@ class Color {
     g=1.164*((float)R-16.0)-0.813*((float)B-128.0)-0.392*((float)G-128.0);
     b=1.164*((float)R-16.0)+2.017*((float)G-128.0);
 
-    if (r<0.0) r=0.0; if (g<0.0) g=0.0; if (b<0.0) b=0.0;
-    if (r>255.0) r=255.0; if (g>255.0) g=255.0; if (b>255.0) b=255.0;
+    if (r<0.0) r=0.0;
+    if (g<0.0) g=0.0;
+    if (b<0.0) b=0.0;
+    if (r>255.0) r=255.0;
+    if (g>255.0) g=255.0;
+    if (b>255.0) b=255.0;
     R=(uint8_t)r; G=(uint8_t)g; B=(uint8_t)b;
   }
 };
@@ -1360,9 +1364,12 @@ class Image : public Paintable {
   void blendbox(int x, int y, int w, int h, Color &src, float srcamount) {
     int i,j,p;
     Color c;
-    if (x >= W) return; if (y >= H) return;
-    if (x<0) { w+=x; x=0; } if (y<0) { h+=y; y=0; }
-    if (x+w >= W) w=W-x-1; if (y+h >= H) h=H-y-1;
+    if (x >= W) return;
+    if (y >= H) return;
+    if (x<0) { w+=x; x=0; }
+    if (y<0) { h+=y; y=0; }
+    if (x+w >= W) w=W-x-1;
+    if (y+h >= H) h=H-y-1;
     if (w<0 || h<0) return;
     p=3*(x+y*W);
     for(i=0;i<h;i++) {
@@ -1384,9 +1391,12 @@ class Image : public Paintable {
   void shadebox(int x, int y, int w, int h, float factor) {
     int i,j,p;
     Color c;
-    if (x >= W) return; if (y >= H) return;
-    if (x<0) { w+=x; x=0; } if (y<0) { h+=y; y=0; }
-    if (x+w >= W) w=W-x-1; if (y+h >= H) h=H-y-1;
+    if (x >= W) return;
+    if (y >= H) return;
+    if (x<0) { w+=x; x=0; }
+    if (y<0) { h+=y; y=0; }
+    if (x+w >= W) w=W-x-1;
+    if (y+h >= H) h=H-y-1;
     if (w<0 || h<0) return;
     p=3*(x+y*W);
     for(i=0;i<h;i++) {
@@ -1413,9 +1423,12 @@ class Image : public Paintable {
       line(x,y,x,y+h-1,c);
       line(x+w-1,y,x+w-1,y+h-1,c);
     } else {
-      if (x >= W) return; if (y >= H) return;
-      if (x<0) { w+=x; x=0; } if (y<0) { h+=y; y=0; }
-      if (x+w >= W) w=W-x-1; if (y+h >= H) h=H-y-1;
+      if (x >= W) return;
+      if (y >= H) return;
+      if (x<0) { w+=x; x=0; }
+      if (y<0) { h+=y; y=0; }
+      if (x+w >= W) w=W-x-1;
+      if (y+h >= H) h=H-y-1;
       if (w<0 || h<0) return;
       p=3*(x+y*W);
       for(i=0;i<h;i++) {
@@ -2206,7 +2219,7 @@ public:
   int   *ibuf;
   char  *rbuf;
 
-  static const float InfZ = 50000.0;
+  static constexpr float InfZ = 50000.0;
 
   RenderingContext(int w,int h) {
     W = w;
@@ -5318,7 +5331,8 @@ template <class T> class Volume : public VolumeDomain {
 	    ps = pow(cos(2.0*nbuf[n]),10.0);
 	  Y = ka + kz * Y * (kd*pd + ks*ps);
 	  Y *= 255.0;
-	  if (Y > 255.0) Y=255.0; if (Y < 0.0) Y = 0.0;
+	  if (Y > 255.0) Y=255.0;
+          if (Y < 0.0) Y = 0.0;
 	  c2 = tmpc;
 	  c2.R = (uint8_t) Y;
 	  c2.ycbcr2rgb();
@@ -5508,7 +5522,8 @@ template <class T> class Volume : public VolumeDomain {
 	    ps = pow(cos(2.0*nbuf[n]),10.0);
 	  Y = ka + kz * Y * (kd*pd + ks*ps);
 	  Y *= 255.0;
-	  if (Y > 255.0) Y=255.0; if (Y < 0.0) Y = 0.0;
+	  if (Y > 255.0) Y=255.0;
+          if (Y < 0.0) Y = 0.0;
 	  c2 = tmpc;
 	  c2.R = (uint8_t) Y;
 	  c2.ycbcr2rgb();
@@ -5836,7 +5851,8 @@ template <class T> class Volume : public VolumeDomain {
 	    ps = pow(cos(2.0*nbuf[n]),10.0);
 	  Y = ka + kz * Y * (kd*pd + ks*ps);
 	  Y *= 255.0;
-	  if (Y > 255.0) Y=255.0; if (Y < 0.0) Y = 0.0;
+	  if (Y > 255.0) Y=255.0;
+          if (Y < 0.0) Y = 0.0;
 	  c3 = tmpc;
 	  c3.R = (uint8_t) Y;
 	  c3.ycbcr2rgb();

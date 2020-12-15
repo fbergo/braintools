@@ -1,4 +1,6 @@
 #pragma GCC diagnostic ignored "-Wwrite-strings"
+#pragma GCC diagnostic ignored "-Wparentheses"
+#pragma GCC diagnostic ignored "-Wformat-truncation"
 
 #include <gtk/gtk.h>
 #include <gdk/gdkkeysyms.h>

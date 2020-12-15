@@ -1,5 +1,7 @@
 #include "brain_imaging.h"
 
+#pragma GCC diagnostic ignored "-Wformat-overflow"
+
 #define VERSION "2017.1"
 
 void usage();

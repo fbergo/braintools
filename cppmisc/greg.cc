@@ -1,3 +1,6 @@
+
+#pragma GCC diagnostic ignored "-Wparentheses"
+
 #include "brain_imaging.h"
 #include <gtk/gtk.h>
 #include <gdk/gdkkeysyms.h>

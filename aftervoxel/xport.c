@@ -1,6 +1,8 @@
 
 #define SOURCE_XPORT_C 1
 
+#pragma GCC diagnostic ignored "-Wstringop-overflow"
+
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>

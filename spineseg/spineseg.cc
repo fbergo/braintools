@@ -23,6 +23,8 @@
 */
 
 #pragma GCC diagnostic ignored "-Wwrite-strings"
+#pragma GCC diagnostic ignored "-Wformat-overflow"
+#pragma GCC diagnostic ignored "-Wparentheses"
 
 #include "tokenizer.h"
 #include "image.h"
@@ -68,7 +70,7 @@ Volume<int> *vol = NULL;   // original (interpolated volume)
 Volume<int> *rsd = NULL;   // resliced volume
 Volume<char> *seg = NULL;  // segmentation labels
 Volume<char> *seed = NULL; // seeds
-EllipseFit efit[1024];
+spineseg::EllipseFit efit[1024];
 int mline[1024][4];
 
 int rsdirty    = 0;
@@ -1614,7 +1616,7 @@ gboolean ss_expose(GtkWidget *w, GdkEventExpose *e, gpointer data) {
     int x0,y0,x1,y1;
     if (vy >= 0 && vy < 1024 && showfit) {
       if (efit[vy].fitted) {
-	array<double> eplot(100,2);
+        spineseg::array<double> eplot(100,2);
 	efit[vy].plot(eplot);
 	gc_color(gc,0x00ffff);
 	for(i=0;i<100;i++) {
@@ -1958,7 +1960,8 @@ gboolean ss_press(GtkWidget *w, GdkEventButton *e, gpointer data) {
 	return TRUE;
       default:
 	vy = (int) ((y - panes[0].y) / ezoom);
-	if (vy<0) vy=0; if (vy>=vol->H) vy=vol->H-1;
+	if (vy<0) vy=0;
+        if (vy>=vol->H) vy=vol->H-1;
 	redraw(canvas);
 	return TRUE;
       }
@@ -1982,9 +1985,11 @@ gboolean ss_press(GtkWidget *w, GdkEventButton *e, gpointer data) {
       case TOOL_AUTOSEG:
       case TOOL_RESLICE:
 	vz = (int) ((x - panes[1].x - axpx) * (rsd->dz / vol->dz) / axzoom);	
-	if (vz<0) vz=0; if (vz>=vol->D) vz=vol->D-1;
+	if (vz<0) vz=0;
+        if (vz>=vol->D) vz=vol->D-1;
 	vx = (int) ((y - panes[1].y - axpy) * (rsd->dx / vol->dx) / axzoom);
-	if (vx<0) vx=0; if (vx>=vol->W) vx=vol->W-1;
+	if (vx<0) vx=0;
+        if (vx>=vol->W) vx=vol->W-1;
 	redraw(canvas);
 	break;
       case TOOL_MANUALSEG:

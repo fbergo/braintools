@@ -29,6 +29,9 @@
 
 */
 
+#pragma GCC diagnostic ignored "-Wformat-overflow"
+#pragma GCC diagnostic ignored "-Wformat-truncation"
+
 #define _GNU_SOURCE
 #include <stdio.h>
 #include <stdlib.h>

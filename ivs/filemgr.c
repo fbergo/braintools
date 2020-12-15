@@ -14,6 +14,10 @@
 
    ----------------------------------------------------- */
 
+#pragma GCC diagnostic ignored "-Wformat-overflow"
+#pragma GCC diagnostic ignored "-Wformat-truncation"
+#pragma GCC diagnostic ignored "-Wstringop-truncation"
+
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
@@ -129,7 +133,7 @@ gboolean  mgr_scan(gpointer data) {
 gboolean  mgr_expose(GtkWidget *widget,GdkEventExpose *ee,gpointer data) {
   int ww,wh,cw,ch,ncol,x,y,tw,ty;
   Clickable *p;
-  char z[512];
+  char z[1024];
   int i,qx,qy;
   PangoRectangle pri, prl;
 
@@ -233,12 +237,11 @@ gboolean  mgr_expose(GtkWidget *widget,GdkEventExpose *ee,gpointer data) {
   x=5; y=155;
   ty = (int) (mgr.vadj->value);
 
-  if (mgr.errcode) {
+  if (mgr.errcode==1) {
     gc_clip(mgr.g->gc,0,150,mgr.g->W,mgr.g->H-150);
     gc_color(mgr.g->gc, 0xff0000);
-    if (mgr.errcode == 1)
-      pango_layout_set_text(mgr.pl,"Folder contents cannot be read.",-1);
-      gdk_draw_layout(mgr.g->w,mgr.g->gc,x,y+15,mgr.pl);
+    pango_layout_set_text(mgr.pl,"Folder contents cannot be read.",-1);
+    gdk_draw_layout(mgr.g->w,mgr.g->gc,x,y+15,mgr.pl);
   }
 
   if (mgr.vadj_vignore) {
@@ -833,7 +836,8 @@ int guess_type(char *path, char *name) {
   int  i,n;
   FILE *f;
 
-  sprintf(catname,"%s/%s",path,name);
+  memset(catname,0,512);
+  snprintf(catname,510,"%s/%s",path,name);
 
   nlen = strlen(catname);
   if (!strcasecmp(&catname[nlen-4],".hdr"))

@@ -318,7 +318,8 @@ i16_t * XA_LS_Function(float B, float C,int maxval) {
   for(i=0;i<maxval;i++) {
     Y = (float) i;
     Y = center + (Y-dcenter)*scale;
-    if (Y<0.0) Y=0.0; if (Y>maxval) Y=maxval;
+    if (Y<0.0) Y=0.0;
+    if (Y>maxval) Y=maxval;
     lookup[i] = (i16_t) Y;
   }
   
@@ -1514,7 +1515,8 @@ void XAArithmetic(XAnnVolume *vol, int op) {
   case 0: // o - c
     for(i=0;i<N;i++) {
       val = ((int) (vol->vd[i].orig)) - ((int) (vol->vd[i].value));
-      if (val < 0) val = 0; if (val>32767) val=32767;
+      if (val < 0) val = 0;
+      if (val>32767) val=32767;
       vol->vd[i].value = (i16_t) val;
     }
     break;
@@ -1522,7 +1524,8 @@ void XAArithmetic(XAnnVolume *vol, int op) {
   case 1: // c - o
     for(i=0;i<N;i++) {
       val = ((int) (vol->vd[i].value)) - ((int) (vol->vd[i].orig));
-      if (val < 0) val = 0; if (val>32767) val=32767;
+      if (val < 0) val = 0;
+      if (val>32767) val=32767;
       vol->vd[i].value = (i16_t) val;
     }
     break;
@@ -1530,7 +1533,8 @@ void XAArithmetic(XAnnVolume *vol, int op) {
   case 2: // o + c
     for(i=0;i<N;i++) {
       val = ((int) (vol->vd[i].orig)) + ((int) (vol->vd[i].value));
-      if (val < 0) val = 0; if (val>32767) val=32767;
+      if (val < 0) val = 0;
+      if (val>32767) val=32767;
       vol->vd[i].value = (i16_t) val;
     }
     break;
@@ -1538,7 +1542,8 @@ void XAArithmetic(XAnnVolume *vol, int op) {
   case 3: // c / o
     for(i=0;i<N;i++) {
       val = (1+(int) (vol->vd[i].value)) / (1+(int) (vol->vd[i].orig));
-      if (val < 0) val = 0; if (val>32767) val=32767;
+      if (val < 0) val = 0;
+      if (val>32767) val=32767;
       vol->vd[i].value = (i16_t) val;
     }
     break;
@@ -1546,7 +1551,8 @@ void XAArithmetic(XAnnVolume *vol, int op) {
   case 4: // o / c
     for(i=0;i<N;i++) {
       val = (1+(int) (vol->vd[i].orig)) / (1+(int) (vol->vd[i].value));
-      if (val < 0) val = 0; if (val>32767) val=32767;
+      if (val < 0) val = 0;
+      if (val>32767) val=32767;
       vol->vd[i].value = (i16_t) val;
     }
     break;
@@ -1554,7 +1560,8 @@ void XAArithmetic(XAnnVolume *vol, int op) {
   case 5: // c * o
     for(i=0;i<N;i++) {
       val = ((int) (vol->vd[i].value)) * ((int) (vol->vd[i].orig));
-      if (val < 0) val = 0; if (val>32767) val=32767;
+      if (val < 0) val = 0;
+      if (val>32767) val=32767;
       vol->vd[i].value = (i16_t) val;
     }
     break;

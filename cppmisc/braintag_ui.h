@@ -1099,8 +1099,10 @@ class OrthogonalView : public Window,
       ny = (y-by) / zoom;
       cx = (int) nx;
       cy = (int) ny;
-      if (cx < 0) cx = 0; if (cx >= vol->W) cx = vol->W-1;
-      if (cy < 0) cy = 0; if (cy >= vol->H) cy = vol->H-1;
+      if (cx < 0) cx = 0;
+      if (cx >= vol->W) cx = vol->W-1;
+      if (cy < 0) cy = 0;
+      if (cy >= vol->H) cy = vol->H-1;
       invalid[1] = true;
       invalid[2] = true;
 
@@ -1125,8 +1127,10 @@ class OrthogonalView : public Window,
       ny = (y-by) / zoom;
       cz = (int) nz;
       cy = (int) ny;
-      if (cz < 0) cz = 0; if (cz >= vol->D) cz = vol->D-1;
-      if (cy < 0) cy = 0; if (cy >= vol->H) cy = vol->H-1;
+      if (cz < 0) cz = 0;
+      if (cz >= vol->D) cz = vol->D-1;
+      if (cy < 0) cy = 0;
+      if (cy >= vol->H) cy = vol->H-1;
       invalid[0] = true;
       invalid[2] = true;
       if (button==3 && edt!=NULL) {
@@ -1150,8 +1154,10 @@ class OrthogonalView : public Window,
       nz = (y-(by+10+xy->H)) / zoom;
       cx = (int) nx;
       cz = (int) nz;
-      if (cx < 0) cx = 0; if (cx >= vol->W) cx = vol->W-1;
-      if (cz < 0) cz = 0; if (cz >= vol->D) cz = vol->D-1;
+      if (cx < 0) cx = 0;
+      if (cx >= vol->W) cx = vol->W-1;
+      if (cz < 0) cz = 0;
+      if (cz >= vol->D) cz = vol->D-1;
       invalid[0] = true;
       invalid[1] = true;
       if (button==3 && edt!=NULL) {
@@ -2018,14 +2024,16 @@ public:
       float nd;
       if (y > dsy-5) {
 	nd = maxdepth * (x - (dsx+55)) / 100.0;
-	if (nd < 0.0) nd = 0.0; if (nd > maxdepth) nd = maxdepth;
+	if (nd < 0.0) nd = 0.0;
+        if (nd > maxdepth) nd = maxdepth;
 	setDepth((int) rint(nd));
       } else if (y < lcy + 16) {
 	useLight = !useLight;
 	invalidateRotation();
       } else {
 	nd = (x-(vrx+95)) / 100.0;
-	if (nd < 0.0) nd = 0.0; if (nd > 1.0) nd = 1.0;
+	if (nd < 0.0) nd = 0.0;
+        if (nd > 1.0) nd = 1.0;
 	setViewRange(nd);
       }
       return;
@@ -2613,11 +2621,13 @@ public:
       float nd;
       if (y > dsy-5) {
 	nd = maxdepth * (x - (dsx+55)) / 100.0;
-	if (nd < 0.0) nd = 0.0; if (nd > maxdepth) nd = maxdepth;
+	if (nd < 0.0) nd = 0.0;
+        if (nd > maxdepth) nd = maxdepth;
 	setDepth((int) rint(nd));
       } else {
 	nd = (x-(vrx+95)) / 100.0;
-	if (nd < 0.0) nd = 0.0; if (nd > 1.0) nd = 1.0;
+	if (nd < 0.0) nd = 0.0;
+        if (nd > 1.0) nd = 1.0;
 	setViewRange(nd);
       }
       return;

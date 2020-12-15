@@ -13,6 +13,9 @@
 
    ----------------------------------------------------- */
 
+#pragma GCC diagnostic ignored "-Wformat-overflow"
+#pragma GCC diagnostic ignored "-Wformat-truncation"
+
 #include <stdio.h>
 #include <stdlib.h>
 #include <locale.h>
@@ -2022,7 +2025,8 @@ gboolean ivs_view_drag(GtkWidget *widget, GdkEventMotion *em, gpointer data)
 	ad /= canvas.xysin;
 	ad /= canvas.fullnorm;
 	k = (int) ad;
-	if (k > j) k = j; if (k < 0) k = 0;
+	if (k > j) k = j;
+        if (k < 0) k = 0;
 
 	if (ac > canvas.fullnorm) k=0;
 

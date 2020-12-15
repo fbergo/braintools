@@ -52,7 +52,8 @@ void BrightnessContrast(Volume *dest, Volume *src, float B, float C) {
   for(i=0;i<SDOM;i++) {
     Y = (float) i;
     Y = center + (Y-dcenter)*scale;
-    if (Y<0.0) Y=0.0; if (Y>imax) Y=imax;
+    if (Y<0.0) Y=0.0;
+    if (Y>imax) Y=imax;
     lookup[i] = (i16_t) Y;
   }
 

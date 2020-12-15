@@ -1,6 +1,8 @@
 
 #define SOURCE_UTIL_C 1
 
+#pragma GCC diagnostic ignored "-Wformat-truncation"
+
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>

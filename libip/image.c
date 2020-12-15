@@ -312,7 +312,8 @@ void        CImgBrightnessContrast(CImg *dest, CImg *src,
   for(uc=0;uc<256;uc++) {
     Y = (float) uc;
     Y = center + (Y-128)*scale;
-    if (Y<0.0) Y=0.0; if (Y>255.0) Y=255.0;
+    if (Y<0.0) Y=0.0;
+    if (Y>255.0) Y=255.0;
     lookup[uc] = (unsigned char) Y;
   }
 
