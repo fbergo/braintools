@@ -20,7 +20,7 @@ typedef void (*Callback) (void *);
 /* THE TASK LOG */
 
 typedef struct _task_log_event {
-  int    tid;           /* thread id of thread that ran it */
+  pthread_t    tid;           /* thread id of thread that ran it */
   char   desc[128];     /* textual description of task     */
   double real_elapsed;  /* elapsed time (seconds)          */
   time_t start, finish; /* start/finish times as UNIX time */

@@ -60,8 +60,8 @@ void MemCpy(void *dest,void *src,int nbytes) {
 
 #ifdef CMemSet
 #include <string.h>
-void MemSet(void *dest,char c, int nbytes) {
-  memset(dest,c,nbytes);
+void MemSet(void *dest,unsigned char c, int nbytes) {
+  memset(dest,(int) c,nbytes);
 }
 #endif
 
