@@ -148,7 +148,7 @@ static GtkItemFactoryEntry bt_menu[] = {
 void bt_update_title() {
   char tt[1024];
   if (inputname==NULL)
-    sprintf(tt,"BrainTag %s",VERSION);
+    snprintf(tt,1023,"BrainTag %s",VERSION);
   else
     snprintf(tt,1023,"BrainTag %s - %s",VERSION,inputname);
   gtk_window_set_title(GTK_WINDOW(mw),tt);
@@ -231,7 +231,7 @@ int main(int argc, char **argv) {
 
   char *p = getenv("HOME");
   if (p!=NULL) {
-    sprintf(appcfg,"%s/.braintag",p);
+    snprintf(appcfg,512,"%s/.braintag",p);
   } else {
     cerr << "** Fatal Error: HOME not set.\n\n";
     return 99;
@@ -266,7 +266,7 @@ int main(int argc, char **argv) {
   gui();
 
   char z[100];
-  sprintf(z,"Braintag v%s started.",VERSION);
+  snprintf(z,99,"Braintag v%s started.",VERSION);
   msg->append(z);
   msg->append("(C) 2007-2017 Felipe Bergo <fbergo\x40gmail.com>");
 
@@ -274,7 +274,7 @@ int main(int argc, char **argv) {
 
   if (strlen(loadimg)) {
     Task *t, *p;
-    snprintf(z,512,"Read volume from %s",loadimg);
+    snprintf(z,99,"Read volume from %s",loadimg);
     t = new Task(z);
     t->ival[0] = 0;
     t->File = strdup(loadimg);
@@ -657,7 +657,7 @@ void bt_f_avopen(GtkWidget *w, gpointer data) {
   for(;;) {
     q = t.nextToken();
     if (q==NULL) break;
-    sprintf(avpath,"%s/aftervoxel",q);
+    snprintf(avpath,1023,"%s/aftervoxel",q);
     ifstream g;
     g.open(avpath);
     if (g.good()) {
