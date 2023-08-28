@@ -10,6 +10,7 @@ if ($system =~ /^Darwin/) {
     $libs .= " -L/opt/homebrew/lib";
 }
 
+$flags .= " -g";
 $libs .= ' -lm -lpthread -lbz2 -lpng -lz';
 
 

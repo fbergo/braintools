@@ -1093,7 +1093,7 @@ class Image : public Paintable {
 
   //! Destructor
   virtual ~Image() {
-    if (data!=0) delete data;
+    if (data!=0) delete[] data;
   }
 
   //! Saves this image to a P6 PPM file
@@ -2408,8 +2408,8 @@ template <class T> class Volume : public VolumeDomain {
   }
 
   virtual ~Volume() {
-    if (data!=NULL)  delete data;
-    if (vqbuf!=NULL) delete vqbuf;
+    if (data!=NULL)  delete[] data;
+    if (vqbuf!=NULL) delete[] vqbuf;
   }
 
   iterator & begin() { return(ibegin); }
@@ -2425,8 +2425,8 @@ template <class T> class Volume : public VolumeDomain {
   }
 
   void clear() {
-    if (data!=NULL) delete data;
-    data = 0;
+    if (data!=NULL) delete[] data;
+    data = NULL;
     resize(0,0,0);
     szPartial = szTotal = szCompressed = 0;
     lastmax = 0;
@@ -4617,12 +4617,16 @@ template <class T> class Volume : public VolumeDomain {
 	    k = voxel(ac);
 	    if (k<0) break;
 	    sk = (int) sqrt(k);
-	    tex->voxel(j,i,sk) = mr->voxel(ac);
-	    if (tmap != 0) (*tmap)->voxel(j,i,sk) = ac;
-	    if (sk>0) {
-	      tex->voxel(j,i,sk-1) = mr->voxel(ac);
-	      if (tmap != 0) {
-		(*tmap)->voxel(j,i,sk-1) = ac;
+	    // macos crashes here
+	    // printf("ac=%d c=%d,%d,%d k=%d sk=%d tex.dim=%d,%d,%d\n",ac,c.X,c.Y,c.Z,k,sk,tex->W,tex->H,tex->D);
+	    if  (tex->valid(j,i,sk)) {
+	      tex->voxel(j,i,sk) = mr->voxel(ac);
+	      if (tmap != NULL) (*tmap)->voxel(j,i,sk) = ac;
+	      if (sk>0) {
+		tex->voxel(j,i,sk-1) = mr->voxel(ac);
+		if (tmap != 0) {
+		  (*tmap)->voxel(j,i,sk-1) = ac;
+		}
 	      }
 	    }
 	  }
@@ -5175,7 +5179,7 @@ template <class T> class Volume : public VolumeDomain {
   /* visualization */
 
   void invalidateRenderCache() {
-    if (vqbuf!=NULL) delete vqbuf;
+    if (vqbuf!=NULL) delete[] vqbuf;
     vqbuf = NULL;
   }
 
@@ -5566,7 +5570,7 @@ template <class T> class Volume : public VolumeDomain {
     if (vqbuf!=NULL && rt==prt && rval==prv && !force)
       return;
 
-    if (vqbuf!=NULL) delete vqbuf;
+    if (vqbuf!=NULL) delete[] vqbuf;
     vqbuf = NULL;
 
     prt = rt;
@@ -6476,7 +6480,7 @@ class Patch {
     }
   }
 
-  virtual ~Patch() { delete data; }
+  virtual ~Patch() { delete[] data; }
 
   void fill(float val) {
     unsigned int i;
@@ -7306,7 +7310,7 @@ class COMatrix {
   }
 
   ~COMatrix() {
-    delete data;
+    delete[] data;
   }
 
   void clear() {
