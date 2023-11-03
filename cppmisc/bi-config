@@ -1,7 +1,7 @@
 #!/usr/bin/perl
 
-my $flags = `freetype-config --cflags`;
-my $libs  = `freetype-config --libs`;
+my $flags = `pkg-config --cflags freetype2`;
+my $libs  = `pkg-config --libs freetype2`;
 chomp $flags;
 chomp $libs;
 $libs .= ' -lm -lpthread -lbz2 -lpng -lz';

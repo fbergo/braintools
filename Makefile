@@ -3,6 +3,7 @@ SUBDIRS = libip ivs aftervoxel cppmisc spineseg
 CP = /bin/cp -f
 RM = /bin/rm -f
 INSTALL = /usr/bin/install
+SHELL = /bin/bash
 
 all: $(SUBDIRS) copybin
 
