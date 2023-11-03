@@ -18,6 +18,10 @@ copybin:
 	$(INSTALL) aftervoxel/aftervoxel bin
 	$(INSTALL) cppmisc/{splitmri,greg,braintag,t2comp} bin
 	$(INSTALL) spineseg/spineseg bin
+	$(INSTALL) -d bin/doc
+	$(INSTALL) spineseg/man/*.1 bin/doc
+	$(INSTALL) ivs/man/*.{1,5} bin/doc
+
 
 clean:
 	for dir in $(SUBDIRS) ; do $(MAKE) -C $$dir clean ; done
