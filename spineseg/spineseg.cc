@@ -233,7 +233,7 @@ static GtkItemFactoryEntry ss_menu[] = {
 void ss_title() {
   char msg[1024];
   if (vol!=NULL)
-    sprintf(msg,"SpineSeg - %s",volfile);
+    snprintf(msg,1023,"SpineSeg - %s",volfile);
   else
     strcpy(msg,"SpineSeg");
   gtk_window_set_title(GTK_WINDOW(mw), msg);
@@ -317,13 +317,13 @@ void scn_namecat(char *dest, const char *src, const char *cat, const char *prefi
 void scn_namecat_ext(char *dest, const char *src, const char *cat, const char *prefix, const char *ext) {
   char tmp[1024], *p;
   scn_basename(tmp, src);
-  sprintf(dest,"%s_%s.%s",tmp,cat,ext);
+  snprintf(dest,1023,"%s_%s.%s",tmp,cat,ext);
   p = strrchr(dest,'/');
   if (p==NULL) {
-    sprintf(tmp, "%s_%s", prefix, dest);
+    snprintf(tmp, 1023, "%s_%s", prefix, dest);
     strcpy(dest, tmp);    
   } else {
-    sprintf(tmp,"%s_%s",prefix,p+1);
+    snprintf(tmp, 1023, "%s_%s",prefix,p+1);
     strcpy(p+1,tmp);    
   }
 }
@@ -498,7 +498,7 @@ void *ss_save_bg(void *arg) {
   if (vol==NULL) goto over;
 
   vio_mutex.lock();
-  sprintf(vio_status,"Saving volume 1 of 4 (first interpolation)");
+  snprintf(vio_status,511,"Saving volume 1 of 4 (first interpolation)");
   vio_total = vol->getSizeTotalPtr();
   vio_partial = vol->getSizePartialPtr();
   *vio_total = -1;
@@ -507,13 +507,13 @@ void *ss_save_bg(void *arg) {
   scn_namecat(tmp,volfile,"vol","zzz");
   if (vol->writeBzSCN(tmp, 16, true, 9)!=0) {
     vio_mutex.lock();
-    sprintf(vio_status,"Save failed, unable to write %s",tmp);
+    snprintf(vio_status,511,"Save failed, unable to write %s",tmp);
     vio_mutex.unlock();
     goto over;
   }
 
   vio_mutex.lock();
-  sprintf(vio_status,"Saving volume 2 of 4 (second interpolation)");
+  snprintf(vio_status,511,"Saving volume 2 of 4 (second interpolation)");
   vio_total = rsd->getSizeTotalPtr();
   vio_partial = rsd->getSizePartialPtr();
   *vio_total = -1;
@@ -522,13 +522,13 @@ void *ss_save_bg(void *arg) {
   scn_namecat(tmp,volfile,"rsd","zzz");
   if (rsd->writeBzSCN(tmp, 16, true, 9)!=0) {
     vio_mutex.lock();
-    sprintf(vio_status,"Save failed, unable to write %s",tmp);
+    snprintf(vio_status,511,"Save failed, unable to write %s",tmp);
     vio_mutex.unlock();
     goto over;
   }
 
   vio_mutex.lock();
-  sprintf(vio_status,"Saving volume 3 of 4 (automatic segmentation)");
+  snprintf(vio_status,511,"Saving volume 3 of 4 (automatic segmentation)");
   vio_total = seg->getSizeTotalPtr();
   vio_partial = seg->getSizePartialPtr();
   *vio_total = -1;
@@ -537,13 +537,13 @@ void *ss_save_bg(void *arg) {
   scn_namecat(tmp,volfile,"seg","zzz");
   if (seg->writeBzSCN(tmp, 8, true, 9)!=0) {
     vio_mutex.lock();
-    sprintf(vio_status,"Save failed, unable to write %s",tmp);
+    snprintf(vio_status,511,"Save failed, unable to write %s",tmp);
     vio_mutex.unlock();
     goto over;
   }
 
   vio_mutex.lock();
-  sprintf(vio_status,"Saving volume 4 of 4 (automatic segmentation)");
+  snprintf(vio_status,511,"Saving volume 4 of 4 (automatic segmentation)");
   vio_total = seed->getSizeTotalPtr();
   vio_partial = seed->getSizePartialPtr();
   *vio_total = -1;
@@ -552,13 +552,13 @@ void *ss_save_bg(void *arg) {
   scn_namecat(tmp,volfile,"see","zzz");
   if (seed->writeBzSCN(tmp, 8, true, 9)!=0) {
     vio_mutex.lock();
-    sprintf(vio_status,"Save failed, unable to write %s",tmp);
+    snprintf(vio_status,511,"Save failed, unable to write %s",tmp);
     vio_mutex.unlock();
     goto over;
   }
 
   vio_mutex.lock();
-  sprintf(vio_status,"Saving textual parameters");
+  snprintf(vio_status,511,"Saving textual parameters");
   vio_total = &xb;
   vio_partial = &xa;
   xa = 0; xb = 4;
@@ -568,7 +568,7 @@ void *ss_save_bg(void *arg) {
   f = fopen(tmp,"w");
   if (f==NULL) {
     vio_mutex.lock();
-    sprintf(vio_status,"Save failed, unable to write %s",tmp);
+    snprintf(vio_status,511,"Save failed, unable to write %s",tmp);
     vio_mutex.unlock();
     goto over;
   }
@@ -585,7 +585,7 @@ void *ss_save_bg(void *arg) {
   f = fopen(tmp,"w");
   if (f==NULL) {
     vio_mutex.lock();
-    sprintf(vio_status,"Save failed, unable to write %s",tmp);
+    snprintf(vio_status,511,"Save failed, unable to write %s",tmp);
     vio_mutex.unlock();
     goto over;
   }
@@ -602,7 +602,7 @@ void *ss_save_bg(void *arg) {
   f = fopen(tmp,"w");
   if (f==NULL) {
     vio_mutex.lock();
-    sprintf(vio_status,"Save failed, unable to write %s",tmp);
+    snprintf(vio_status,511,"Save failed, unable to write %s",tmp);
     vio_mutex.unlock();
     goto over;
   }
@@ -619,7 +619,7 @@ void *ss_save_bg(void *arg) {
   f = fopen(tmp,"w");
   if (f==NULL) {
     vio_mutex.lock();
-    sprintf(vio_status,"Save failed, unable to write %s",tmp);
+    snprintf(vio_status,511,"Save failed, unable to write %s",tmp);
     vio_mutex.unlock();
     goto over;
   }
@@ -636,10 +636,10 @@ void *ss_save_bg(void *arg) {
     if (efit[i].fitted) {
       nv=nv2=0;
       for(k=0;k<rsd->D;k++)
-	for(j=0;j<rsd->W;j++) {
+        for(j=0;j<rsd->W;j++) {
           if (seg->voxel(j,i,k)!=0) nv++;
           if (seg->voxel(j,i,k)==1) nv2++;
-	}
+        }
     
       fprintf(f,"%s,%d,%.4f,%.4f,%.2f,%.2f,%.2f,%.2f,%.1f,%.1f,%.1f\n",
 	      bp,
@@ -660,7 +660,7 @@ void *ss_save_bg(void *arg) {
 
   xa = 4;
   vio_mutex.lock();
-  sprintf(vio_status,"State saved.");
+  snprintf(vio_status,511,"State saved.");
   vio_mutex.unlock();
 
 over:
@@ -748,7 +748,7 @@ void *ss_load_bg(void *arg) {
   tmp = new Volume<int>();
 
   vio_mutex.lock();
-  sprintf(vio_status,"Loading main volume");
+  snprintf(vio_status,511,"Loading main volume");
   vio_total = tmp->getSizeTotalPtr();
   vio_partial = tmp->getSizePartialPtr();
   *vio_total = -1;
@@ -766,7 +766,7 @@ void *ss_load_bg(void *arg) {
   }
   if (! tmp->ok()) {
     vio_mutex.lock();
-    sprintf(vio_status,"Failed to read volume from %s",name);
+    snprintf(vio_status,511,"Failed to read volume from %s",name);
     vio_total = &xa;
     vio_partial = &xb;
     vio_mutex.unlock();
@@ -791,7 +791,7 @@ void *ss_load_bg(void *arg) {
   }
 
   vio_mutex.lock();
-  sprintf(vio_status,"Interpolating volume");
+  snprintf(vio_status,511,"Interpolating volume");
   vio_total = &xa;
   vio_partial = &xb;
   vio_mutex.unlock();
@@ -800,7 +800,7 @@ void *ss_load_bg(void *arg) {
   delete tmp;
     
   vio_mutex.lock();
-  sprintf(vio_status,"Loading saved resliced volume");
+  snprintf(vio_status,511,"Loading saved resliced volume");
   rsd = new Volume<int>();
   vio_total = rsd->getSizeTotalPtr();
   vio_partial = rsd->getSizePartialPtr();
@@ -812,7 +812,7 @@ void *ss_load_bg(void *arg) {
   rsd->readSCN(aname);
   if (!rsd->ok()) {
     vio_mutex.lock();
-    sprintf(vio_status,"Interpolating axial volume");
+    snprintf(vio_status,511,"Interpolating axial volume");
     vio_total = &xa;
     vio_partial = &xb;
     vio_mutex.unlock();
@@ -824,7 +824,7 @@ void *ss_load_bg(void *arg) {
   }
   
   vio_mutex.lock();
-  sprintf(vio_status,"Loading automatic segmentation");
+  snprintf(vio_status,511,"Loading automatic segmentation");
   seg = new Volume<char>();
   vio_total = seg->getSizeTotalPtr();
   vio_partial = seg->getSizePartialPtr();
@@ -836,7 +836,7 @@ void *ss_load_bg(void *arg) {
   seg->readSCN(aname);
   if (!seg->ok()) {
     vio_mutex.lock();
-    sprintf(vio_status,"Initializing segmentation");
+    snprintf(vio_status,511,"Initializing segmentation");
     vio_total = &xa;
     vio_partial = &xb;
     vio_mutex.unlock();
@@ -857,7 +857,7 @@ void *ss_load_bg(void *arg) {
   }
 
   vio_mutex.lock();
-  sprintf(vio_status,"Loading manual segmentation");
+  snprintf(vio_status,511,"Loading manual segmentation");
   seed = new Volume<char>();
   vio_total = seed->getSizeTotalPtr();
   vio_partial = seed->getSizePartialPtr();
@@ -869,7 +869,7 @@ void *ss_load_bg(void *arg) {
   seed->readSCN(aname);
   if (!seed->ok()) {
     vio_mutex.lock();
-    sprintf(vio_status,"Initializing manual segmentation");
+    snprintf(vio_status,511,"Initializing manual segmentation");
     vio_total = &xa;
     vio_partial = &xb;
     vio_mutex.unlock();
@@ -879,7 +879,7 @@ void *ss_load_bg(void *arg) {
   }
 
   vio_mutex.lock();
-  sprintf(vio_status,"Initializing state");
+  snprintf(vio_status,511,"Initializing state");
   vio_total = &xa;
   vio_partial = &xb;
   vio_mutex.unlock();
@@ -1003,7 +1003,7 @@ void *ss_load_bg(void *arg) {
   }
 
   vio_mutex.lock();
-  sprintf(vio_status,"Finished loading %s",name);
+  snprintf(vio_status,511,"Finished loading %s",name);
   vio_mutex.unlock();
 
  over:
@@ -1692,9 +1692,9 @@ gboolean ss_expose(GtkWidget *w, GdkEventExpose *e, gpointer data) {
     }
 
     // text
-    sprintf(msg,"Dimension: %dx%dx%d (%.2fx%.2fx%.2f mm) Axial Sampling: %.2f mm Compose: %s", vol->W, vol->H, vol->D, vol->dx, vol->dy, vol->dz, rsd->dx, stackcompose ? "Yes" : "No");
+    snprintf(msg,255,"Dimension: %dx%dx%d (%.2fx%.2fx%.2f mm) Axial Sampling: %.2f mm Compose: %s", vol->W, vol->H, vol->D, vol->dx, vol->dy, vol->dz, rsd->dx, stackcompose ? "Yes" : "No");
     left_label(5, H-60, W-10, 20, msg, 0xffffff, 1);
-    sprintf(msg,"Sagittal Z=%d/%d, Axial Y=%d/%d, Coronal X=%d/%d", vz+1, vol->D, vy+1, vol->H, vx+1, vol->W);
+    snprintf(msg,255,"Sagittal Z=%d/%d, Axial Y=%d/%d, Coronal X=%d/%d", vz+1, vol->D, vy+1, vol->H, vx+1, vol->W);
     left_label(5, H-40, W-10, 20, msg, 0xffffff, 1);
   
     if (vy < 1024) {
@@ -1708,7 +1708,7 @@ gboolean ss_expose(GtkWidget *w, GdkEventExpose *e, gpointer data) {
 	
 	//printf("nv=%d nv2=%d dx*dz=%.4f\n",nv,nv2,vol->dx*vol->dz);
 	
-	sprintf(msg,"Ellipse properties: ecc=%.4f a/b=%.4f a=%.2f mm b=%.2f mm perimeter=%.1f mm area=%.1f mm² (seg=%.1f-%.1f mm²) line=%.1f mm",
+	snprintf(msg,255,"Ellipse properties: ecc=%.4f a/b=%.4f a=%.2f mm b=%.2f mm perimeter=%.1f mm area=%.1f mm² (seg=%.1f-%.1f mm²) line=%.1f mm",
 		efit[vy].eccentricity(),
 		efit[vy].flatness(),
 		efit[vy].major_semiaxis() * 2.0 * rsd->dx,
@@ -1772,13 +1772,13 @@ gboolean ss_expose(GtkWidget *w, GdkEventExpose *e, gpointer data) {
       gc_color(gc, 0xffffff);
       gdk_draw_rectangle(w->window,gc,FALSE,zs[1],zs[2]-4,200,10);
       
-      sprintf(msg,"Zoom: %d%%",(int)(100.0*ezoom));
+      snprintf(msg,511,"Zoom: %d%%",(int)(100.0*ezoom));
       center_label(zs[1],zs[2]-20,200,20,msg,0xdeff00,1);
       
     }
     
     if (tool==TOOL_PAN && ps[0]) {
-      sprintf(msg,"Pan: (%+d,%+d)",pan[0],pan[1]);
+      snprintf(msg,511,"Pan: (%+d,%+d)",pan[0],pan[1]);
       center_label(0,0,W,H,msg,0xdeff00,1);
     }
   } // vol && !vio_loading
@@ -1789,7 +1789,7 @@ gboolean ss_expose(GtkWidget *w, GdkEventExpose *e, gpointer data) {
     gc_color(gc, 0x000000);
     gdk_draw_rectangle(w->window,gc,FALSE,W/2-200,H/2-20,400,40);
     
-    sprintf(msg,"Reslicing: %d of %d",rsqdone,rsqtotal);
+    snprintf(msg,511,"Reslicing: %d of %d",rsqdone,rsqtotal);
     center_label(0,0,W,H,msg,0xdeff00,1);
   }
   
