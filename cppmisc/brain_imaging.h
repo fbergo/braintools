@@ -35,6 +35,14 @@
 #include <ft2build.h>
 #include FT_FREETYPE_H
 
+#ifdef __APPLE__
+#include <machine/endian.h>
+#include <libkern/OSByteOrder.h>
+#define htobe32(x) OSSwapHostToBigInt32(x)
+#define be32toh(x) OSSwapBigToHostInt32(x)
+#define be16toh(x) OSSwapBigToHostInt16(x)
+#endif
+
 using namespace std;
 
 //! String Tokenizer
@@ -1085,7 +1093,7 @@ class Image : public Paintable {
 
   //! Destructor
   virtual ~Image() {
-    if (data!=0) delete data;
+    if (data!=0) delete[] data;
   }
 
   //! Saves this image to a P6 PPM file
@@ -2219,7 +2227,7 @@ public:
   int   *ibuf;
   char  *rbuf;
 
-  static constexpr float InfZ = 50000.0;
+  static const float InfZ = 50000.0f;
 
   RenderingContext(int w,int h) {
     W = w;
@@ -2400,8 +2408,8 @@ template <class T> class Volume : public VolumeDomain {
   }
 
   virtual ~Volume() {
-    if (data!=NULL)  delete data;
-    if (vqbuf!=NULL) delete vqbuf;
+    if (data!=NULL)  delete[] data;
+    if (vqbuf!=NULL) delete[] vqbuf;
   }
 
   iterator & begin() { return(ibegin); }
@@ -2417,8 +2425,8 @@ template <class T> class Volume : public VolumeDomain {
   }
 
   void clear() {
-    if (data!=NULL) delete data;
-    data = 0;
+    if (data!=NULL) delete[] data;
+    data = NULL;
     resize(0,0,0);
     szPartial = szTotal = szCompressed = 0;
     lastmax = 0;
@@ -2509,7 +2517,7 @@ template <class T> class Volume : public VolumeDomain {
 	szPartial += W;
 	if (berr != BZ_OK) goto bzwfail;
       }
-      delete xd;
+      delete[] xd;
     } else if (bits==8 && sign) {
       int8_t *xd = new int8_t[W];
       int x;
@@ -2522,7 +2530,7 @@ template <class T> class Volume : public VolumeDomain {
 	szPartial += W;
 	if (berr != BZ_OK) goto bzwfail;
       }
-      delete xd;
+      delete[] xd;
     } else if (bits==16 && !sign) {
       uint16_t *xd = new uint16_t[W];
       int x;
@@ -2536,7 +2544,7 @@ template <class T> class Volume : public VolumeDomain {
 	szPartial += 2*W;
 	if (berr != BZ_OK) goto bzwfail;
       }
-      delete xd;
+      delete[] xd;
     } else if (bits==16 && sign) {
       int16_t *xd = new int16_t[W];
       int x;
@@ -2550,7 +2558,7 @@ template <class T> class Volume : public VolumeDomain {
 	szPartial += 2*W;
 	if (berr != BZ_OK) goto bzwfail;
       }
-      delete xd;
+      delete[] xd;
     } else if (bits==32 && !sign) {
       uint32_t *xd = new uint32_t[W];
       int64_t x;
@@ -2564,7 +2572,7 @@ template <class T> class Volume : public VolumeDomain {
 	szPartial += 4*W;
 	if (berr != BZ_OK) goto bzwfail;
       }
-      delete xd;
+      delete[] xd;
     } else if (bits==32 && sign) {
       int32_t *xd = new int32_t[W];
       int64_t x;
@@ -2578,7 +2586,7 @@ template <class T> class Volume : public VolumeDomain {
 	szPartial += 4*W;
 	if (berr != BZ_OK) goto bzwfail;
       }
-      delete xd;
+      delete[] xd;
     }
 
     unsigned int bin, bout;
@@ -2646,7 +2654,7 @@ template <class T> class Volume : public VolumeDomain {
 	f.write( (char *) xd, 1 * W);
 	szPartial += W;
       }
-      delete xd;
+      delete[] xd;
     } else if (bits==8 && sign) {
       int8_t *xd = new int8_t[W];
       int x;
@@ -2658,7 +2666,7 @@ template <class T> class Volume : public VolumeDomain {
 	f.write( (char *) xd, 1 * W);
 	szPartial += W;
       }
-      delete xd;
+      delete[] xd;
     } else if (bits==16 && !sign) {
       uint16_t *xd = new uint16_t[W];
       int x;
@@ -2671,7 +2679,7 @@ template <class T> class Volume : public VolumeDomain {
 	f.write( (char *) xd, 2 * W);
 	szPartial += 2*W;
       }
-      delete xd;
+      delete[] xd;
     } else if (bits==16 && sign) {
       int16_t *xd = new int16_t[W];
       int x;
@@ -2684,7 +2692,7 @@ template <class T> class Volume : public VolumeDomain {
 	f.write( (char *) xd, 2 * W);
 	szPartial += 2*W;
       }
-      delete xd;
+      delete[] xd;
     } else if (bits==32 && !sign) {
       uint32_t *xd = new uint32_t[W];
       int64_t x;
@@ -2697,7 +2705,7 @@ template <class T> class Volume : public VolumeDomain {
 	f.write( (char *) xd, 4 * W);
 	szPartial += 4*W;
       }
-      delete xd;
+      delete[] xd;
     } else if (bits==32 && sign) {
       int32_t *xd = new int32_t[W];
       int64_t x;
@@ -2710,7 +2718,7 @@ template <class T> class Volume : public VolumeDomain {
 	f.write( (char *) xd, 4 * W);
 	szPartial += 4*W;
       }
-      delete xd;
+      delete[] xd;
     }
 
     szCompressed = szPartial;
@@ -2898,7 +2906,7 @@ template <class T> class Volume : public VolumeDomain {
       if (slope!=1.0f || intercept!=0.0f)
 	for(i=0;i<N;i++) t8u[i] = (uint8_t) (intercept + slope * t8u[i]);
       for(i=0;i<N;i++) data[i] = (T) (t8u[i]);
-      delete t8u;
+      delete[] t8u;
     } break;
     case 256: { // int8
       int8_t *t8s = new int8_t[N];
@@ -2912,7 +2920,7 @@ template <class T> class Volume : public VolumeDomain {
       if (slope!=1.0f || intercept!=0.0f)
 	for(i=0;i<N;i++) t8s[i] = (int8_t) (intercept + slope * t8s[i]);
       for(i=0;i<N;i++) data[i] = (T) (t8s[i]);
-      delete t8s;
+      delete[] t8s;
     } break;
     case 4: { // int16
       int16_t *t16s = new int16_t[N];
@@ -2926,7 +2934,7 @@ template <class T> class Volume : public VolumeDomain {
       if (slope!=1.0f || intercept!=0.0f)
 	for(i=0;i<N;i++) t16s[i] = (int16_t) (intercept + slope * t16s[i]);
       for(i=0;i<N;i++) data[i] = (T) (t16s[i]);
-      delete t16s;
+      delete[] t16s;
     } break;
     case 512: { // uint16
       uint16_t *t16u = new uint16_t[N];
@@ -2940,7 +2948,7 @@ template <class T> class Volume : public VolumeDomain {
       if (slope!=1.0f || intercept!=0.0f)
 	for(i=0;i<N;i++) t16u[i] = (uint16_t) (intercept + slope * t16u[i]);
       for(i=0;i<N;i++) data[i] = (T) (t16u[i]);
-      delete t16u;
+      delete[] t16u;
     } break;
     case 8: { //int32
       int32_t *t32s = new int32_t[N];
@@ -2954,7 +2962,7 @@ template <class T> class Volume : public VolumeDomain {
       if (slope!=1.0f || intercept!=0.0f)
 	for(i=0;i<N;i++) t32s[i] = (int32_t) (intercept + slope * t32s[i]);
       for(i=0;i<N;i++) data[i] = (T) (t32s[i]);
-      delete t32s;
+      delete[] t32s;
     } break;
     case 768: { //uint32
       uint32_t *t32u = new uint32_t[N];
@@ -2968,7 +2976,7 @@ template <class T> class Volume : public VolumeDomain {
       if (slope!=1.0f || intercept!=0.0f)
 	for(i=0;i<N;i++) t32u[i] = (uint32_t) (intercept + slope * t32u[i]);
       for(i=0;i<N;i++) data[i] = (T) (t32u[i]);
-      delete t32u;
+      delete[] t32u;
     } break;
     case 1024: { //int64
       int64_t *t64s = new int64_t[N];
@@ -2982,7 +2990,7 @@ template <class T> class Volume : public VolumeDomain {
       if (slope!=1.0f || intercept!=0.0f)
 	for(i=0;i<N;i++) t64s[i] = (int64_t) (intercept + slope * t64s[i]);
       for(i=0;i<N;i++) data[i] = (T) (t64s[i]);
-      delete t64s;
+      delete[] t64s;
     } break;
     case 1280: { //uint64
       uint64_t *t64u = new uint64_t[N];
@@ -2996,7 +3004,7 @@ template <class T> class Volume : public VolumeDomain {
       if (slope!=1.0f || intercept!=0.0f)
 	for(i=0;i<N;i++) t64u[i] = (uint64_t) (intercept + slope * t64u[i]);
       for(i=0;i<N;i++) data[i] = (T) (t64u[i]);
-      delete t64u;
+      delete[] t64u;
     } break;
     case 16: { //float32
       float *f32 = new float[N];
@@ -3010,7 +3018,7 @@ template <class T> class Volume : public VolumeDomain {
       if (slope!=1.0f || intercept!=0.0f)
 	for(i=0;i<N;i++) f32[i] = (float) (intercept + slope * f32[i]);
       for(i=0;i<N;i++) data[i] = (T) (f32[i]);
-      delete f32;
+      delete[] f32;
     } break;
     case 64: { //float64
       double *f64 = new double[N];
@@ -3024,7 +3032,7 @@ template <class T> class Volume : public VolumeDomain {
       if (slope!=1.0f || intercept!=0.0f)
 	for(i=0;i<N;i++) f64[i] = (double) (intercept + slope * f64[i]);
       for(i=0;i<N;i++) data[i] = (T) (f64[i]);
-      delete f64;
+      delete[] f64;
     } break;
     }
     niftiFlip();
@@ -4609,12 +4617,16 @@ template <class T> class Volume : public VolumeDomain {
 	    k = voxel(ac);
 	    if (k<0) break;
 	    sk = (int) sqrt(k);
-	    tex->voxel(j,i,sk) = mr->voxel(ac);
-	    if (tmap != 0) (*tmap)->voxel(j,i,sk) = ac;
-	    if (sk>0) {
-	      tex->voxel(j,i,sk-1) = mr->voxel(ac);
-	      if (tmap != 0) {
-		(*tmap)->voxel(j,i,sk-1) = ac;
+	    // macos crashes here
+	    // printf("ac=%d c=%d,%d,%d k=%d sk=%d tex.dim=%d,%d,%d\n",ac,c.X,c.Y,c.Z,k,sk,tex->W,tex->H,tex->D);
+	    if  (tex->valid(j,i,sk)) {
+	      tex->voxel(j,i,sk) = mr->voxel(ac);
+	      if (tmap != NULL) (*tmap)->voxel(j,i,sk) = ac;
+	      if (sk>0) {
+		tex->voxel(j,i,sk-1) = mr->voxel(ac);
+		if (tmap != 0) {
+		  (*tmap)->voxel(j,i,sk-1) = ac;
+		}
 	      }
 	    }
 	  }
@@ -5167,7 +5179,7 @@ template <class T> class Volume : public VolumeDomain {
   /* visualization */
 
   void invalidateRenderCache() {
-    if (vqbuf!=NULL) delete vqbuf;
+    if (vqbuf!=NULL) delete[] vqbuf;
     vqbuf = NULL;
   }
 
@@ -5558,7 +5570,7 @@ template <class T> class Volume : public VolumeDomain {
     if (vqbuf!=NULL && rt==prt && rval==prv && !force)
       return;
 
-    if (vqbuf!=NULL) delete vqbuf;
+    if (vqbuf!=NULL) delete[] vqbuf;
     vqbuf = NULL;
 
     prt = rt;
@@ -6468,7 +6480,7 @@ class Patch {
     }
   }
 
-  virtual ~Patch() { delete data; }
+  virtual ~Patch() { delete[] data; }
 
   void fill(float val) {
     unsigned int i;
@@ -6691,7 +6703,7 @@ class Patch {
     float x=0.0f;
     for(j=0;j<(int)H;j++)
       for(i=0;i<(int)W;i++)
-        x += point(i,j) / (1.0f+fabsf(i-j));
+        x += point(i,j) / (1.0f+abs(i-j));
     return x;
   }
 
@@ -7298,7 +7310,7 @@ class COMatrix {
   }
 
   ~COMatrix() {
-    delete data;
+    delete[] data;
   }
 
   void clear() {

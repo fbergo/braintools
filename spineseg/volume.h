@@ -1,24 +1,24 @@
 /*
 
-    SpineSeg
-    http://www.lni.hc.unicamp.br/app/spineseg
-    https://github.com/fbergo/braintools
-    Copyright (C) 2009-2017 Felipe P.G. Bergo
-    fbergo/at/gmail/dot/com
+  SpineSeg
+  http://www.lni.hc.unicamp.br/app/spineseg
+  https://github.com/fbergo/braintools
+  Copyright (C) 2009-2017 Felipe P.G. Bergo
+  fbergo/at/gmail/dot/com
 
-    This program is free software; you can redistribute it and/or modify
-    it under the terms of the GNU General Public License as published by
-    the Free Software Foundation; either version 2 of the License, or
-    (at your option) any later version.
+  This program is free software; you can redistribute it and/or modify
+  it under the terms of the GNU General Public License as published by
+  the Free Software Foundation; either version 2 of the License, or
+  (at your option) any later version.
 
-    This program is distributed in the hope that it will be useful,
-    but WITHOUT ANY WARRANTY; without even the implied warranty of
-    MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
-    GNU General Public License for more details.
+  This program is distributed in the hope that it will be useful,
+  but WITHOUT ANY WARRANTY; without even the implied warranty of
+  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+  GNU General Public License for more details.
 
-    You should have received a copy of the GNU General Public License
-    along with this program; if not, write to the Free Software
-    Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
+  You should have received a copy of the GNU General Public License
+  along with this program; if not, write to the Free Software
+  Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
 
 */
 
@@ -53,7 +53,7 @@ using namespace std;
 //! A 3D discrete domain
 class VolumeDomain {
 
- public:
+public:
 
   int W,H,D,N,WxH;
 
@@ -73,8 +73,8 @@ class VolumeDomain {
 
   //! Destructor
   virtual ~VolumeDomain() {
-    if (tby) delete tby;
-    if (tbz) delete tbz;
+    if (tby) delete[] tby;
+    if (tbz) delete[] tbz;
   }
 
   //! Resizes this domain
@@ -86,8 +86,8 @@ class VolumeDomain {
     D = d;
     N = W*H*D;
     WxH = W*H;
-    if (tby!=NULL) delete tby;
-    if (tbz!=NULL) delete tbz;
+    if (tby!=NULL) delete[] tby;
+    if (tbz!=NULL) delete[] tbz;
     if (N==0) {
       tby = NULL;
       tbz = NULL;
@@ -136,13 +136,13 @@ class VolumeDomain {
   //! Returns the length of the diagonal segment (0,0,0)-(W,H,D)
   int diagonalLength() { return((int) (sqrt(W*W+H*H+D*D))); }
 
- private:
+private:
   int *tby, *tbz;
 };
 
 //! Point in bound discrete 3D space
 class BoundLocation : public Location {
- public:
+public:
   //! Constructor
   BoundLocation() : Location() { bind(0,0,0); }
 
@@ -202,7 +202,7 @@ class BoundLocation : public Location {
   virtual void print() { cout << "(" << X << "," << Y << "," << Z << "), (" << W << "," << H << "," << D << ")" << endl; }
 
 
- private:
+private:
   int W,H,D;
   Location pb, pe;
 
@@ -214,7 +214,7 @@ class BoundLocation : public Location {
 };
 
 class LocationIterator : public Location {
- public:
+public:
   LocationIterator(int w,int h,int d) : Location() { W=w; H=h; D=d; }
   LocationIterator(VolumeDomain *vd) : Location() { W=vd->W; H=vd->H; D=vd->D; }
   void begin() { X=Y=Z=0; }
@@ -223,13 +223,13 @@ class LocationIterator : public Location {
 
   LocationIterator & operator++(int a) { ++X; if (X==W) { X=0; ++Y; if (Y==H) { Y=0; ++Z; } } return(*this); }
 
- private:
+private:
   int W,H,D;
 };
 
 template <class T> class Volume : public VolumeDomain {
 
- public:
+public:
   float dx,dy,dz;
   T lastmax;
 
@@ -242,7 +242,7 @@ template <class T> class Volume : public VolumeDomain {
   }
 
   Volume(int w,int h,int d, 
-	 float pdx=1.0, float pdy=1.0,float pdz=1.0) :  VolumeDomain(w,h,d) {
+   float pdx=1.0, float pdy=1.0,float pdz=1.0) :  VolumeDomain(w,h,d) {
     int i;
 
     dx = pdx;
@@ -279,12 +279,12 @@ template <class T> class Volume : public VolumeDomain {
     data = new T[N];
     if (data != NULL)
       for(int i=0;i<N;i++)
-	data[i] = src->data[i];
+  data[i] = src->data[i];
     lastmax = src->lastmax;
   }
 
   virtual ~Volume() {
-    if (data!=NULL)  delete data;
+    if (data!=NULL)  delete[] data;
   }
 
   iterator & begin() { return(ibegin); }
@@ -339,16 +339,16 @@ template <class T> class Volume : public VolumeDomain {
       int64_t a = (int64_t) minimum();
       int64_t b = (int64_t) maximum();
       if (a>=0 && b<=255) { 
-	bits = 8; sign = false;
+  bits = 8; sign = false;
       } else if (a>=-128 && b<=127) {
-	bits = 8; sign = true;
+  bits = 8; sign = true;
       } else if (a>=0 && b<=65535) {
-	bits= 16; sign = false;
+  bits= 16; sign = false;
       } else if (a>=-32768 && b<=32767) {
-	bits = 16; sign = true;
+  bits = 16; sign = true;
       } else {
-	bits = 32;
-	sign = (a < 0);
+  bits = 32;
+  sign = (a < 0);
       }
     }
 
@@ -375,7 +375,7 @@ template <class T> class Volume : public VolumeDomain {
     szPartial = 0;
     szCompressed = 0;
 
-    sprintf(out,"SCN\n%d %d %d\n%.4f %.4f %.4f\n%d\n",W,H,D,dx,dy,dz,bits);
+    snprintf(out,255,"SCN\n%d %d %d\n%.4f %.4f %.4f\n%d\n",W,H,D,dx,dy,dz,bits);
     BZ2_bzWrite(&berr, bf, out, strlen(out));
     if (berr != BZ_OK) goto bzwfail;
 
@@ -384,84 +384,84 @@ template <class T> class Volume : public VolumeDomain {
       int x;
 
       for(i=0;i<H*D;i++) {
-	for(j=0;j<W;j++) {
-	  x = (int) data[i*W + j];
-	  xd[j] = (x < 0 ? 0 : (x > 255 ? 255 : (uint8_t) x ));
-	}
-	BZ2_bzWrite(&berr, bf, xd, W);
-	szPartial += W;
-	if (berr != BZ_OK) goto bzwfail;
+  for(j=0;j<W;j++) {
+    x = (int) data[i*W + j];
+    xd[j] = (x < 0 ? 0 : (x > 255 ? 255 : (uint8_t) x ));
+  }
+  BZ2_bzWrite(&berr, bf, xd, W);
+  szPartial += W;
+  if (berr != BZ_OK) goto bzwfail;
       }
-      delete xd;
+      delete[] xd;
     } else if (bits==8 && sign) {
       int8_t *xd = new int8_t[W];
       int x;
       for(i=0;i<H*D;i++) {
-	for(j=0;j<W;j++) {
-	  x = (int) data[i*W + j];
-	  xd[j] = (x < -128 ? -128 : (x > 127 ? 127 : (int8_t) x ));
-	}
-	BZ2_bzWrite(&berr, bf, xd, W);
-	szPartial += W;
-	if (berr != BZ_OK) goto bzwfail;
+  for(j=0;j<W;j++) {
+    x = (int) data[i*W + j];
+    xd[j] = (x < -128 ? -128 : (x > 127 ? 127 : (int8_t) x ));
+  }
+  BZ2_bzWrite(&berr, bf, xd, W);
+  szPartial += W;
+  if (berr != BZ_OK) goto bzwfail;
       }
-      delete xd;
+      delete[] xd;
     } else if (bits==16 && !sign) {
       uint16_t *xd = new uint16_t[W];
       int x;
 
       for(i=0;i<H*D;i++) {
-	for(j=0;j<W;j++) {
-	  x = (int) data[i*W + j];
-	  xd[j] = (x < 0 ? 0 : (x > 65535 ? 65535 : (uint16_t) x ));
-	}
-	BZ2_bzWrite(&berr, bf, xd, 2*W);
-	szPartial += 2*W;
-	if (berr != BZ_OK) goto bzwfail;
+  for(j=0;j<W;j++) {
+    x = (int) data[i*W + j];
+    xd[j] = (x < 0 ? 0 : (x > 65535 ? 65535 : (uint16_t) x ));
+  }
+  BZ2_bzWrite(&berr, bf, xd, 2*W);
+  szPartial += 2*W;
+  if (berr != BZ_OK) goto bzwfail;
       }
-      delete xd;
+      delete[] xd;
     } else if (bits==16 && sign) {
       int16_t *xd = new int16_t[W];
       int x;
 
       for(i=0;i<H*D;i++) {
-	for(j=0;j<W;j++) {
-	  x = (int) data[i*W + j];
-	  xd[j] = (x < -32768 ? -32768 : (x > 32767 ? 32767 : (int16_t) x ));
-	}
-	BZ2_bzWrite(&berr, bf, xd, 2*W);
-	szPartial += 2*W;
-	if (berr != BZ_OK) goto bzwfail;
+  for(j=0;j<W;j++) {
+    x = (int) data[i*W + j];
+    xd[j] = (x < -32768 ? -32768 : (x > 32767 ? 32767 : (int16_t) x ));
+  }
+  BZ2_bzWrite(&berr, bf, xd, 2*W);
+  szPartial += 2*W;
+  if (berr != BZ_OK) goto bzwfail;
       }
-      delete xd;
+      delete[] xd;
     } else if (bits==32 && !sign) {
       uint32_t *xd = new uint32_t[W];
       int64_t x;
 
       for(i=0;i<H*D;i++) {
-	for(j=0;j<W;j++) {
-	  x = (int64_t) data[i*W + j];
-	  xd[j] = (x < 0 ? 0 : (uint32_t) x );
-	}
-	BZ2_bzWrite(&berr, bf, xd, 4*W);
-	szPartial += 4*W;
-	if (berr != BZ_OK) goto bzwfail;
+  for(j=0;j<W;j++) {
+    x = (int64_t) data[i*W + j];
+    xd[j] = (x < 0 ? 0 : (uint32_t) x );
+  }
+  BZ2_bzWrite(&berr, bf, xd, 4*W);
+  szPartial += 4*W;
+  if (berr != BZ_OK) goto bzwfail;
       }
-      delete xd;
+      delete[] xd;
     } else if (bits==32 && sign) {
       int32_t *xd = new int32_t[W];
       int64_t x;
 
       for(i=0;i<H*D;i++) {
-	for(j=0;j<W;j++) {
-	  x = (int64_t) data[i*W + j];
-	  xd[j] = (int32_t) x;
-	}
-	BZ2_bzWrite(&berr, bf, xd, 4*W);
-	szPartial += 4*W;
-	if (berr != BZ_OK) goto bzwfail;
+  for(j=0;j<W;j++) {
+    x = (int64_t) data[i*W + j];
+    xd[j] = (int32_t) x;
+  }
+  BZ2_bzWrite(&berr, bf, xd, 4*W);
+  szPartial += 4*W;
+  if (berr != BZ_OK) goto bzwfail;
       }
-      delete xd;
+      delete[] xd;
     }
 
     unsigned int bin, bout;
@@ -486,16 +486,16 @@ template <class T> class Volume : public VolumeDomain {
       int64_t a = (int64_t) minimum();
       int64_t b = (int64_t) maximum();
       if (a>=0 && b<=255) { 
-	bits = 8; sign = false;
+  bits = 8; sign = false;
       } else if (a>=-128 && b<=127) {
-	bits = 8; sign = true;
+        bits = 8; sign = true;
       } else if (a>=0 && b<=65535) {
-	bits= 16; sign = false;
+        bits= 16; sign = false;
       } else if (a>=-32768 && b<=32767) {
-	bits = 16; sign = true;
+        bits = 16; sign = true;
       } else {
-	bits = 32;
-	sign = (a < 0);
+        bits = 32;
+        sign = (a < 0);
       }
     }
 
@@ -522,78 +522,78 @@ template <class T> class Volume : public VolumeDomain {
       int x;
 
       for(i=0;i<H*D;i++) {
-	for(j=0;j<W;j++) {
-	  x = (int) data[i*W + j];
-	  xd[j] = (x < 0 ? 0 : (x > 255 ? 255 : (uint8_t) x ));
-	}
-	f.write( (char *) xd, 1 * W);
-	szPartial += W;
+        for(j=0;j<W;j++) {
+          x = (int) data[i*W + j];
+          xd[j] = (x < 0 ? 0 : (x > 255 ? 255 : (uint8_t) x ));
+        }
+        f.write( (char *) xd, 1 * W);
+        szPartial += W;
       }
-      delete xd;
+      delete[] xd;
     } else if (bits==8 && sign) {
       int8_t *xd = new int8_t[W];
       int x;
       for(i=0;i<H*D;i++) {
-	for(j=0;j<W;j++) {
-	  x = (int) data[i*W + j];
-	  xd[j] = (x < -128 ? -128 : (x > 127 ? 127 : (int8_t) x ));
-	}
-	f.write( (char *) xd, 1 * W);
-	szPartial += W;
+        for(j=0;j<W;j++) {
+          x = (int) data[i*W + j];
+          xd[j] = (x < -128 ? -128 : (x > 127 ? 127 : (int8_t) x ));
+        }
+        f.write( (char *) xd, 1 * W);
+        szPartial += W;
       }
-      delete xd;
+      delete[] xd;
     } else if (bits==16 && !sign) {
       uint16_t *xd = new uint16_t[W];
       int x;
 
       for(i=0;i<H*D;i++) {
-	for(j=0;j<W;j++) {
-	  x = (int) data[i*W + j];
-	  xd[j] = (x < 0 ? 0 : (x > 65535 ? 65535 : (uint16_t) x ));
-	}
-	f.write( (char *) xd, 2 * W);
-	szPartial += 2*W;
+        for(j=0;j<W;j++) {
+          x = (int) data[i*W + j];
+          xd[j] = (x < 0 ? 0 : (x > 65535 ? 65535 : (uint16_t) x ));
+        }
+        f.write( (char *) xd, 2 * W);
+        szPartial += 2*W;
       }
-      delete xd;
+      delete[] xd;
     } else if (bits==16 && sign) {
       int16_t *xd = new int16_t[W];
       int x;
 
       for(i=0;i<H*D;i++) {
-	for(j=0;j<W;j++) {
-	  x = (int) data[i*W + j];
-	  xd[j] = (x < -32768 ? -32768 : (x > 32767 ? 32767 : (int16_t) x ));
-	}
-	f.write( (char *) xd, 2 * W);
-	szPartial += 2*W;
+        for(j=0;j<W;j++) {
+          x = (int) data[i*W + j];
+          xd[j] = (x < -32768 ? -32768 : (x > 32767 ? 32767 : (int16_t) x ));
+        }
+        f.write( (char *) xd, 2 * W);
+        szPartial += 2*W;
       }
-      delete xd;
+      delete[] xd;
     } else if (bits==32 && !sign) {
       uint32_t *xd = new uint32_t[W];
       int64_t x;
 
       for(i=0;i<H*D;i++) {
-	for(j=0;j<W;j++) {
-	  x = (int64_t) data[i*W + j];
-	  xd[j] = (x < 0 ? 0 : (uint32_t) x );
-	}
-	f.write( (char *) xd, 4 * W);
-	szPartial += 4*W;
+        for(j=0;j<W;j++) {
+          x = (int64_t) data[i*W + j];
+          xd[j] = (x < 0 ? 0 : (uint32_t) x );
+        }
+        f.write( (char *) xd, 4 * W);
+        szPartial += 4*W;
       }
-      delete xd;
+      delete[] xd;
     } else if (bits==32 && sign) {
       int32_t *xd = new int32_t[W];
       int64_t x;
 
       for(i=0;i<H*D;i++) {
-	for(j=0;j<W;j++) {
-	  x = (int64_t) data[i*W + j];
-	  xd[j] = (int32_t) x;
-	}
-	f.write( (char *) xd, 4 * W);
-	szPartial += 4*W;
+        for(j=0;j<W;j++) {
+          x = (int64_t) data[i*W + j];
+          xd[j] = (int32_t) x;
+        }
+        f.write( (char *) xd, 4 * W);
+        szPartial += 4*W;
       }
-      delete xd;
+      delete[] xd;
     }
 
     szCompressed = szPartial;
@@ -628,14 +628,14 @@ template <class T> class Volume : public VolumeDomain {
       bn=BZ2_bzRead(&berr,bf,&c,1);
       if (bn!=1 || berr!=BZ_OK) goto bzrfail;
       if (c==' ' || c=='\t' || c=='\n') {
-	y[state] = atof(x.c_str());
-	x.clear();
-	state++;
+        y[state] = atof(x.c_str());
+        x.clear();
+        state++;
       } else {
-	x += c;
+        x += c;
       }
       if (state==7 && c!='\n') { 
-	do { bn=BZ2_bzRead(&berr,bf,&c,1); } while(c!='\n' && berr==BZ_OK); 
+        do { bn=BZ2_bzRead(&berr,bf,&c,1); } while(c!='\n' && berr==BZ_OK); 
       }
     }
     if (berr != BZ_OK) goto bzrfail;
@@ -660,36 +660,36 @@ template <class T> class Volume : public VolumeDomain {
       td8 = new uint8_t[N];
       if (!td8) goto bzrfail;
       for(i=0;i<H*D;i++) {
-	bn=BZ2_bzRead(&berr,bf,&td8[i*W],W);
-	szPartial += W;
-	if (bn!=W || (berr!=BZ_OK && berr!=BZ_STREAM_END)) goto bzrfail;
+        bn=BZ2_bzRead(&berr,bf,&td8[i*W],W);
+        szPartial += W;
+        if (bn!=W || (berr!=BZ_OK && berr!=BZ_STREAM_END)) goto bzrfail;
       }
       for(i=0;i<N;i++) data[i] = (T) (td8[i]);
-      delete td8;
+      delete[] td8;
       break;
     case 16:
       uint16_t *td16;
       td16 = new uint16_t[N];
       if (!td16) goto bzrfail;
       for(i=0;i<H*D;i++) {
-	bn=BZ2_bzRead(&berr,bf,&td16[i*W],2*W);
-	szPartial += 2*W;
-	if (bn!=2*W || (berr!=BZ_OK && berr!=BZ_STREAM_END)) goto bzrfail;
+        bn=BZ2_bzRead(&berr,bf,&td16[i*W],2*W);
+        szPartial += 2*W;
+        if (bn!=2*W || (berr!=BZ_OK && berr!=BZ_STREAM_END)) goto bzrfail;
       }
       for(i=0;i<N;i++) data[i] = (T) (td16[i]);
-      delete td16;
+      delete[] td16;
       break;
     case 32:
       int32_t *td32;
       td32 = new int32_t[N];
       if (!td32) goto bzrfail;
       for(i=0;i<H*D;i++) {
-	bn=BZ2_bzRead(&berr,bf,&td32[i*W],4*W);
-	szPartial += 4*W;
-	if (bn!=4*W || (berr!=BZ_OK && berr!=BZ_STREAM_END)) goto bzrfail;
+        bn=BZ2_bzRead(&berr,bf,&td32[i*W],4*W);
+        szPartial += 4*W;
+        if (bn!=4*W || (berr!=BZ_OK && berr!=BZ_STREAM_END)) goto bzrfail;
       }
       for(i=0;i<N;i++) data[i] = (T) (td32[i]);
-      delete td32;
+      delete[] td32;
       break;
     }
 
@@ -731,11 +731,11 @@ template <class T> class Volume : public VolumeDomain {
       c = fgetc(f);
       if (ferror(f)) goto rfail;
       if (c==' ' || c=='\t' || c=='\n') {
-	y[state] = atof(x.c_str());
-	x.clear();
-	state++;
+  y[state] = atof(x.c_str());
+  x.clear();
+  state++;
       } else {
-	x += c;
+  x += c;
       }
       if (state==7 && c!='\n') { do { c=fgetc(f); } while(c!='\n' && !ferror(f)); }
     }
@@ -761,33 +761,33 @@ template <class T> class Volume : public VolumeDomain {
       td8 = new uint8_t[N];
       if (!td8) goto rfail;
       for(i=0;i<H*D;i++) {
-	fread( (void *) (&td8[i*W]), 1, W, f);
-	szPartial += W;
-	if (ferror(f)) goto rfail;
+  fread( (void *) (&td8[i*W]), 1, W, f);
+  szPartial += W;
+  if (ferror(f)) goto rfail;
       }
       for(i=0;i<N;i++) data[i] = (T) (td8[i]);
-      delete td8;
+      delete[] td8;
       break;
     case 16:
       uint16_t *td16;
       td16 = new uint16_t[N];
       if (!td16) goto rfail;
       for(i=0;i<H*D;i++) {
-	fread( (void *) (&td16[i*W]), 1, 2*W, f);
-	szPartial += 2*W;
-	if (ferror(f)) goto rfail;
+  fread( (void *) (&td16[i*W]), 1, 2*W, f);
+  szPartial += 2*W;
+  if (ferror(f)) goto rfail;
       }
       for(i=0;i<N;i++) data[i] = (T) (td16[i]);
-      delete td16;
+      delete[] td16;
       break;
     case 32:
       int32_t *td32;
       td32 = new int32_t[N];
       if (!td32) goto rfail;
       for(i=0;i<H*D;i++) {
-	fread( (void *) (&td32[i*W]), 1, 4*W, f);
-	szPartial += 4*W;
-	if (ferror(f)) goto rfail;
+  fread( (void *) (&td32[i*W]), 1, 4*W, f);
+  szPartial += 4*W;
+  if (ferror(f)) goto rfail;
       }
       for(i=0;i<N;i++) data[i] = (T) (td32[i]);
       delete td32;
@@ -805,28 +805,28 @@ template <class T> class Volume : public VolumeDomain {
   bool ok() { return(data!=0); }
 
   T & voxel(int x,int y,int z) { 
-    #ifdef SAFE
+#ifdef SAFE
     assert(address(x,y,z)>=0 && address(x,y,z)<N);
-    #endif
+#endif
     return(data[address(x,y,z)]); 
   }
   T & voxel(float x,float y,float z) { 
-    #ifdef SAFE
+#ifdef SAFE
     return(voxel((int)x,(int)y,(int)z));
-    #else
+#else
     return(data[address((int)x,(int)y,(int)z)]);
-    #endif
+#endif
   }
   T & voxel(int a) { 
-    #ifdef SAFE
+#ifdef SAFE
     assert(a>=0 && a<N);
-    #endif
+#endif
     return(data[a]);
   }
   T & voxel(Location & loc) { 
-    #ifdef SAFE
+#ifdef SAFE
     assert(address(loc)>=0 && address(loc)<N);
-    #endif
+#endif
     return(data[address(loc)]);
   }
 
@@ -909,14 +909,14 @@ template <class T> class Volume : public VolumeDomain {
 
     for(p=begin();p!=end();p++) {
       if (voxel(p)!=0)
-	for(i=0;i<A.size();i++) {
-	  q = A.neighbor(p,i);
-	  if (valid(q))
-	    if (voxel(q)==0) {
-	      voxel(p)++;
-	      break;
-	    }
-	}
+  for(i=0;i<A.size();i++) {
+    q = A.neighbor(p,i);
+    if (valid(q))
+      if (voxel(q)==0) {
+        voxel(p)++;
+        break;
+      }
+  }
     }
   }
   
@@ -942,10 +942,10 @@ template <class T> class Volume : public VolumeDomain {
 
     for(i=0;i<N;i++) {
       if (seeds->voxel(i) != 0) {
-	cost->voxel(i) = 0;
-	Q->insert(i,0);
+  cost->voxel(i) = 0;
+  Q->insert(i,0);
       } else {
-	cost->voxel(i) = inf;
+  cost->voxel(i) = inf;
       }
     }
 
@@ -953,61 +953,61 @@ template <class T> class Volume : public VolumeDomain {
       p = Q->remove();
       q.set( xOf(p), yOf(p), zOf(p) );
       for(i=0;i<A6.size();i++) {
-	r = A6.neighbor(q,i);
-	if (valid(r)) {
-	  c1 = cost->voxel(r);
-	  c2 = max( cost->voxel(q), this->voxel(r) );	  
-	  if (c2 < c1) {
-	    cost->voxel(r) = c2;
-	    pred->voxel(r) = p;
-	    Q->insert(address(r), c2);
-	  }
-	}
+  r = A6.neighbor(q,i);
+  if (valid(r)) {
+    c1 = cost->voxel(r);
+    c2 = max( cost->voxel(q), this->voxel(r) );	  
+    if (c2 < c1) {
+      cost->voxel(r) = c2;
+      pred->voxel(r) = p;
+      Q->insert(address(r), c2);
+    }
+  }
       }
     }
 
     delete cost;
 
-     /* compute descendant count (old method) */
+    /* compute descendant count (old method) */
     dcount = new Volume<int>(W,H,D);
     B = this->border();
     for(i=0;i<N;i++) {
       if (B->voxel(i) != 0) {
-	j = i;
-	while(pred->voxel(j) != -1) {
-	  dcount->voxel(pred->voxel(j))++;
-	  j = pred->voxel(j);
-	}
+  j = i;
+  while(pred->voxel(j) != -1) {
+    dcount->voxel(pred->voxel(j))++;
+    j = pred->voxel(j);
+  }
       }
     }
     
     /* find leaking points */
     for(i=0;i<N;i++) {
       if (B->voxel(i) == 1) {
-	j = i;
-	dmax = 0;
-	while(pred->voxel(j) != -1) {
-	  if (dcount->voxel(j) > dmax) {
-	    dmax = dcount->voxel(j);
-	    pmax = j;
-	  }
-	  j = pred->voxel(j);
-	}
-	k = pmax;
-	gmax = this->voxel(k);
-	while(pred->voxel(k) != -1) {
-	  if ( (dcount->voxel(k) == dmax) && (gmax < this->voxel(k)) ) {
-	    pmax = k;
-	    gmax = this->voxel(k);
-	  }
-	  k = pred->voxel(k);
-	}
+  j = i;
+  dmax = 0;
+  while(pred->voxel(j) != -1) {
+    if (dcount->voxel(j) > dmax) {
+      dmax = dcount->voxel(j);
+      pmax = j;
+    }
+    j = pred->voxel(j);
+  }
+  k = pmax;
+  gmax = this->voxel(k);
+  while(pred->voxel(k) != -1) {
+    if ( (dcount->voxel(k) == dmax) && (gmax < this->voxel(k)) ) {
+      pmax = k;
+      gmax = this->voxel(k);
+    }
+    k = pred->voxel(k);
+  }
 
-	/*
-	if (B->voxel(pmax) != 2)
-	  cout << "prune at " << pmax << endl;
-	*/
-	B->voxel(pmax) = 2; // set leaking point
+  /*
+    if (B->voxel(pmax) != 2)
+    cout << "prune at " << pmax << endl;
+  */
+  B->voxel(pmax) = 2; // set leaking point
       }
     }
 
@@ -1016,22 +1016,22 @@ template <class T> class Volume : public VolumeDomain {
 
     for(i=0;i<N;i++) {
       if (pred->voxel(i) == -1) {
-	seg->voxel(i) = 1;
-	fifo.push(i);
+        seg->voxel(i) = 1;
+        fifo.push(i);
 
-	while(!fifo.empty()) {
-	  j = fifo.front();
-	  fifo.pop();
-	  q.set( xOf(j), yOf(j), zOf(j) );
-	  seg->voxel(j) = 1;
+        while(!fifo.empty()) {
+          j = fifo.front();
+          fifo.pop();
+    q.set( xOf(j), yOf(j), zOf(j) );
+    seg->voxel(j) = 1;
 
-	  for(k=0;k<A6.size();k++) {
-	    r = A6.neighbor(q,k);
-	    if (valid(r))
-	      if ( (pred->voxel(r) == j) && (B->voxel(r) != 2) )
-		fifo.push(address(r));
-	  }
-	}
+    for(k=0;k<A6.size();k++) {
+      r = A6.neighbor(q,k);
+      if (valid(r))
+        if ( (pred->voxel(r) == j) && (B->voxel(r) != 2) )
+          fifo.push(address(r));
+    }
+  }
       }
     }
 
@@ -1047,16 +1047,16 @@ template <class T> class Volume : public VolumeDomain {
     B = new Volume<char>(W,H,D);
     if (D>=3)
       for(i=0;i<W;i++)
-	for(j=0;j<H;j++)
-	  B->voxel(i,j,0) = B->voxel(i,j,D-1) = 1;
+  for(j=0;j<H;j++)
+    B->voxel(i,j,0) = B->voxel(i,j,D-1) = 1;
     if (H>=3)
       for(i=0;i<W;i++)
-	for(j=0;j<D;j++)
-	  B->voxel(i,0,j) = B->voxel(i,H-1,j) = 1;
+  for(j=0;j<D;j++)
+    B->voxel(i,0,j) = B->voxel(i,H-1,j) = 1;
     if (W>=3)
       for(i=0;i<H;i++)
-	for(j=0;j<D;j++)
-	  B->voxel(0,i,j) = B->voxel(W-1,i,j) = 1;
+  for(j=0;j<D;j++)
+    B->voxel(0,i,j) = B->voxel(W-1,i,j) = 1;
     return B;
   }
 
@@ -1071,7 +1071,7 @@ template <class T> class Volume : public VolumeDomain {
       v->dy = dy;
       v->dz = dz;
       for(i=0;i<N;i++)
-	v->voxel(i) = this->voxel(i);
+  v->voxel(i) = this->voxel(i);
       return v;
     }
 
@@ -1081,109 +1081,109 @@ template <class T> class Volume : public VolumeDomain {
   }
 
   Volume<T> * interpolate(float ndx, float ndy, float ndz) {
-     Volume<T> *dest, *tmp;
-     int value;
-     Location Q,P,R;
-     float walked_dist,dist_PQ;
+    Volume<T> *dest, *tmp;
+    int value;
+    Location Q,P,R;
+    float walked_dist,dist_PQ;
 
-     if (ndx==dx && ndy==dy && ndz==dz) {
-       return(new Volume<T>(this));
-     }
+    if (ndx==dx && ndy==dy && ndz==dz) {
+      return(new Volume<T>(this));
+    }
 
-     dest = this;
+    dest = this;
 
-     if (ndx != dx) {
-       tmp = new Volume<T>( (int)((float)(dest->W-1)*dest->dx/ndx)+1,
-			    dest->H,
-			    dest->D);
-       for(Q.X=0; Q.X < tmp->W; Q.X++) {
-	 for(Q.Z=0; Q.Z < tmp->D; Q.Z++)
-	   for(Q.Y=0; Q.Y < tmp->H; Q.Y++) {
-	     
-	     walked_dist = (float)Q.X * ndx;
-	     P.X = (int)(walked_dist/dx);
-	     P.Y = Q.Y; P.Z = Q.Z;
-	     R.X = P.X + 1;
-	     if (R.X >= dest->W) R.X = dest->W - 1;
-	     R.Y = P.Y; R.Z = P.Z;
-	     dist_PQ =  walked_dist - (float)P.X * dx;
-	     
-	     value = (int)((( dx - dist_PQ)*
-			    (float)(dest->voxel(P)) +
-			    dist_PQ * (float) dest->voxel(R)) / dx);
-	     tmp->voxel(Q) = (T) value;
-	   }
-       }
-       dest = tmp;
-     }
+    if (ndx != dx) {
+      tmp = new Volume<T>( (int)((float)(dest->W-1)*dest->dx/ndx)+1,
+         dest->H,
+         dest->D);
+      for(Q.X=0; Q.X < tmp->W; Q.X++) {
+  for(Q.Z=0; Q.Z < tmp->D; Q.Z++)
+    for(Q.Y=0; Q.Y < tmp->H; Q.Y++) {
+       
+      walked_dist = (float)Q.X * ndx;
+      P.X = (int)(walked_dist/dx);
+      P.Y = Q.Y; P.Z = Q.Z;
+      R.X = P.X + 1;
+      if (R.X >= dest->W) R.X = dest->W - 1;
+      R.Y = P.Y; R.Z = P.Z;
+      dist_PQ =  walked_dist - (float)P.X * dx;
+       
+      value = (int)((( dx - dist_PQ)*
+         (float)(dest->voxel(P)) +
+         dist_PQ * (float) dest->voxel(R)) / dx);
+      tmp->voxel(Q) = (T) value;
+    }
+      }
+      dest = tmp;
+    }
 
-     if (ndy != dy) {
-       tmp = new Volume<T>(dest->W,
-			   (int)(((float)dest->H-1.0) * dy / ndy)+1,
-			   dest->D);
-       for(Q.Y=0; Q.Y < tmp->H; Q.Y++)
-	 for(Q.Z=0; Q.Z < tmp->D; Q.Z++)
-	   for(Q.X=0; Q.X < tmp->W; Q.X++) {
-	     
-	     walked_dist = (float)Q.Y * ndy;
-	     
-	     P.X = Q.X;
-	     P.Y = (int)(walked_dist/dy);
-	     P.Z = Q.Z;
-	     R.X = P.X;
-	     R.Y = P.Y + 1;
-	     if (R.Y >= dest->H) R.Y = dest->H - 1;
-	     R.Z = P.Z;
-	     dist_PQ =  walked_dist - (float)P.Y * dy;
-	     
-	     value = (int)(((dy - dist_PQ)*
-			    (float)(dest->voxel(P)) +
-			    dist_PQ * (float)(dest->voxel(R))) / dy);
-	     tmp->voxel(Q) = (T) value;
-	   }
-       if (dest != this)
-	 delete dest;
-       dest=tmp;
-     }
+    if (ndy != dy) {
+      tmp = new Volume<T>(dest->W,
+        (int)(((float)dest->H-1.0) * dy / ndy)+1,
+        dest->D);
+      for(Q.Y=0; Q.Y < tmp->H; Q.Y++)
+  for(Q.Z=0; Q.Z < tmp->D; Q.Z++)
+    for(Q.X=0; Q.X < tmp->W; Q.X++) {
+       
+      walked_dist = (float)Q.Y * ndy;
+       
+      P.X = Q.X;
+      P.Y = (int)(walked_dist/dy);
+      P.Z = Q.Z;
+      R.X = P.X;
+      R.Y = P.Y + 1;
+      if (R.Y >= dest->H) R.Y = dest->H - 1;
+      R.Z = P.Z;
+      dist_PQ =  walked_dist - (float)P.Y * dy;
+       
+      value = (int)(((dy - dist_PQ)*
+         (float)(dest->voxel(P)) +
+         dist_PQ * (float)(dest->voxel(R))) / dy);
+      tmp->voxel(Q) = (T) value;
+    }
+      if (dest != this)
+  delete dest;
+      dest=tmp;
+    }
 
-     if (ndz != dz) {
-       tmp = new Volume<T>(dest->W,
-			   dest->H,
-			   (int)(((float)dest->D-1.0) * dz / ndz)+1);
-       for(Q.Z=0; Q.Z < tmp->D; Q.Z++)
-	 for(Q.Y=0; Q.Y < tmp->H; Q.Y++)
-	   for(Q.X=0; Q.X < tmp->W; Q.X++) {
-	     
-	     walked_dist = (float)Q.Z * ndz;
-	     
-	     P.X = Q.X; P.Y = Q.Y;
-	     P.Z = (int)(walked_dist/dz);
-	     
-	     R.X = P.X; R.Y = P.Y;
-	     R.Z = P.Z + 1;
-	     if (R.Z >= dest->D) R.Z = dest->D - 1;	     
-	     dist_PQ =  walked_dist - (float)P.Z * dz;
-	     
-	     value = (int)(((dz - dist_PQ)*
-			    (float)(dest->voxel(P)) +
-			    dist_PQ * (float)(dest->voxel(R))) / dz);
-	     tmp->voxel(Q) = (T) value;
-	   }
-       if (dest != this)
-	 delete dest;
-       dest=tmp;
-     }
+    if (ndz != dz) {
+      tmp = new Volume<T>(dest->W,
+        dest->H,
+        (int)(((float)dest->D-1.0) * dz / ndz)+1);
+      for(Q.Z=0; Q.Z < tmp->D; Q.Z++)
+  for(Q.Y=0; Q.Y < tmp->H; Q.Y++)
+    for(Q.X=0; Q.X < tmp->W; Q.X++) {
+       
+      walked_dist = (float)Q.Z * ndz;
+       
+      P.X = Q.X; P.Y = Q.Y;
+      P.Z = (int)(walked_dist/dz);
+       
+      R.X = P.X; R.Y = P.Y;
+      R.Z = P.Z + 1;
+      if (R.Z >= dest->D) R.Z = dest->D - 1;	     
+      dist_PQ =  walked_dist - (float)P.Z * dz;
+       
+      value = (int)(((dz - dist_PQ)*
+         (float)(dest->voxel(P)) +
+         dist_PQ * (float)(dest->voxel(R))) / dz);
+      tmp->voxel(Q) = (T) value;
+    }
+      if (dest != this)
+  delete dest;
+      dest=tmp;
+    }
           
-     dest->dx=ndx;
-     dest->dy=ndy;
-     dest->dz=ndz;
-     return(dest);
+    dest->dx=ndx;
+    dest->dy=ndy;
+    dest->dz=ndz;
+    return(dest);
   }
 
   // left/right, anterior/posterior, feet/head
   enum Orientation { sagittal_lr=0, sagittal_rl=1, 
-		     coronal_ap=2, coronal_pa=3, 
-		     axial_fh=4, axial_hf=5 };
+         coronal_ap=2, coronal_pa=3, 
+         axial_fh=4, axial_hf=5 };
 
   Volume<T> *changeOrientation(Orientation from, Orientation to) {
     T4 forw[6], rev[6], tmp, t;
@@ -1255,15 +1255,15 @@ template <class T> class Volume : public VolumeDomain {
     
     for(z=0;z<nd;z++)
       for(y=0;y<nh;y++)
-	for(x=0;x<nw;x++) {
-	  a.set(x,y,z);
-	  b = t.apply(a);	
-	  x1 = (int) b.X;
-	  y1 = (int) b.Y;
-	  z1 = (int) b.Z;
-	  if (valid(x1,y1,z1))
-	    out->voxel(x,y,z) = voxel(x1,y1,z1);
-	}
+  for(x=0;x<nw;x++) {
+    a.set(x,y,z);
+    b = t.apply(a);	
+    x1 = (int) b.X;
+    y1 = (int) b.Y;
+    z1 = (int) b.Z;
+    if (valid(x1,y1,z1))
+      out->voxel(x,y,z) = voxel(x1,y1,z1);
+  }
 
     return out;
   }
@@ -1329,33 +1329,33 @@ template <class T> class Volume : public VolumeDomain {
 
     for(k=0;k<nd;k++)
       for(j=0;j<nh;j++)
-	for(i=0;i<nw;i++) {
-	  a.set(i,j,k);
-	  a = IX.apply(a);
+  for(i=0;i<nw;i++) {
+    a.set(i,j,k);
+    a = IX.apply(a);
 
-	  ws = 0.0f;
-	  vs = 0.0f;
+    ws = 0.0f;
+    vs = 0.0f;
 
-	  for(iz=0;iz<2;iz++)
-	    for(iy=0;iy<2;iy++)
-	      for(ix=0;ix<2;ix++) {
-		jx = ((int)floor(a.X)) + ix;
-		jy = ((int)floor(a.Y)) + iy;
-		jz = ((int)floor(a.Z)) + iz;
-		if (valid(jx,jy,jz)) {
-		  w = sq3 - sqrt( (jx-a.X)*(jx-a.X) +
-				  (jy-a.Y)*(jy-a.Y) +
-				  (jz-a.Z)*(jz-a.Z) );
-		  vs += w * (this->voxel(jx,jy,jz)) ;
-		  ws += w;
-		}
-	      }
-	  
-	  if (ws != 0.0f) {
-	    vs /= ws;
-	    tmp->voxel(i,j,k) = (T) vs;
-	  }
-	}
+    for(iz=0;iz<2;iz++)
+      for(iy=0;iy<2;iy++)
+        for(ix=0;ix<2;ix++) {
+    jx = ((int)floor(a.X)) + ix;
+    jy = ((int)floor(a.Y)) + iy;
+    jz = ((int)floor(a.Z)) + iz;
+    if (valid(jx,jy,jz)) {
+      w = sq3 - sqrt( (jx-a.X)*(jx-a.X) +
+          (jy-a.Y)*(jy-a.Y) +
+          (jz-a.Z)*(jz-a.Z) );
+      vs += w * (this->voxel(jx,jy,jz)) ;
+      ws += w;
+    }
+        }
+    
+    if (ws != 0.0f) {
+      vs /= ws;
+      tmp->voxel(i,j,k) = (T) vs;
+    }
+  }
     return tmp;
   }
 
@@ -1376,33 +1376,33 @@ template <class T> class Volume : public VolumeDomain {
 
     for(k=0;k<D;k++)
       for(j=0;j<H;j++)
-	for(i=0;i<W;i++) {
-	  a.set(i,j,k);
-	  a = IX.apply(a);
+  for(i=0;i<W;i++) {
+    a.set(i,j,k);
+    a = IX.apply(a);
 
-	  ws = 0.0f;
-	  vs = 0.0f;
+    ws = 0.0f;
+    vs = 0.0f;
 
-	  for(iz=0;iz<2;iz++)
-	    for(iy=0;iy<2;iy++)
-	      for(ix=0;ix<2;ix++) {
-		jx = ((int)floor(a.X)) + ix;
-		jy = ((int)floor(a.Y)) + iy;
-		jz = ((int)floor(a.Z)) + iz;
-		if (valid(jx,jy,jz)) {
-		  w = sq3 - sqrt( (jx-a.X)*(jx-a.X) +
-				  (jy-a.Y)*(jy-a.Y) +
-				  (jz-a.Z)*(jz-a.Z) );
-		  vs += w * (this->voxel(jx,jy,jz)) ;
-		  ws += w;
-		}
-	      }
-	  
-	  if (ws != 0.0f) {
-	    vs /= ws;
-	    tmp->voxel(i,j,k) = (T) vs;
-	  }
-	}
+    for(iz=0;iz<2;iz++)
+      for(iy=0;iy<2;iy++)
+        for(ix=0;ix<2;ix++) {
+    jx = ((int)floor(a.X)) + ix;
+    jy = ((int)floor(a.Y)) + iy;
+    jz = ((int)floor(a.Z)) + iz;
+    if (valid(jx,jy,jz)) {
+      w = sq3 - sqrt( (jx-a.X)*(jx-a.X) +
+          (jy-a.Y)*(jy-a.Y) +
+          (jz-a.Z)*(jz-a.Z) );
+      vs += w * (this->voxel(jx,jy,jz)) ;
+      ws += w;
+    }
+        }
+    
+    if (ws != 0.0f) {
+      vs /= ws;
+      tmp->voxel(i,j,k) = (T) vs;
+    }
+  }
 
     for(i=0;i<N;i++)
       this->voxel(i) = tmp->voxel(i);
@@ -1422,12 +1422,12 @@ template <class T> class Volume : public VolumeDomain {
     
     for(k=0;k<D;k++)
       for(j=0;j<H;j++)
-	for(i=0;i<W;i++) {
-	  a.set(i,j,k);
-	  a = IX.apply(a);
-	  if (valid(a.X,a.Y,a.Z))
-	    tmp->voxel(i,j,k) = this->voxel(a.X,a.Y,a.Z);
-	}
+  for(i=0;i<W;i++) {
+    a.set(i,j,k);
+    a = IX.apply(a);
+    if (valid(a.X,a.Y,a.Z))
+      tmp->voxel(i,j,k) = this->voxel(a.X,a.Y,a.Z);
+  }
 
     for(i=0;i<N;i++)
       this->voxel(i) = tmp->voxel(i);
@@ -1446,26 +1446,26 @@ template <class T> class Volume : public VolumeDomain {
 
     for(k=0;k<D;k++)
       for(j=0;j<H;j++)
-	for(i=0;i<W;i++) {
-	  
-	  vmin = vmax = voxel(i,j,k);
+  for(i=0;i<W;i++) {
+    
+    vmin = vmax = voxel(i,j,k);
 
-	  for(kk=-rq;kk<=rq;kk++)
-	    for(jj=-rq;jj<=rq;jj++)
-	      for(ii=-rq;ii<=rq;ii++)
-		if (ii*ii + jj*jj + kk*kk <= rq)
-		  if (valid(i+ii,j+jj,k+kk)) {
-		    c = voxel(i+ii,j+jj,k+kk);
-		    if (c < vmin) vmin = c; else if (c > vmax) vmax = c;
-		  }
-	  
-	  dest->voxel(i,j,k) = vmax - vmin;
-	}
+    for(kk=-rq;kk<=rq;kk++)
+      for(jj=-rq;jj<=rq;jj++)
+        for(ii=-rq;ii<=rq;ii++)
+    if (ii*ii + jj*jj + kk*kk <= rq)
+      if (valid(i+ii,j+jj,k+kk)) {
+        c = voxel(i+ii,j+jj,k+kk);
+        if (c < vmin) vmin = c; else if (c > vmax) vmax = c;
+      }
+    
+    dest->voxel(i,j,k) = vmax - vmin;
+  }
       
     return dest;
   }
 
- private:
+private:
   T *data;
   iterator anyi,ibegin,iend;
   int szPartial, szTotal, szCompressed;

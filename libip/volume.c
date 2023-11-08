@@ -39,6 +39,8 @@
 #endif
 #elif defined LINUX || defined BSD
 #include <endian.h>
+#elif defined __APPLE__
+#include <machine/endian.h>
 #else
 #error edit volume.c and add proper endian detection
 #endif

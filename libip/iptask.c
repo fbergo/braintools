@@ -267,7 +267,11 @@ void     TaskLogSave(TaskLog *tl, char *name) {
   for(p=tl->head;p!=0;p=p->next) {
     fprintf(f,"%-40s  %-4d  %-10.6f  %-8d->%-8d\n",
 	    p->task.desc,
-	    p->task.tid,
+  #ifdef __APPLE__
+	    0,
+  #else
+	    (int) (p->task.tid),
+  #endif
 	    p->task.real_elapsed,
 	    (int) p->task.start,
 	    (int) p->task.finish);

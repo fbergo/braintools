@@ -49,7 +49,7 @@ namespace spineseg {
     }
     
     ~array() {
-      delete value;
+      delete[] value;
     }
     
     void print() {
@@ -175,7 +175,7 @@ namespace spineseg {
             r.me(j,i) = me(j,i);
             r.me(i,j) = 0;
           }
-      delete p;
+      delete[] p;
     }
 
     // inverts matrix by Gauss-Jordan. returns 0 on success.
@@ -265,8 +265,8 @@ namespace spineseg {
           for(iq=ip+1;iq<=rows;iq++)
             sm += fabs( (double) me(ip,iq) );
         if (sm == 0) {
-          delete z;
-          delete b;
+          delete[] z;
+          delete[] b;
           return;
         }
         tresh = (i<4) ? 0.2*sm/(rows*rows) : 0;
@@ -310,8 +310,8 @@ namespace spineseg {
           z[ip] = 0;
         }
       }
-      delete b;
-      delete z;
+      delete[] b;
+      delete[] z;
     }
 
   };
@@ -475,7 +475,7 @@ namespace spineseg {
         }
       }
 
-      delete lambda;
+      delete[] lambda;
     }
 
     double distance(double x, double y) {

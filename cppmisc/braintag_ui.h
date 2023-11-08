@@ -42,7 +42,7 @@ public:
 
   void setWidget(GtkWidget *gw, GdkGC *ggc, PangoLayout *gpl) {
     widget = gw;
-    gc     = gc;
+    gc     = ggc;
     if (gpl!=NULL) 
       pl = gpl; 
     else 
@@ -252,7 +252,7 @@ public:
       f.close();
     }
 
-    sprintf(tmp,"%s,%d,%d,%d,%d",tag,X,Y,W,H);
+    snprintf(tmp,1023,"%s,%d,%d,%d,%d",tag,X,Y,W,H);
     cfg.push_back(string(tmp));
 
     ofstream g;
@@ -820,7 +820,7 @@ public:
     if (icon[0]!=NULL) {
       Image *img;
       img = active ? icon[0] : icon[1];
-      if (c!=NULL)
+      if (img!=NULL)
 	gdk_draw_rgb_image(w,gc,bx+X+(W-img->W)/2+(down?3:0),by+Y+(H-img->H)/2+(down?3:0), 
 			   img->W,img->H, GDK_RGB_DITHER_NORMAL, img->getBuffer(), 3*(img->W));
     }
@@ -2000,7 +2000,7 @@ public:
 
       drawString(dsx+5,dsy-2,Color(0xffff80),"Depth:");
       drawSlider(dsx+55,dsy-1,100,16,((float)getDepth())/maxdepth, 4, false);
-      sprintf(z,"%.1f mm", getDepth() * orig->dx);
+      snprintf(z,63,"%.1f mm", getDepth() * orig->dx);
       drawString(dsx+160,dsy-2,Color(0xffff80),z);
 
       rect(lcx,lcy-5,220,22+21+22,ui.Border,false);
@@ -2303,7 +2303,7 @@ class FeatureView : public Window {
       return;
     }
 
-    sprintf(z,"Position=(%d,%d,%d)",px,py,pz);
+    snprintf(z,199,"Position=(%d,%d,%d)",px,py,pz);
     drawString(X+10,Y+th+10,Color(0xffffff),z);
 
     drawImage(img[0],X+10,Y+th+30);
@@ -2326,27 +2326,27 @@ class FeatureView : public Window {
     drawImage(img[14],X+10+140,Y+th+100);
     drawImage(img[15],X+10+210,Y+th+100);
     
-    sprintf(z,"M8: (%.2f / %.2f / %.2f) M16: (%.2f / %.2f / %.2f)",
+    snprintf(z,199,"M8: (%.2f / %.2f / %.2f) M16: (%.2f / %.2f / %.2f)",
 	    m[0],m[1],m[2],m[3],m[4],m[5]);
     drawString(X+10,Y+th+170,Color(0xffffff),z);
 
-    sprintf(z,"M32: (%.2f / %.2f / %.2f) M64: (%.2f / %.2f / %.2f)",
+    snprintf(z,199,"M32: (%.2f / %.2f / %.2f) M64: (%.2f / %.2f / %.2f)",
 	    m[6],m[7],m[8],m[9],m[10],m[11]);
     drawString(X+10,Y+th+185,Color(0xffffff),z);
 
-    sprintf(z,"SD8: (%.2f / %.2f / %.2f) SD16: (%.2f / %.2f / %.2f)",
+    snprintf(z,199,"SD8: (%.2f / %.2f / %.2f) SD16: (%.2f / %.2f / %.2f)",
 	    m[12],m[13],m[14],m[15],m[16],m[17]);
     drawString(X+10,Y+th+200,Color(0xffffff),z);
 
-    sprintf(z,"SD32: (%.2f / %.2f / %.2f) SD64: (%.2f / %.2f / %.2f)",
+    snprintf(z,199,"SD32: (%.2f / %.2f / %.2f) SD64: (%.2f / %.2f / %.2f)",
 	    m[18],m[19],m[20],m[21],m[22],m[23]);
     drawString(X+10,Y+th+215,Color(0xffffff),z);
 
-    sprintf(z,"A8: (%.2f / %.2f / %.2f) A16: (%.2f / %.2f / %.2f)",
+    snprintf(z,199,"A8: (%.2f / %.2f / %.2f) A16: (%.2f / %.2f / %.2f)",
 	    m[24],m[25],m[26],m[27],m[28],m[29]);
     drawString(X+10,Y+th+230,Color(0xffffff),z);
 
-    sprintf(z,"A32: (%.2f / %.2f / %.2f) A64: (%.2f / %.2f / %.2f)",
+    snprintf(z,199,"A32: (%.2f / %.2f / %.2f) A64: (%.2f / %.2f / %.2f)",
 	    m[30],m[31],m[32],m[33],m[34],m[35]);
     drawString(X+10,Y+th+245,Color(0xffffff),z);
 
@@ -2586,7 +2586,7 @@ public:
     
     drawString(dsx+5,dsy-2,Color(0xffff80),"Depth:");
     drawSlider(dsx+55,dsy-1,100,16,((float)getDepth())/maxdepth, 4, false);
-    sprintf(z,"%.1f mm", getDepth() * voxelmm);
+    snprintf(z,63,"%.1f mm", getDepth() * voxelmm);
     drawString(dsx+160,dsy-2,Color(0xffff80),z);
     
     rect(vrx,vry-5,220,22+21,ui.Border,false);

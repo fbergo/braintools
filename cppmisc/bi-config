@@ -4,6 +4,13 @@ my $flags = `pkg-config --cflags freetype2`;
 my $libs  = `pkg-config --libs freetype2`;
 chomp $flags;
 chomp $libs;
+
+my $system = `uname -s`;
+if ($system =~ /^Darwin/) {
+    $libs .= " -L/opt/homebrew/lib";
+}
+
+$flags .= " -g";
 $libs .= ' -lm -lpthread -lbz2 -lpng -lz';
 
 

@@ -18,7 +18,7 @@ CC = gcc
 GTKFLAGS = `pkg-config --cflags gtk+-2.0`
 IPFLAGS  = -I../libip
 #GFLAGS   = -Wall -O2 -ggdb -DVERSION=\"$(IVSVER)\"
-GFLAGS   = -Wall -O3 -fno-strict-aliasing -DVERSION=\"$(IVSVER)\"
+GFLAGS   = -Wall -O3 -ggdb -fno-strict-aliasing -DVERSION=\"$(IVSVER)\"
 CFLAGS   = $(GFLAGS) $(GTKFLAGS) $(IPFLAGS)
 
 GTKLIB   = `pkg-config --libs gtk+-2.0`
