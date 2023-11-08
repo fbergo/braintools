@@ -2227,7 +2227,7 @@ public:
   int   *ibuf;
   char  *rbuf;
 
-  static const float InfZ = 50000.0f;
+  static constexpr float InfZ = 50000.0f;
 
   RenderingContext(int w,int h) {
     W = w;
