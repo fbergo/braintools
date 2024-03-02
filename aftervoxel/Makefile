@@ -1,11 +1,15 @@
 
 GTKLIB = `pkg-config --libs gtk+-2.0`
 GTKHDR = `pkg-config --cflags gtk+-2.0`
+JPGLIB = `pkg-config --libs libjpeg`
+JPGHDR = `pkg-config --cflags libjpeg`
+PNGLIB = `pkg-config --libs libpng`
+PNGHDR = `pkg-config --cflags libpng`
 
 CC = gcc
 #CFLAGS = -Wall -O2 $(GTKHDR) -I../libip
-CFLAGS = -Wall -ggdb $(GTKHDR) -I../libip
-LIB = $(GTKLIB) -L../libip -lip -lpthread -lz -ljpeg -lpng -lm
+CFLAGS = -Wall -ggdb $(GTKHDR) $(JPGHDR) $(PNGHDR) -I../libip
+LIB = $(GTKLIB) $(JPGLIB) $(PNGLIB) -L../libip -lip -lpthread -lz -lpng -lm
 
 all: compile_libip aftervoxel
 
