@@ -20,7 +20,7 @@ void msgd(double **delta, double *theta, Volume<int> *B, vector<int> & S, R3 &cg
 
   do {
     vf0 = vfb;
-    sprintf(msg,"MSGD optimization (iteration #%d, score %.2f)",it,vfb);
+    snprintf(msg,255,"MSGD optimization (iteration #%d, score %.2f)",it,vfb);
     lok.lock();
     strcpy(bgtask.minor, msg);
     lok.unlock();
@@ -486,7 +486,7 @@ void mi_msgd(double **delta, double *theta, Volume<int> *a, Volume<int> *b, R3 &
 
   do {
     vf0 = vfb;
-    sprintf(msg,"MSGD optimization (iteration #%d, score %.2f)",it,vfb);
+    snprintf(msg,255,"MSGD optimization (iteration #%d, score %.2f)",it,vfb);
     lok.lock();
     strcpy(bgtask.minor, msg);
     lok.unlock();

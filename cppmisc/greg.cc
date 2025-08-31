@@ -234,7 +234,7 @@ void gg_title() {
   /*
     char msg[1024];
     if (vol!=NULL)
-    sprintf(msg,"GREG - %s",volfile);
+    snprintf(msg,1023,"GREG - %s",volfile);
     else
     strcpy(msg,"SpineSeg");
     gtk_window_set_title(GTK_WINDOW(mw), msg);
@@ -564,14 +564,14 @@ void cmd_orient(const char *a) {
 }
 
 void gg_load1(GtkWidget *w, gpointer data) {
-  char name[512], msg[1024];
+  char name[512]={0}, msg[1024]={0};
   Volume<int> *tmp;
 
   if (get_filename(mw, "Load Volume 1", name)) {
     
     tmp = new Volume<int>(name);
     if (! tmp->ok()) {
-      sprintf(msg,"Failed to read volume from %s",name);
+      snprintf(msg,1023,"Failed to read volume from %s",name);
       status(msg);
       delete tmp;
       redraw(mw);
@@ -605,13 +605,13 @@ void gg_load1(GtkWidget *w, gpointer data) {
     gg_toggle(rpb[0]);
     xs.invalidate();
     redraw(mw);
-    sprintf(msg,"Finished loading volume 1 from %s",name);
+    snprintf(msg,1023,"Finished loading volume 1 from %s",name);
     status(msg); 
   }
 }
 
 void gg_mat_load(GtkWidget *w, gpointer data) {
-  char name[512], msg[1024];
+  char name[512]={0}, msg[1024]={0};
   T4 t;
 
   if (vol2 == NULL) return;
@@ -619,7 +619,7 @@ void gg_mat_load(GtkWidget *w, gpointer data) {
     ifstream f;
     f.open(name);
     if (!f.good()) {
-      sprintf(msg,"Error opening %s",name);
+      snprintf(msg,1023,"Error opening %s",name);
       status(msg);
     } else {
       f >> t;
@@ -634,26 +634,26 @@ void gg_mat_load(GtkWidget *w, gpointer data) {
 }
 
 void gg_mat_save(GtkWidget *w, gpointer data) {
-  char name[512], msg[1024];
+  char name[512]={0}, msg[1024]={0};
 
   if (vol2 == NULL) return;
   if (get_filename(mw, "Save Current Registration Matrix", name)) {
     ofstream f;
     f.open(name);
     if (!f.good()) {
-      sprintf(msg,"Error opening %s for writing",name);
+      snprintf(msg,1023,"Error opening %s for writing",name);
       status(msg);
     } else {
       f << rbest.t;
       f.close();
-      sprintf(msg,"Registration matrix saved to %s",name);
+      snprintf(msg,1023,"Registration matrix saved to %s",name);
       status(msg);
     }
   }
 }
 
 void gg_savemask(GtkWidget *w, gpointer data) {
-  char name[512], msg[1024];
+  char name[512]={0}, msg[1024]={0};
   int i;
 
   if (mask == NULL) return;
@@ -663,31 +663,31 @@ void gg_savemask(GtkWidget *w, gpointer data) {
     for(i=0;i<mc->N;i++) if (mask->voxel(i) != 0) mc->voxel(i) = 1;
     mc->writeSCN(name, 8, false);
     delete mc;
-    sprintf(msg,"Finished saving volume mask to %s",name);
+    snprintf(msg,1023,"Finished saving volume mask to %s",name);
     status(msg);
   }
 }
 
 void gg_save2(GtkWidget *w, gpointer data) {
-  char name[512], msg[1024];
+  char name[512]={0}, msg[1024]={0};
 
   if (vol2 == NULL) return;
   if (get_filename(mw, "Save Volume 2", name)) {
     vol2->writeSCN(name, 16, true);
-    sprintf(msg,"Finished saving volume 2 to %s",name);
+    snprintf(msg,1023,"Finished saving volume 2 to %s",name);
     status(msg);
   }
 }
 
 void gg_load2(GtkWidget *w, gpointer data) {
-  char name[512], msg[1024];
+  char name[512]={0}, msg[1024]={0};
   Volume<int> *tmp;
 
   if (get_filename(mw, "Load Volume 2", name)) {
     
     tmp = new Volume<int>(name);
     if (! tmp->ok()) {
-      sprintf(msg,"Failed to read volume from %s",name);
+      snprintf(msg,1023,"Failed to read volume from %s",name);
       status(msg);
       delete tmp;
       redraw(mw);
@@ -714,7 +714,7 @@ void gg_load2(GtkWidget *w, gpointer data) {
     gg_toggle(rpb[0]);
     xs.invalidate();
     redraw(mw);
-    sprintf(msg,"Finished loading volume 2 from %s",name);
+    snprintf(msg,1023,"Finished loading volume 2 from %s",name);
     status(msg); 
   }
 }
@@ -1636,21 +1636,21 @@ gboolean gg_expose(GtkWidget *w, GdkEventExpose *e, gpointer data) {
 
 
   if (vol1 != NULL) {
-    sprintf(msg,"Volume #1: %s",file1);
+    snprintf(msg,1023,"Volume #1: %s",file1);
     left_label(lx,ly, 400, 14, msg, 0xffffff, 1);
-    sprintf(msg,"%d x %d x %d (%.2f mm³)", vol1->W, vol1->H, vol1->D, vol1->dx);
+    snprintf(msg,1023,"%d x %d x %d (%.2f mm³)", vol1->W, vol1->H, vol1->D, vol1->dx);
     left_label(lx,ly+20, 400, 14, msg, 0xffffff, 1);
     ly += 40;
   }
   if (vol2 != NULL) {
-    sprintf(msg,"Volume #2: %s",file2);
+    snprintf(msg,1023,"Volume #2: %s",file2);
     left_label(lx,ly, 400, 14, msg, 0xffffff, 1);
-    sprintf(msg,"%d x %d x %d (%.2f mm³)", vol2->W, vol2->H, vol2->D, vol2->dx);
+    snprintf(msg,1023,"%d x %d x %d (%.2f mm³)", vol2->W, vol2->H, vol2->D, vol2->dx);
     left_label(lx,ly+20, 400, 14, msg, 0xffffff, 1);
     ly += 40;
   }
   if (vol1 != NULL && vol2 != NULL) {
-    sprintf(msg,"Voxel (%d,%d,%d) (1) %d (2) %d Diff %d",
+    snprintf(msg,1023,"Voxel (%d,%d,%d) (1) %d (2) %d Diff %d",
 	    cursor[0],cursor[1],cursor[2], 
 	    vol1->voxel(cursor[0],cursor[1],cursor[2]),
 	    vol2->voxel(cursor[0],cursor[1],cursor[2]),
@@ -1658,7 +1658,7 @@ gboolean gg_expose(GtkWidget *w, GdkEventExpose *e, gpointer data) {
     left_label(lx,ly, 400, 14, msg, 0xffffff, 1);
     ly += 20;
     if (mvol > 0.0) {
-      sprintf(msg,"Mask volume: %.1f mm³",mvol);
+      snprintf(msg,1023,"Mask volume: %.1f mm³",mvol);
       left_label(lx,ly, 400, 14, msg, 0xffffff, 1);
       ly += 20;
     }
@@ -1685,7 +1685,7 @@ gboolean gg_expose(GtkWidget *w, GdkEventExpose *e, gpointer data) {
     gc_color(gc,0);
     gdk_draw_rectangle(w->window,gc,FALSE, bx, by, bw, bh);
     s = (int) (b-bgtask.start);
-    sprintf(msg,"%s (%.2d:%.2d)",bgtask.major, s/60, s%60);
+    snprintf(msg,1023,"%s (%.2d:%.2d)",bgtask.major, s/60, s%60);
     left_label(bx+20,by+10,560,14, msg, 0, 0);
     left_label(bx+20,by+30,560,14, bgtask.minor, 0, 0);
 
@@ -1771,7 +1771,7 @@ gboolean gg_expose(GtkWidget *w, GdkEventExpose *e, gpointer data) {
     gc_color(gc, 0xffffff);
     gdk_draw_rectangle(w->window,gc,FALSE,zs[1],zs[2]-4,200,10);
 
-    sprintf(msg,"Zoom: %d%%",(int)(100.0*zoom));
+    snprintf(msg,1023,"Zoom: %d%%",(int)(100.0*zoom));
     center_label(zs[1],zs[2]-20,200,20,msg,0xdeff00,1);
 
   }
@@ -1790,7 +1790,7 @@ gboolean gg_expose(GtkWidget *w, GdkEventExpose *e, gpointer data) {
     gc_color(gc, 0xffffff);
     gdk_draw_rectangle(w->window,gc,FALSE,ys[1],ys[2]-4,200,10);
 
-    sprintf(msg,"Window: %d%% (L/R: %d/%d)",(int)(100.0*wfac),wmax,wmax2);
+    snprintf(msg,1023,"Window: %d%% (L/R: %d/%d)",(int)(100.0*wfac),wmax,wmax2);
     center_label(ys[1],ys[2]-20,200,20,msg,0xdeff00,1);
   }
 

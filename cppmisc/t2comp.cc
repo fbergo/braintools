@@ -138,16 +138,16 @@ int main(int argc, char **argv) {
       t2map->voxel(i) = 2047;
 
   // write results
-  sprintf(tmp,"%s_t2.scn",out);
+  snprintf(tmp,127,"%s_t2.scn",out);
   t2map->writeSCN(tmp,16,true);
   cout << "wrote " << tmp << endl;
 
-  sprintf(tmp,"%s_m0.scn",out);
+  snprintf(tmp,127,"%s_m0.scn",out);
   m0map->writeSCN(tmp,16,true);
   cout << "wrote " << tmp << endl;
 
   /*
-  sprintf(tmp,"%s_X2.scn",out);
+  snprintf(tmp,127,"%s_X2.scn",out);
   chi2->writeSCN(tmp,16,true);
   cout << "wrote " << tmp << endl;
   */

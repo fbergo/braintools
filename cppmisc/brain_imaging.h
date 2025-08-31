@@ -2500,7 +2500,7 @@ template <class T> class Volume : public VolumeDomain {
     szPartial = 0;
     szCompressed = 0;
 
-    sprintf(out,"SCN\n%d %d %d\n%.4f %.4f %.4f\n%d\n",W,H,D,dx,dy,dz,bits);
+    snprintf(out,255,"SCN\n%d %d %d\n%.4f %.4f %.4f\n%d\n",W,H,D,dx,dy,dz,bits);
     BZ2_bzWrite(&berr, bf, out, strlen(out));
     if (berr != BZ_OK) goto bzwfail;
 

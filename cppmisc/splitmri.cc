@@ -2,7 +2,7 @@
 
 #pragma GCC diagnostic ignored "-Wformat-overflow"
 
-#define VERSION "2017.1"
+#define VERSION "2025.1"
 
 void usage();
 void copy_slice(Volume<int> *src, int zsrc, Volume<int> *dest, int zdest);
@@ -99,9 +99,9 @@ int main(int argc, char **argv) {
 
   for(i=0;i<total;i++) {    
     if (total >= 10)
-      sprintf(oname,"%s%02d_%s",prefix,i+1,tmp);
+      snprintf(oname,511,"%s%02d_%s",prefix,i+1,tmp);
     else
-      sprintf(oname,"%s%d_%s",prefix,i+1,tmp);
+      snprintf(oname,511,"%s%d_%s",prefix,i+1,tmp);
 
     printf("writing %s...\n",oname);
     vout[i]->writeSCN(oname,16,true);
@@ -137,13 +137,13 @@ void scn_namecat(char *dest, const char *src, const char *cat, const char *prefi
 void scn_namecat_ext(char *dest, const char *src, const char *cat, const char *prefix, const char *ext) {
   char tmp[1024], *p;
   scn_basename(tmp, src);
-  sprintf(dest,"%s_%s.%s",tmp,cat,ext);
+  snprintf(dest,511, "%s_%s.%s",tmp,cat,ext);
   p = strrchr(dest,'/');
   if (p==NULL) {
-    sprintf(tmp, "%s_%s", prefix, dest);
+    snprintf(tmp, 511, "%s_%s", prefix, dest);
     strcpy(dest, tmp);    
   } else {
-    sprintf(tmp,"%s_%s",prefix,p+1);
+    snprintf(tmp, 511, "%s_%s",prefix,p+1);
     strcpy(p+1,tmp);    
   }
 }

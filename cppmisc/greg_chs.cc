@@ -449,7 +449,7 @@ void chs(Volume<int> *B, vector<int> &S, T4 &T, vector<T4> &tvec, Volume<int> *m
       printf("chs-ws %d %.3f %.2f\n",it,(toc-tic),bscore);
     }
 
-    sprintf(msg,"CHS optimization (iteration #%d, score %.2f)",it,bscore);
+    snprintf(msg,255,"CHS optimization (iteration #%d, score %.2f)",it,bscore);
     lok.lock();
     strcpy(bgtask.minor, msg);
     lok.unlock();
@@ -781,7 +781,7 @@ void mi_chs(Volume<int> *a, Volume<int> *b, T4 &T, vector<T4> &tvec) {
       printf("chs-mi %d %.3f %.2f\n",it,(toc-tic),bscore);
     }
 
-    sprintf(msg,"CHS optimization (iteration #%d, score %.2f)",it,bscore);
+    snprintf(msg,255,"CHS optimization (iteration #%d, score %.2f)",it,bscore);
     lok.lock();
     strcpy(bgtask.minor, msg);
     lok.unlock();
