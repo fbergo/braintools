@@ -609,7 +609,7 @@ class T4 {
     if (strcmp(k.nextToken(),"[")!=0) goto t4inputerror;
     for(i=0;i<4;i++)
       for(j=0;j<4;j++)
-	t.e[j][i] = atof(k.nextToken());
+	      t.e[j][i] = atof(k.nextToken());
     if (strcmp(k.nextToken(),"]")!=0) goto t4inputerror;
     return s;
  t4inputerror:
@@ -625,7 +625,7 @@ class T4 {
     int *sle;
     float *sq0, *a;
     int n = 4; // matrix size
-
+    
     int lc,*le; float s,t,tq=0.,zr=1.e-15;
     float *pa,*pd,*ps,*p,*q,*q0;
     int i,j,k,m;
@@ -633,32 +633,32 @@ class T4 {
     sle = new int[n];
     sq0 = new float[n];
     a = new float[n*n];
-
+    
     for(i=0;i<n*n;i++) a[i] = e[i%n][i/n];
-
+    
     le = sle;
     q0 = sq0;
     
     for(j=0,pa=pd=a; j<n ;++j,++pa,pd+=n+1){
       if(j>0){
-	for(i=0,q=q0,p=pa; i<n ;++i,p+=n) *q++ = *p;
-	for(i=1; i<n ;++i){ lc=i<j?i:j;
-	for(k=0,p=pa+i*n-j,q=q0,t=0.; k<lc ;++k) t+= *p++ * *q++;
-	q0[i]-=t;
-	}
-	for(i=0,q=q0,p=pa; i<n ;++i,p+=n) *p= *q++;
+        for(i=0,q=q0,p=pa; i<n ;++i,p+=n) *q++ = *p;
+        for(i=1; i<n ;++i){ lc=i<j?i:j;
+          for(k=0,p=pa+i*n-j,q=q0,t=0.; k<lc ;++k) t+= *p++ * *q++;
+          q0[i]-=t;
+        }
+        for(i=0,q=q0,p=pa; i<n ;++i,p+=n) *p= *q++;
       }
       
       s=fabs(*pd); lc=j;
       for(k=j+1,ps=pd; k<n ;++k){
-	if((t=fabs(*(ps+=n)))>s){ s=t; lc=k;}
+        if((t=fabs(*(ps+=n)))>s){ s=t; lc=k;}
       }
       tq=tq>s?tq:s; if(s<zr*tq){ return false;}
       *le++ =lc;
       if(lc!=j){
-	for(k=0,p=a+n*j,q=a+n*lc; k<n ;++k){
-	  t= *p; *p++ = *q; *q++ =t;
-	}
+        for(k=0,p=a+n*j,q=a+n*lc; k<n ;++k){
+          t= *p; *p++ = *q; *q++ =t;
+        }
       }
       for(k=j+1,ps=pd,t=1./ *pd; k<n ;++k) *(ps+=n)*=t;
       *pd=t;
@@ -667,40 +667,40 @@ class T4 {
       for(k=0,pd+=n+1,q= ++ps; k<j ;++k,q+=n) *q*= *pd;
     }
     for(j=1,pa=a; j<n ;++j){ ++pa;
-    for(i=0,q=q0,p=pa; i<j ;++i,p+=n) *q++ = *p;
-    for(k=0; k<j ;++k){ t=0.;
-    for(i=k,p=pa+k*n+k-j,q=q0+k; i<j ;++i) t-= *p++ * *q++;
-    q0[k]=t;
-    }
-    for(i=0,q=q0,p=pa; i<j ;++i,p+=n) *p= *q++;
+      for(i=0,q=q0,p=pa; i<j ;++i,p+=n) *q++ = *p;
+      for(k=0; k<j ;++k){ t=0.;
+        for(i=k,p=pa+k*n+k-j,q=q0+k; i<j ;++i) t-= *p++ * *q++;
+        q0[k]=t;
+      }
+      for(i=0,q=q0,p=pa; i<j ;++i,p+=n) *p= *q++;
     }
     for(j=n-2,pd=pa=a+n*n-1; j>=0 ;--j){ --pa; pd-=n+1;
-    for(i=0,m=n-j-1,q=q0,p=pd+n; i<m ;++i,p+=n) *q++ = *p;
-    for(k=n-1,ps=pa; k>j ;--k,ps-=n){ t= -(*ps);
-    for(i=j+1,p=ps,q=q0; i<k ;++i) t-= *++p * *q++;
-    q0[--m]=t;
-    }
-    for(i=0,m=n-j-1,q=q0,p=pd+n; i<m ;++i,p+=n) *p= *q++;
+      for(i=0,m=n-j-1,q=q0,p=pd+n; i<m ;++i,p+=n) *q++ = *p;
+      for(k=n-1,ps=pa; k>j ;--k,ps-=n){ t= -(*ps);
+        for(i=j+1,p=ps,q=q0; i<k ;++i) t-= *++p * *q++;
+        q0[--m]=t;
+      }
+      for(i=0,m=n-j-1,q=q0,p=pd+n; i<m ;++i,p+=n) *p= *q++;
     }
     for(k=0,pa=a; k<n-1 ;++k,++pa){
       for(i=0,q=q0,p=pa; i<n ;++i,p+=n) *q++ = *p;
       for(j=0,ps=a; j<n ;++j,ps+=n){
-	if(j>k){ t=0.; p=ps+j; i=j;}
-	else{ t=q0[j]; p=ps+k+1; i=k+1;}
-	for(; i<n ;) t+= *p++ *q0[i++];
-	q0[j]=t;
+        if(j>k){ t=0.; p=ps+j; i=j;}
+        else{ t=q0[j]; p=ps+k+1; i=k+1;}
+        for(; i<n ;) t+= *p++ *q0[i++];
+        q0[j]=t;
       }
       for(i=0,q=q0,p=pa; i<n ;++i,p+=n) *p= *q++;
     }
     for(j=n-2,le--; j>=0 ;--j){
       for(k=0,p=a+j,q=a+ *(--le); k<n ;++k,p+=n,q+=n){
-	t=*p; *p=*q; *q=t;
+        t=*p; *p=*q; *q=t;
       }
     }
-    delete sq0;
-    delete sle;
+    delete[] sq0;
+    delete[] sle;
     for(i=0;i<n*n;i++) e[i%n][i/n] = a[i];
-    delete a;
+    delete[] a;
     return true;
   } // minv4
 };
@@ -1508,90 +1508,93 @@ class Image : public Paintable {
   //! Scales this image by factor, and returns the new scaled image result. 
   //! It does not modify this image.
   Image *scale(float factor) {
-      int nw,nh,ow,oh;
-      Image *dest;
-      float x1,x2,y1,y2,fi,fj,dx,dy,fr,fg,fb,di;
-      int i,j,k,a,b;
-      uint8_t R,G,B;
-      
-      uint8_t *lookup[3];
-      int *area;
-      int  count;
+    int nw,nh,ow,oh;
+    Image *dest;
+    float x1,x2,y1,y2,fi,fj,dx,dy,fr,fg,fb,di;
+    int i,j,k,a,b;
+    uint8_t R,G,B;
+    
+    uint8_t *lookup[3];
+    int *area;
+    int  count;
 
-      if (factor > 1.0) return(scaleUp(factor));
+    if (factor > 1.0) return(scaleUp(factor));
 
-      nw = (int) ((float)(W) * factor);
-      nh = (int) ((float)(H) * factor);
-      ow = W;
-      oh = H;
-      if (nw<=0 || nh<=0) return 0;
+    nw = (int) ((float)(W) * factor);
+    nh = (int) ((float)(H) * factor);
+    ow = W;
+    oh = H;
+    if (nw<=0 || nh<=0) return 0;
 
-      dest = new Image(nw,nh);
-      lookup[0] = new uint8_t[ow*oh];
-      lookup[1] = new uint8_t[ow*oh];
-      lookup[2] = new uint8_t[ow*oh];
-      area   = new int[ow*oh];
-      if (!lookup[0] || !area) {
-	delete dest;
-	return 0;
+    dest = new Image(nw,nh);
+    lookup[0] = new uint8_t[ow*oh];
+    lookup[1] = new uint8_t[ow*oh];
+    lookup[2] = new uint8_t[ow*oh];
+    area   = new int[ow*oh];
+    if (!lookup[0] || !area) {
+      delete dest;
+      return 0;
+    }
+
+    for(j=0;j<nh;j++) 
+      for(i=0;i<nw;i++) {
+        
+        fi = (float) i;
+        fj = (float) j;
+        x1 = fi / factor;
+        x2 = (fi+1.0) / factor;
+        y1 = fj / factor;
+        y2 = (fj+1.0) / factor;
+        
+        di = sqrt( (x2-x1)*(x2-x1) + (y2-y1)*(y2-y1) );
+        
+        count = 0;
+        for(b=(int)y1;b<=(int)y2;b++) {
+          if (b>=0 && b<oh) {
+            for(a=(int)x1;a<=(int)x2;a++) {
+              if (a>=0 && a<ow) {
+                k = 3*(a+b*ow);
+                lookup[0][count]=data[k];
+                lookup[1][count]=data[k+1];
+                lookup[2][count]=data[k+2];
+                dx = (a-x1);
+                dy = (b-y1);
+                area[count] = (int) (100.0*(di - sqrt(dx*dx+dy*dy)));
+                count++;
+              }
+            }
+          }
+        }
+  
+        a = 0;
+        for(b=0;b<count;b++)
+          a+=area[b];
+        
+        fb=fg=fr=0.0;
+        for(b=0;b<count;b++) {
+          fr += ((float)(area[b])) * ((float)(lookup[0][b]));
+          fg += ((float)(area[b])) * ((float)(lookup[1][b]));
+          fb += ((float)(area[b])) * ((float)(lookup[2][b]));
+        }
+        fr /= (float) a;
+        fg /= (float) a;
+        fb /= (float) a;
+
+        R = (uint8_t) fr;
+        G = (uint8_t) fg;
+        B = (uint8_t) fb;
+
+        k = 3*(i+j*nw);
+        dest->data[k] = R;
+        dest->data[k+1] = G;
+        dest->data[k+2] = B;
       }
 
-      for(j=0;j<nh;j++)
-	for(i=0;i<nw;i++) {
-	  
-	  fi = (float) i;
-	  fj = (float) j;
-	  x1 = fi / factor;
-	  x2 = (fi+1.0) / factor;
-	  y1 = fj / factor;
-	  y2 = (fj+1.0) / factor;
-	  
-	  di = sqrt( (x2-x1)*(x2-x1) + (y2-y1)*(y2-y1) );
-	  
-	  count = 0;
-	  for(b=(int)y1;b<=(int)y2;b++)
-	    if (b>=0 && b<oh)
-	      for(a=(int)x1;a<=(int)x2;a++)
-		if (a>=0 && a<ow) {
-		  k = 3*(a+b*ow);
-		  lookup[0][count]=data[k];
-		  lookup[1][count]=data[k+1];
-		  lookup[2][count]=data[k+2];
-		  dx = (a-x1);
-		  dy = (b-y1);
-		  area[count] = (int) (100.0*(di - sqrt(dx*dx+dy*dy)));
-		  count++;
-		}
-	  
-	  a = 0;
-	  for(b=0;b<count;b++)
-	    a+=area[b];
-	  
-	  fb=fg=fr=0.0;
-	  for(b=0;b<count;b++) {
-	    fr += ((float)(area[b])) * ((float)(lookup[0][b]));
-	    fg += ((float)(area[b])) * ((float)(lookup[1][b]));
-	    fb += ((float)(area[b])) * ((float)(lookup[2][b]));
-	  }
-	  fr /= (float) a;
-	  fg /= (float) a;
-	  fb /= (float) a;
-
-	  R = (uint8_t) fr;
-	  G = (uint8_t) fg;
-	  B = (uint8_t) fb;
-
-	  k = 3*(i+j*nw);
-	  dest->data[k] = R;
-	  dest->data[k+1] = G;
-	  dest->data[k+2] = B;
-	}
-
-      delete area;
-      delete lookup[0];
-      delete lookup[1];
-      delete lookup[2];
-      return dest;
+    delete[] area;
+    delete[] lookup[0];
+    delete[] lookup[1];
+    delete[] lookup[2];
+    return dest;
   }
 
  private:
@@ -2245,8 +2248,8 @@ public:
   }
 
   ~RenderingContext() {
-    if (allbuf!=NULL) delete allbuf;
-    if (rbuf!=NULL)   delete rbuf;
+    if (allbuf!=NULL) delete[] allbuf;
+    if (rbuf!=NULL)   delete[] rbuf;
   }
 
   void prepareFirst() {
@@ -3143,6 +3146,7 @@ template <class T> class Volume : public VolumeDomain {
     float y[7];
     string x;
     char hdr[4];
+    size_t dontcare=0;
 
     clear();
 
@@ -3193,7 +3197,7 @@ template <class T> class Volume : public VolumeDomain {
       td8 = new uint8_t[N];
       if (!td8) goto rfail;
       for(i=0;i<H*D;i++) {
-        fread( (void *) (&td8[i*W]), 1, W, f);
+        dontcare += fread( (void *) (&td8[i*W]), 1, W, f);
         szPartial += W;
         if (ferror(f)) goto rfail;
       }
@@ -3205,7 +3209,7 @@ template <class T> class Volume : public VolumeDomain {
       td16 = new uint16_t[N];
       if (!td16) goto rfail;
       for(i=0;i<H*D;i++) {
-        fread( (void *) (&td16[i*W]), 1, 2*W, f);
+        dontcare += fread( (void *) (&td16[i*W]), 1, 2*W, f);
         szPartial += 2*W;
         if (ferror(f)) goto rfail;
       }
@@ -3217,7 +3221,7 @@ template <class T> class Volume : public VolumeDomain {
       td32 = new int32_t[N];
       if (!td32) goto rfail;
       for(i=0;i<H*D;i++) {
-        fread( (void *) (&td32[i*W]), 1, 4*W, f);
+        dontcare += fread( (void *) (&td32[i*W]), 1, 4*W, f);
         szPartial += 4*W;
         if (ferror(f)) goto rfail;
       }
@@ -3394,11 +3398,11 @@ template <class T> class Volume : public VolumeDomain {
     // compute histograms
     for(i=0;i<N;i++)
       if (voxel(i) >= 0 && voxel(i) < mh)
-	h1[(int) voxel(i)]++;
+	      h1[(int) voxel(i)]++;
     
     for(i=0;i<src->N;i++)
       if (src->voxel(i) >= 0 && src->voxel(i) < mh)
-	h2[(int) (src->voxel(i))]++;
+	      h2[(int) (src->voxel(i))]++;
     
     // accumulate
     for(i=1;i<mh;i++) {
@@ -3423,12 +3427,12 @@ template <class T> class Volume : public VolumeDomain {
     // apply lut to this volume
     for(i=0;i<N;i++)
       if (voxel(i) >= 0 && voxel(i) < mh) 
-	voxel(i) = (T) h1[(int) voxel(i)];
+	      voxel(i) = (T) h1[(int) voxel(i)];
 
-    delete h1;
-    delete h2;
-    delete f1;
-    delete f2;
+    delete[] h1;
+    delete[] h2;
+    delete[] f1;
+    delete[] f2;
   }
 
   Volume<char> *binaryThreshold(T val) {
@@ -4208,7 +4212,7 @@ template <class T> class Volume : public VolumeDomain {
       }
       if (j > jmax) { jmax = j; topt = t; }
     }
-    delete hist;
+    delete[] hist;
     return topt;
   }
 
@@ -4358,8 +4362,8 @@ Volume<T> * featureGradient() {
     }
   }
   
-  delete f;
-  delete mg;
+  delete[] f;
+  delete[] mg;
   
   return dest;
 }
@@ -5714,7 +5718,7 @@ Volume<T> * featureGradient() {
     char *rbuf;
     int   *ibuf, *icp;
     Color c, cmix;
-
+    
     sqd = (int) (depth*depth);
     usqd = (int) ((depth+3.0)*(depth+3.0));
     
@@ -5723,162 +5727,162 @@ Volume<T> * featureGradient() {
     dw2 = dw / 2.0;
     dh2 = dh / 2.0;
     c2.set(W/2.0,H/2.0,D/2.0);
-
+    
     rc.prepareNext();
     rc.clearI();
-
+    
     zbuf = rc.zbuf;
     nbuf = rc.nbuf;
     xbuf = rc.xbuf;
     ybuf = rc.ybuf;
     rbuf = rc.rbuf;
     ibuf = rc.ibuf;
-
+    
     // project
     for(i=0;i<N;i++) {
       if (data[i] >= sqd && data[i] < usqd) {
-	a.X = xOf(i); a.Y = yOf(i); a.Z = zOf(i);
-	a -= c2;
-	b = rot.apply(a);
-	b.X += dw2;
-	b.Y += dh2;
-	if (dest.valid((int)(b.X),(int)(b.Y))) {
-	  j = (int) (b.X) + dw * (int) (b.Y);
-	  if (b.Z < zbuf[j]) {
-	    zbuf[j] = b.Z;
-	    xbuf[j] = b.X;
-	    ybuf[j] = b.Y;
-	    rbuf[j] = 1;
-	    ibuf[j] = i;
-	  }
-
-	}
+        a.X = xOf(i); a.Y = yOf(i); a.Z = zOf(i);
+        a -= c2;
+        b = rot.apply(a);
+        b.X += dw2;
+        b.Y += dh2;
+        if (dest.valid((int)(b.X),(int)(b.Y))) {
+          j = (int) (b.X) + dw * (int) (b.Y);
+          if (b.Z < zbuf[j]) {
+            zbuf[j] = b.Z;
+            xbuf[j] = b.X;
+            ybuf[j] = b.Y;
+            rbuf[j] = 1;
+            ibuf[j] = i;
+          }
+          
+        }
       }
     }
-
+    
     // splat
     int sx[3] = {1,0,1};
     int sy[3] = {0,1,1};
     for(j=dh-2;j>0;j--)
-      for(i=dw-2;i>0;i--) {
-	n = i+dw*j;
-	if (zbuf[n] != RenderingContext::InfZ) {
-	  for(k=0;k<3;k++) {
-	    m = i+sx[k]+dw*(j+sy[k]);
-	    if (zbuf[m] > zbuf[n]) {
-	      zbuf[m] = zbuf[n];
-	      xbuf[m] = xbuf[n] + sx[k];
-	      ybuf[m] = ybuf[n] + sy[k];
-	      rbuf[m] = rbuf[n];
-	      ibuf[m] = ibuf[n];
-	    }
-	  }
-	}
+    for(i=dw-2;i>0;i--) {
+      n = i+dw*j;
+      if (zbuf[n] != RenderingContext::InfZ) {
+        for(k=0;k<3;k++) {
+          m = i+sx[k]+dw*(j+sy[k]);
+          if (zbuf[m] > zbuf[n]) {
+            zbuf[m] = zbuf[n];
+            xbuf[m] = xbuf[n] + sx[k];
+            ybuf[m] = ybuf[n] + sy[k];
+            rbuf[m] = rbuf[n];
+            ibuf[m] = ibuf[n];
+          }
+        }
       }
-
+    }
+    
     icp = new int[dw*dh];
     memcpy(icp,ibuf,dw*dh*sizeof(int));
-
+    
     // normals
     rc.clearN();
-
+    
     int nx[8] = {  0,  1,  1,  1,  0, -1, -1, -1 };
     int ny[8] = { -1, -1,  0,  1,  1,  1,  0, -1 };
-
+    
     int qx[8] = {  1,  2,  2,  1, -1, -2, -2, -1 };
     int qy[8] = { -2, -1,  1,  2,  2,  1, -1, -2 };
-
+    
     R3 p[3], w[3], normal;
     int nv;
-
+    
     for(j=2;j<dh-2;j++)
-      for(i=2;i<dw-2;i++) {
-	n = i+j*dw;
-	if (rbuf[n] != 0) {
-	  nv = 0;
-	  normal.set(0,0,0);
-	  for(k=0;k<8;k++) {
-	    p[0].set(xbuf[n],ybuf[n],zbuf[n]);
-	    m = (i + nx[(k+1)%8]) + dw*(j+ny[(k+1)%8]);
-	    if (rbuf[m]==0) continue;
-	    p[1].set(xbuf[m],ybuf[m],zbuf[m]);
-	    o = (i + nx[k]) + dw*(j+ny[k]);
-	    if (rbuf[o]==0) continue;
-	    p[2].set(xbuf[o],ybuf[o],zbuf[o]);
-
-	    w[0] = p[1]-p[0];
-	    w[1] = p[2]-p[0];
-	    w[2] = w[0].cross(w[1]);
-	    w[2].normalize();
-	    normal += w[2];
-	    ++nv;
-	  }
-	  for(k=0;k<8;k++) {
-	    p[0].set(xbuf[n],ybuf[n],zbuf[n]);
-	    m = (i + qx[(k+1)%8]) + dw*(j+qy[(k+1)%8]);
-	    if (rbuf[m]==0) continue;
-	    p[1].set(xbuf[m],ybuf[m],zbuf[m]);
-	    o = (i + qx[k]) + dw*(j+qy[k]);
-	    if (rbuf[o]==0) continue;
-	    p[2].set(xbuf[o],ybuf[o],zbuf[o]);
-
-	    w[0] = p[1]-p[0];
-	    w[1] = p[2]-p[0];
-	    w[2] = w[0].cross(w[1]);
-	    w[2].normalize();
-	    normal += w[2];
-	    ++nv;
-	  }
-
-	  float est;
-	  normal.normalize();
-	  est = (nv==0) ? 0.0 : normal.inner(light);
-	  if (est < 0.0) est = 0.0;
-	  nbuf[n] = est;
-	}
+    for(i=2;i<dw-2;i++) {
+      n = i+j*dw;
+      if (rbuf[n] != 0) {
+        nv = 0;
+        normal.set(0,0,0);
+        for(k=0;k<8;k++) {
+          p[0].set(xbuf[n],ybuf[n],zbuf[n]);
+          m = (i + nx[(k+1)%8]) + dw*(j+ny[(k+1)%8]);
+          if (rbuf[m]==0) continue;
+          p[1].set(xbuf[m],ybuf[m],zbuf[m]);
+          o = (i + nx[k]) + dw*(j+ny[k]);
+          if (rbuf[o]==0) continue;
+          p[2].set(xbuf[o],ybuf[o],zbuf[o]);
+          
+          w[0] = p[1]-p[0];
+          w[1] = p[2]-p[0];
+          w[2] = w[0].cross(w[1]);
+          w[2].normalize();
+          normal += w[2];
+          ++nv;
+        }
+        for(k=0;k<8;k++) {
+          p[0].set(xbuf[n],ybuf[n],zbuf[n]);
+          m = (i + qx[(k+1)%8]) + dw*(j+qy[(k+1)%8]);
+          if (rbuf[m]==0) continue;
+          p[1].set(xbuf[m],ybuf[m],zbuf[m]);
+          o = (i + qx[k]) + dw*(j+qy[k]);
+          if (rbuf[o]==0) continue;
+          p[2].set(xbuf[o],ybuf[o],zbuf[o]);
+          
+          w[0] = p[1]-p[0];
+          w[1] = p[2]-p[0];
+          w[2] = w[0].cross(w[1]);
+          w[2].normalize();
+          normal += w[2];
+          ++nv;
+        }
+        
+        float est;
+        normal.normalize();
+        est = (nv==0) ? 0.0 : normal.inner(light);
+        if (est < 0.0) est = 0.0;
+        nbuf[n] = est;
       }
-
+    }
+    
     float kz=1.50,ka=0.20,ks=0.40,kd=0.60,pd,ps,Y;
     Color tmpc,c3;
-
+    
     // render
     for(j=0;j<dh;j++)
-      for(i=0;i<dw;i++) {
-	n = i + dw*j;
-	if (rbuf[n]!=0) {
-
-	  k = icp[n];
-	  tmpc = lut[ orig->voxel(k) ];
-
-	  if (tags!=NULL && tagopacity != 0.0 && tagcolors!=NULL)
-	    if (tags->voxel(k) != 0)
-	      tmpc.mix(tagcolors[ (int) (tags->voxel(k)) ], tagopacity);
-
-	  tmpc.rgb2ycbcr();
-	  Y = tmpc.R / 255.0;
-	  pd = nbuf[n];
-	  if (acos(nbuf[n]) > M_PI / 4.0)
-	    ps = 0.0;
-	  else
-	    ps = pow(cos(2.0*nbuf[n]),10.0);
-	  Y = ka + kz * Y * (kd*pd + ks*ps);
-	  Y *= 255.0;
-	  if (Y > 255.0) Y=255.0;
-          if (Y < 0.0) Y = 0.0;
-	  c3 = tmpc;
-	  c3.R = (uint8_t) Y;
-	  c3.ycbcr2rgb();
-
-	  if (opacity==1.0)
-	    dest.set(i,j,c3);
-	  else {
-	    cmix = dest.get(i,j);
-	    cmix.mix(c3,opacity);
-	    dest.set(i,j,cmix);
-	  }
-	}
+    for(i=0;i<dw;i++) {
+      n = i + dw*j;
+      if (rbuf[n]!=0) {
+        
+        k = icp[n];
+        tmpc = lut[ orig->voxel(k) ];
+        
+        if (tags!=NULL && tagopacity != 0.0 && tagcolors!=NULL)
+        if (tags->voxel(k) != 0)
+        tmpc.mix(tagcolors[ (int) (tags->voxel(k)) ], tagopacity);
+        
+        tmpc.rgb2ycbcr();
+        Y = tmpc.R / 255.0;
+        pd = nbuf[n];
+        if (acos(nbuf[n]) > M_PI / 4.0)
+        ps = 0.0;
+        else
+        ps = pow(cos(2.0*nbuf[n]),10.0);
+        Y = ka + kz * Y * (kd*pd + ks*ps);
+        Y *= 255.0;
+        if (Y > 255.0) Y=255.0;
+        if (Y < 0.0) Y = 0.0;
+        c3 = tmpc;
+        c3.R = (uint8_t) Y;
+        c3.ycbcr2rgb();
+        
+        if (opacity==1.0)
+        dest.set(i,j,c3);
+        else {
+          cmix = dest.get(i,j);
+          cmix.mix(c3,opacity);
+          dest.set(i,j,cmix);
+        }
       }
-    delete icp;
+    }
+    delete[] icp;
   }
 
  private:
@@ -6242,9 +6246,9 @@ class Spectrum {
     int i,j,k;
     for(j=0;j<H;j++)
       for(i=0;i<W;i++) {
-	k = i + j*W;
-	v_magnitude[k] = sqrt( v_real[k]*v_real[k] + v_imag[k]*v_imag[k] );
-	v_phase[k]     = atan( v_imag[k] / v_real[k]);
+        k = i + j*W;
+        v_magnitude[k] = sqrt( v_real[k]*v_real[k] + v_imag[k]*v_imag[k] );
+        v_phase[k]     = atan( v_imag[k] / v_real[k]);
       }
   }
 
@@ -6261,17 +6265,17 @@ class Spectrum {
 
     for (i=0; i<H; i++) {
       for (j=0; j<W; j++) {
-	  r1[j] = real(j,i);
-	  i1[j] = imag(j,i);
+        r1[j] = real(j,i);
+        i1[j] = imag(j,i);
       }
       fft(-1, (long)(W), r1, i1);
       for (j=0; j<W; j++) {
-	real(j,i) = r1[j];
-	imag(j,i) = i1[j];
+        real(j,i) = r1[j];
+        imag(j,i) = i1[j];
       }
     }
-    delete r1;
-    delete i1;
+    delete[] r1;
+    delete[] i1;
 
     /* Transform the cols */
     r1 = new double[H];
@@ -6279,12 +6283,12 @@ class Spectrum {
     
     for (i=0; i<W; i++) {
       for (j=0; j<H; j++) {
-	r1[j] = real(i,j);
-	i1[j] = imag(i,j);
+        r1[j] = real(i,j);
+        i1[j] = imag(i,j);
       }
       fft(-1, (long)(H), r1, i1);
       for (j=0; j<H; j++)
-	space(i,j) = r1[j];
+	      space(i,j) = r1[j];
     }
     delete r1;
     delete i1;
@@ -6308,7 +6312,7 @@ class Spectrum {
 
     for(j=0;j<H;j++)
       for(i=0;i<W;i++)
-	space(i,j) = (i<width && j<height) ? (double) (data[i+j*width]) : 0.0;
+	      space(i,j) = (i<width && j<height) ? (double) (data[i+j*width]) : 0.0;
 
     /* Transform the rows */
     r1 = new double[W];
@@ -6316,20 +6320,20 @@ class Spectrum {
 
     for (i=0; i<H; i++) {
       for (j=0; j<W; j++) {
-	if (i<height && j<width)
-	  r1[j] = space(j,i);
-	else
-	  r1[j] = 0.0;
-	i1[j] = 0.0;
+        if (i<height && j<width)
+          r1[j] = space(j,i);
+        else
+          r1[j] = 0.0;
+        i1[j] = 0.0;
       }
       fft(1, (long)(W), r1, i1);
       for (j=0; j<W; j++) {
-	real(j,i) = r1[j];
-	imag(j,i) = i1[j];
+        real(j,i) = r1[j];
+        imag(j,i) = i1[j];
       }
     }
-    delete r1;
-    delete i1;
+    delete[] r1;
+    delete[] i1;
 
     /* Transform the cols */
     r1 = new double[H];
@@ -6346,8 +6350,8 @@ class Spectrum {
 	imag(i,j) = i1[j];
       }
     }
-    delete r1;
-    delete i1;
+    delete[] r1;
+    delete[] i1;
   }
 
   void fft(int dir, long nn, double *x, double *y) {

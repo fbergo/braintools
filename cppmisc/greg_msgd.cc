@@ -272,7 +272,7 @@ void acc_hist_norm(Volume<int> *v) {
     else
       v->voxel(i) = (int) (((v->voxel(i) - lo)*4095.0) / (hi - lo));
 
-  delete ah;
+  delete[] ah;
 }
 
 Volume<int> *watershed(Volume<int> *v, double radius, double hfac) {
@@ -608,6 +608,6 @@ double mi_cfrg(Volume<int> *a, Volume<int> *b, R3 &cg, double *theta, double *de
 
   D *= 10000.0;
 
-  delete jh;
+  delete[] jh;
   return D;
 }

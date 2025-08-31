@@ -5,7 +5,7 @@ $ftpath = `which freetype-config 2>/dev/null`;
 if ($? == 0 && $ftpath) {
     $ftconfig = "freetype-config";
 } else {
-    $ftconfig = "pkg-config freetype";
+    $ftconfig = "pkg-config freetype2";
 }
 
 my $flags = `$ftconfig --cflags`;

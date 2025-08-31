@@ -860,7 +860,7 @@ double mi_chs_eval(Volume<int> *a, Volume<int> *b, T4 &T) {
 
   D *= 10000.0;
 
-  delete jh;
+  delete[] jh;
   return D;
 }
 

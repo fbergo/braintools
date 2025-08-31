@@ -134,6 +134,7 @@ void scn_namecat(char *dest, const char *src, const char *cat, const char *prefi
   scn_namecat_ext(dest,src,cat,prefix,"scn");
 }
 
+#pragma GCC diagnostic ignored "-Wformat-truncation"
 void scn_namecat_ext(char *dest, const char *src, const char *cat, const char *prefix, const char *ext) {
   char tmp[1024], *p;
   scn_basename(tmp, src);
