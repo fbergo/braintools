@@ -572,7 +572,7 @@ class MessageWindow : public Window {
 
  private:
   PangoFontDescription *pfd;
-  int msgcolor, shadowcolor;
+  int shadowcolor;
   vector<char *> msgs;
   vector<int> clr;
   int yscroll, sbvar[5], gx,gy;
@@ -1802,7 +1802,7 @@ public:
 
 private:
   vector<RenderObject *> obj;
-  int maxdiag,lx,ly;
+  int maxdiag; //,lx,ly;
   int PW,PH;
   Image *buf, *unz;
   RenderingContext *rc;
@@ -2073,7 +2073,7 @@ public:
 
 private:
   Volume<int>  *edt, *orig;
-  Volume<char> *rtag;
+  //Volume<char> *rtag;
   int maxdepth, maxdiag;
   Image *unz,*buf;
   int PW,PH;

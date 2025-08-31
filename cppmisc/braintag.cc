@@ -2,6 +2,9 @@
 #pragma GCC diagnostic ignored "-Wparentheses"
 #pragma GCC diagnostic ignored "-Wformat-truncation"
 
+// glib warnings triggered by gtk/gdk code that will never be fixed
+#pragma GCC diagnostic ignored "-Wdeprecated-declarations"
+
 #include <gtk/gtk.h>
 #include <gdk/gdkkeysyms.h>
 #include <pthread.h>
@@ -15,7 +18,7 @@
 #include "braintag_ui.h"
 #include "icon_cinapce.xpm"
 
-#define VERSION "1.8c"
+#define VERSION "1.8d"
 
 using namespace std;
 

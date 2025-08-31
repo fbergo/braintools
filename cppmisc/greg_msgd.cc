@@ -3,6 +3,10 @@
 #include "greg_msgd.h"
 #include "greg.h"
 
+// glib warnings triggered by gtk/gdk code that will never be fixed
+#pragma GCC diagnostic ignored "-Wdeprecated-declarations"
+
+
 void msgd(double **delta, double *theta, Volume<int> *B, vector<int> & S, R3 &cg, Volume<int> *mov, double *best) {
   double db[6];
   double tb[6];

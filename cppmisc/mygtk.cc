@@ -1,6 +1,9 @@
 
 #pragma GCC diagnostic ignored "-Wparentheses"
 
+// glib warnings triggered by gtk/gdk code that will never be fixed
+#pragma GCC diagnostic ignored "-Wdeprecated-declarations"
+
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>

@@ -1,6 +1,9 @@
 
 #pragma GCC diagnostic ignored "-Wparentheses"
 
+// glib warnings triggered by gtk/gdk code that will never be fixed
+#pragma GCC diagnostic ignored "-Wdeprecated-declarations"
+
 #include "brain_imaging.h"
 #include <gtk/gtk.h>
 #include <gdk/gdkkeysyms.h>

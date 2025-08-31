@@ -4,6 +4,9 @@
 #include "greg_chs.h"
 #include "greg.h"
 
+// glib warnings triggered by gtk/gdk code that will never be fixed
+#pragma GCC diagnostic ignored "-Wdeprecated-declarations"
+
 // build vectors (rotations and translations) with ply 0 transforms
 void chs_ply0(vector<T4> &rvec, vector<T4> &tvec, Volume<int> *a) {
   double angles[6] = { 16.0,  9.0, 5.0, 3.0, 1.0, 0.5 };
