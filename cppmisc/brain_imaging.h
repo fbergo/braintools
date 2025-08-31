@@ -2790,7 +2790,7 @@ template <class T> class Volume : public VolumeDomain {
 	if (bn!=W || (berr!=BZ_OK && berr!=BZ_STREAM_END)) goto bzrfail;
       }
       for(i=0;i<N;i++) data[i] = (T) (td8[i]);
-      delete td8;
+      delete[] td8;
       break;
     case 16:
       uint16_t *td16;
@@ -2802,7 +2802,7 @@ template <class T> class Volume : public VolumeDomain {
 	if (bn!=2*W || (berr!=BZ_OK && berr!=BZ_STREAM_END)) goto bzrfail;
       }
       for(i=0;i<N;i++) data[i] = (T) (td16[i]);
-      delete td16;
+      delete[] td16;
       break;
     case 32:
       int32_t *td32;
@@ -2814,7 +2814,7 @@ template <class T> class Volume : public VolumeDomain {
 	if (bn!=4*W || (berr!=BZ_OK && berr!=BZ_STREAM_END)) goto bzrfail;
       }
       for(i=0;i<N;i++) data[i] = (T) (td32[i]);
-      delete td32;
+      delete[] td32;
       break;
     }
 
@@ -3102,31 +3102,31 @@ template <class T> class Volume : public VolumeDomain {
       buf8 = new uint8_t[W];
       if (buf8==NULL) goto mgzfail;
       for(i=0;i<nr;i++) {
-	gzread(g,buf8,stride);
-	for(j=0;j<W;j++)
-	  data[k++] = (T) buf8[j];
+        gzread(g,buf8,stride);
+        for(j=0;j<W;j++)
+          data[k++] = (T) buf8[j];
       }
-      delete buf8;
+      delete[] buf8;
       break;
     case 16:
       buf16 = new int16_t[W];
       if (buf16==NULL) goto mgzfail;
       for(i=0;i<nr;i++) {
-	gzread(g,buf16,stride);
-	for(j=0;j<W;j++)
-	  data[k++] = (T) buf16[j];
+        gzread(g,buf16,stride);
+        for(j=0;j<W;j++)
+          data[k++] = (T) buf16[j];
       }
-      delete buf16;
+      delete[] buf16;
       break;
     case 32:
       buf32 = new int32_t[W];
       if (buf32==NULL) goto mgzfail;
       for(i=0;i<nr;i++) {
-	gzread(g,buf32,stride);
-	for(j=0;j<W;j++)
-	  data[k++] = (T) buf32[j];
+        gzread(g,buf32,stride);
+        for(j=0;j<W;j++)
+          data[k++] = (T) buf32[j];
       }
-      delete buf32;
+      delete[] buf32;
       break;
     }
     gzclose(g);
@@ -3163,11 +3163,11 @@ template <class T> class Volume : public VolumeDomain {
       c = fgetc(f);
       if (ferror(f)) goto rfail;
       if (c==' ' || c=='\t' || c=='\n') {
-	y[state] = atof(x.c_str());
-	x.clear();
-	state++;
+        y[state] = atof(x.c_str());
+        x.clear();
+        state++;
       } else {
-	x += c;
+        x += c;
       }
       if (state==7 && c!='\n') { do { c=fgetc(f); } while(c!='\n' && !ferror(f)); }
     }
@@ -3193,36 +3193,36 @@ template <class T> class Volume : public VolumeDomain {
       td8 = new uint8_t[N];
       if (!td8) goto rfail;
       for(i=0;i<H*D;i++) {
-	fread( (void *) (&td8[i*W]), 1, W, f);
-	szPartial += W;
-	if (ferror(f)) goto rfail;
+        fread( (void *) (&td8[i*W]), 1, W, f);
+        szPartial += W;
+        if (ferror(f)) goto rfail;
       }
       for(i=0;i<N;i++) data[i] = (T) (td8[i]);
-      delete td8;
+      delete[] td8;
       break;
     case 16:
       uint16_t *td16;
       td16 = new uint16_t[N];
       if (!td16) goto rfail;
       for(i=0;i<H*D;i++) {
-	fread( (void *) (&td16[i*W]), 1, 2*W, f);
-	szPartial += 2*W;
-	if (ferror(f)) goto rfail;
+        fread( (void *) (&td16[i*W]), 1, 2*W, f);
+        szPartial += 2*W;
+        if (ferror(f)) goto rfail;
       }
       for(i=0;i<N;i++) data[i] = (T) (td16[i]);
-      delete td16;
+      delete[] td16;
       break;
     case 32:
       int32_t *td32;
       td32 = new int32_t[N];
       if (!td32) goto rfail;
       for(i=0;i<H*D;i++) {
-	fread( (void *) (&td32[i*W]), 1, 4*W, f);
-	szPartial += 4*W;
-	if (ferror(f)) goto rfail;
+        fread( (void *) (&td32[i*W]), 1, 4*W, f);
+        szPartial += 4*W;
+        if (ferror(f)) goto rfail;
       }
       for(i=0;i<N;i++) data[i] = (T) (td32[i]);
-      delete td32;
+      delete[] td32;
       break;
     }
     fclose(f);
@@ -4182,29 +4182,29 @@ template <class T> class Volume : public VolumeDomain {
     double *hist;
     int i,t,hn,imax,topt=0;
     double p1,p2,m1,m2,s1,s2,j,jmax=-1.0;
-
+    
     imax = (int) maximum();
     hn = imax + 1;
     hist = new double[hn];
     for(i=0;i<hn;i++) hist[i] = 0;
     for(i=0;i<N;i++) ++hist[data[i]];
     for(i=0;i<hn;i++) hist[i] /= ((double)N);
-
+    
     for(t=1;t<imax;t++) {
       for(i=0,p1=0.0;i<=t;i++) p1 += hist[i];
       p2 = 1.0 - p1;
       if ((p1>0.0)&&(p2>0.0)) {
-	for(i=0,m1=0.0;i<=t;i++) m1 += hist[i] * i;
-	m1 /= p1;
-	for(i=t+1,m2=0.0;i<=imax;i++) m2 += hist[i] * i;
-	m2 /= p2;
-	for(i=0,s1=0.0;i<=t;i++) s1 += hist[i] * (i-m1) * (i-m1);
-	s1 /= p1;
-	for(i=t+1,s2=0.0;i<=imax;i++) s2 += hist[i] * (i-m2) * (i-m2);
-	s2 /= p2;
-	j = (p1*p2*(m1-m2)*(m1-m2))/(p1*s1+p2*s2);
+        for(i=0,m1=0.0;i<=t;i++) m1 += hist[i] * i;
+        m1 /= p1;
+        for(i=t+1,m2=0.0;i<=imax;i++) m2 += hist[i] * i;
+        m2 /= p2;
+        for(i=0,s1=0.0;i<=t;i++) s1 += hist[i] * (i-m1) * (i-m1);
+        s1 /= p1;
+        for(i=t+1,s2=0.0;i<=imax;i++) s2 += hist[i] * (i-m2) * (i-m2);
+        s2 /= p2;
+        j = (p1*p2*(m1-m2)*(m1-m2))/(p1*s1+p2*s2);
       } else {
-	j = 0.0;
+        j = 0.0;
       }
       if (j > jmax) { jmax = j; topt = t; }
     }
@@ -4216,7 +4216,7 @@ template <class T> class Volume : public VolumeDomain {
     double *hist;
     int i,t,hn,imax,topt=0, RN;
     double p1,p2,m1,m2,s1,s2,j,jmax=-1.0;
-
+    
     imax = (int) maximum();
     hn = imax + 1;
     hist = new double[hn];
@@ -4224,26 +4224,26 @@ template <class T> class Volume : public VolumeDomain {
     RN = 0;
     for(i=0;i<N;i++) if (mask->voxel(i)!=0) { ++hist[data[i]]; ++RN; }
     for(i=0;i<hn;i++) hist[i] /= ((double)RN);
-
+    
     for(t=1;t<imax;t++) {
       for(i=0,p1=0.0;i<=t;i++) p1 += hist[i];
       p2 = 1.0 - p1;
       if ((p1>0.0)&&(p2>0.0)) {
-	for(i=0,m1=0.0;i<=t;i++) m1 += hist[i] * i;
-	m1 /= p1;
-	for(i=t+1,m2=0.0;i<=imax;i++) m2 += hist[i] * i;
-	m2 /= p2;
-	for(i=0,s1=0.0;i<=t;i++) s1 += hist[i] * (i-m1) * (i-m1);
-	s1 /= p1;
-	for(i=t+1,s2=0.0;i<=imax;i++) s2 += hist[i] * (i-m2) * (i-m2);
-	s2 /= p2;
-	j = (p1*p2*(m1-m2)*(m1-m2))/(p1*s1+p2*s2);
+        for(i=0,m1=0.0;i<=t;i++) m1 += hist[i] * i;
+        m1 /= p1;
+        for(i=t+1,m2=0.0;i<=imax;i++) m2 += hist[i] * i;
+        m2 /= p2;
+        for(i=0,s1=0.0;i<=t;i++) s1 += hist[i] * (i-m1) * (i-m1);
+        s1 /= p1;
+        for(i=t+1,s2=0.0;i<=imax;i++) s2 += hist[i] * (i-m2) * (i-m2);
+        s2 /= p2;
+        j = (p1*p2*(m1-m2)*(m1-m2))/(p1*s1+p2*s2);
       } else {
-	j = 0.0;
+        j = 0.0;
       }
       if (j > jmax) { jmax = j; topt = t; }
     }
-    delete hist;
+    delete[] hist;
     return topt;
   }
 
@@ -4307,62 +4307,62 @@ template <class T> class Volume : public VolumeDomain {
     return s;
   }
 
-  Volume<T> * featureGradient() {
-    Volume<T> * dest;
-    int i,ap;
-    float *f,*mg,dist,gx,gy,gz,v,imax;
-    SphericalAdjacency A6(1.0,false), A7(1.0,true);
-    Location p, q;
-
-    imax = (float) maximum();
-    f = new float[N * 7];
-    if (!f) return 0;
-    mg = new float[6];
-
-    dest = new Volume<T>(W,H,D);
-    
-    for(p.Z=0;p.Z<D;p.Z++)
-      for(p.Y=0;p.Y<H;p.Y++)
-	for(p.X=0;p.X<W;p.X++) {
-	  ap = address(p);
-	  for(i=0;i<A7.size();i++) {
-	    q = A7.neighbor(p,i);
-	    if (valid(q)) {
-	      f[(7*ap)+i] = voxel(q) / imax ;
-	    } else
-	      f[(7*ap)+i] = 0.0;
-	  }
-	}
-
-    p.set(0,0,0);
-    for(i=0;i<6;i++)
-      mg[i] = sqrt(A6.neighbor(p,i).sqlen());
-
-    for(p.Z=0;p.Z<D;p.Z++) {
-      for(p.Y=0;p.Y<H;p.Y++) {
-	for(p.X=0;p.X<W;p.X++) {
-	  ap = address(p);
-	  gx = gy = gz = 0.0;
-	  for(i=0;i<A6.size();i++) {
-	    q = A6.neighbor(p,i);
-	    if (valid(q)) {
-	      dist = featureDistance(&f[7*ap],&f[7*address(q)],7);
-	      gx += (dist * A6[i].X) / mg[i];
-	      gy += (dist * A6[i].Y) / mg[i];
-	      gz += (dist * A6[i].Z) / mg[i];
-	    }
-	  }
-	  v = 100000.0 * sqrt(gx*gx + gy*gy + gz*gz);
-	  dest->voxel(ap) = (T) v;
-	}
+Volume<T> * featureGradient() {
+  Volume<T> * dest;
+  int i,ap;
+  float *f,*mg,dist,gx,gy,gz,v,imax;
+  SphericalAdjacency A6(1.0,false), A7(1.0,true);
+  Location p, q;
+  
+  imax = (float) maximum();
+  f = new float[N * 7];
+  if (!f) return 0;
+  mg = new float[6];
+  
+  dest = new Volume<T>(W,H,D);
+  
+  for(p.Z=0;p.Z<D;p.Z++)
+  for(p.Y=0;p.Y<H;p.Y++)
+  for(p.X=0;p.X<W;p.X++) {
+    ap = address(p);
+    for(i=0;i<A7.size();i++) {
+      q = A7.neighbor(p,i);
+      if (valid(q)) {
+        f[(7*ap)+i] = voxel(q) / imax ;
+      } else
+      f[(7*ap)+i] = 0.0;
+    }
+  }
+  
+  p.set(0,0,0);
+  for(i=0;i<6;i++)
+  mg[i] = sqrt(A6.neighbor(p,i).sqlen());
+  
+  for(p.Z=0;p.Z<D;p.Z++) {
+    for(p.Y=0;p.Y<H;p.Y++) {
+      for(p.X=0;p.X<W;p.X++) {
+        ap = address(p);
+        gx = gy = gz = 0.0;
+        for(i=0;i<A6.size();i++) {
+          q = A6.neighbor(p,i);
+          if (valid(q)) {
+            dist = featureDistance(&f[7*ap],&f[7*address(q)],7);
+            gx += (dist * A6[i].X) / mg[i];
+            gy += (dist * A6[i].Y) / mg[i];
+            gz += (dist * A6[i].Z) / mg[i];
+          }
+        }
+        v = 100000.0 * sqrt(gx*gx + gy*gy + gz*gz);
+        dest->voxel(ap) = (T) v;
       }
     }
-
-    delete f;
-    delete mg;
-
-    return dest;
   }
+  
+  delete f;
+  delete mg;
+  
+  return dest;
+}
 
   float featureDistance(float *a,float *b,int n) {
       int i;
@@ -5900,12 +5900,12 @@ template <class T> class Volume : public VolumeDomain {
     for(z=0;z<D;z++) {
       i = 0; j = H-1;
       for(i=0,j=H-1;i<j;i++,j--) {
-	memcpy(tmp, &data[z*WxH + W*i], W*sizeof(T));
-	memcpy(&data[z*WxH + W*i], &data[z*WxH + W*j], W*sizeof(T));
-	memcpy(&data[z*WxH + W*j], tmp, W*sizeof(T));
+        memcpy(tmp, &data[z*WxH + W*i], W*sizeof(T));
+        memcpy(&data[z*WxH + W*i], &data[z*WxH + W*j], W*sizeof(T));
+        memcpy(&data[z*WxH + W*j], tmp, W*sizeof(T));
       }
     }
-    delete tmp;
+    delete[] tmp;
   }
 
 };
