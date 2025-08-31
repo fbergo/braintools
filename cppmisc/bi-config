@@ -1,7 +1,15 @@
 #!/usr/bin/perl
 
-my $flags = `freetype-config --cflags`;
-my $libs  = `freetype-config --libs`;
+$ftconfig = "";
+$ftpath = `which freetype-config 2>/dev/null`;
+if ($? == 0 && $ftpath) {
+    $ftconfig = "freetype-config";
+} else {
+    $ftconfig = "pkg-config freetype";
+}
+
+my $flags = `$ftconfig --cflags`;
+my $libs  = `$ftconfig --libs`;
 chomp $flags;
 chomp $libs;
 
