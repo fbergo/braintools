@@ -15,7 +15,7 @@
 using std::string;
 using std::vector;
 using libbi::Color;
-using Volume = libbi::Volume;
+using libbi::Volume;
 
 
 gboolean window_timeout(gpointer data);
