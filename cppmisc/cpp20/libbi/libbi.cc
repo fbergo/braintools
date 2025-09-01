@@ -286,6 +286,45 @@ namespace libbi {
         return dst;
     }
 
+    void SphericalAdjacency::resize(float radius, bool self) {
+        int dx,dy,dz,r0,r2;
+        
+        data.clear();
+        r0 = (int) radius;
+        r2 = (int) (radius*radius);
+        
+        for(dz=-r0;dz<=r0;dz++) {
+          for(dy=-r0;dy<=r0;dy++) {
+            for(dx=-r0;dx<=r0;dx++) {
+              P3 loc(dx,dy,dz);
+              if ((loc.sqlen() > 0  || self) && loc.sqlen() <= r2) {
+                data.push_back(loc);
+              }
+            }
+          }
+        }
+        std::sort(data.begin(),data.end());
+    }    
+
+    //! Recreates this adjacency, with given radius. If self is true,
+    //! the center voxel is considered its own neighbor.
+    void DiscAdjacency::resize(float radius, bool self) {
+      int dx,dy,r0,r2;
+      
+      data.clear();
+      r0 = (int) radius;
+      r2 = (int) (radius*radius);
+      
+      for(dy=-r0;dy<=r0;dy++) {
+        for(dx=-r0;dx<=r0;dx++) {
+          P3 loc(dx,dy,0);
+          if ((loc.sqlen() > 0  || self) && loc.sqlen() <= r2) {
+            data.push_back(loc);
+          }
+        }
+      }
+      std::sort(data.begin(),data.end());
+    }     
 
     VolumeDomain::VolumeDomain() { 
         W=H=D=WxH=N=0;
@@ -315,10 +354,13 @@ namespace libbi {
         return(x>=0 && x<W && y>=0 && y<H && z>=0 && z<D);
     }
 
+    bool VolumeDomain::valid(const P3 &p) const {
+        return(valid(p.x,p.y,p.z)); 
+    }
+
     bool VolumeDomain::valid_address(int a) const {
         return(a>=0 && a<N);
     }
-
 
     int VolumeDomain::diagonalLength() const { 
         return( static_cast<int>(std::sqrt(static_cast<double>(W*W+H*H+D*D))) ); 
@@ -333,6 +375,441 @@ namespace libbi {
         }
     }
 
+    T3::T3() { zero(); }
+    
+    //! Transform composition, multiplies this transform by b, and overwrites
+    //! this transform. Returns a reference to this transform.
+    T3 & T3::operator*=(const T3 & b) { (*this) = (*this) * b; return(*this); }
+    
+    //! composition
+    T3 T3::operator*(const T3 &b) const {
+    T3 d;
+    int i,j,k;
+    for(i=0;i<3;i++) for(j=0;j<3;j++) for(k=0;k<3;k++)
+        d.e[i+j*3] += b.e[i+k*3] * e[k+j*3];
+    return d;
+    }
+      
+    //! Applies this transform to point a and returns the transformed point
+    R3 T3::apply(const R3 & a) const {
+        R3 b;
+        b.x = a.x * e[0+0*3] + a.y * e[0+1*3] + a.z * e[0+2*3];
+        b.y = a.x * e[1+0*3] + a.y * e[1+1*3] + a.z * e[1+2*3];
+        b.z = a.x * e[2+0*3] + a.y * e[2+1*3] + a.z * e[2+2*3];
+        return b;
+    }
+    
+    //! Sets all coefficients to zero (null transform)
+    void T3::zero() { std::fill(e, e+9, 0.0f); }
+    
+    //! Sets an identity transform
+    void T3::identity() { zero(); e[0+0*3] = e[1+1*3] = e[2+2*3] = 1.0f; }
+    
+      //! Sets a rotation around X-axis transform, by angle degrees.
+      //! Rotation center is the origin.
+    void T3::xrot(float angle) {
+        identity();
+        angle *= M_PI / 180.0f;
+        e[1+1*3] =  std::cos(angle); e[2+1*3] = std::sin(angle);
+        e[1+2*3] = -std::sin(angle); e[2+2*3] = std::cos(angle);
+    }
+    
+    //! Sets a rotation around Y-axis transform, by angle degrees.
+    //! Rotation center is the origin.
+    void T3::yrot(float angle) {
+        identity();
+        angle *= M_PI / 180.0f;
+        e[0+0*3] =  std::cos(angle); e[2+0*3] = std::sin(angle);
+        e[0+2*3] = -std::sin(angle); e[2+2*3] = std::cos(angle);
+    }
+    
+    //! Sets a rotation around Z-axis transform, by angle degrees.
+    //! Rotation center is the origin.
+    void T3::zrot(float angle) {
+        identity();
+        angle *= M_PI / 180.0f;
+        e[0+0*3] =  std::cos(angle); e[1+0*3] = std::sin(angle);
+        e[0+1*3] = -std::sin(angle); e[1+1*3] = std::cos(angle);
+    }
+    
+    //! Sets a scaling transform, by factor on all dimensions
+    void T3::scale(float factor) {
+        zero(); e[0+0*3]=e[1+1*3]=e[2+2*3]=factor;
+    }
+    
+    //! Sets a scaling transform, with different scaling factors
+    //! for each dimension.
+    void T3::scale(float fx, float fy, float fz) {
+        zero(); e[0+0*3]=fx; e[1+1*3]=fy; e[2+2*3]=fz;
+    }
+    
+    //! string representation
+    std::string T3::to_string() const {
+        int i,j;
+        std::string s;
+        s = std::format("{:>6.2f} {:>6.2f} {:>6.2f}\n{:>6.2f} {:>6.2f} {:>6.2f}\n{:>6.2f} {:>6.2f} {:>6.2f}",
+            e[0],e[1],e[2],e[3],e[4],e[5],e[6],e[7],e[8]);
+        return s;
+    }
+    
+    /*
+    //! 4x4 Linear Transformation.
+    //! 4x4 Linear Transformation.
+    class T4 {
+     public:
+      //! Constructor, creates a null transform
+      T4() { zero(); }
+    
+      //! Copy constructor
+      T4(const T4 &b) { 
+        int i,j; for(i=0;i<4;i++) for(j=0;j<4;j++) e[i][j] = b.e[i][j]; }
+    
+      //! Transform assignment
+      T4 & operator=(const T4 &b) {
+        int i,j; for(i=0;i<4;i++) for(j=0;j<4;j++) e[i][j] = b.e[i][j]; 
+        return(*this); }
+    
+      //! Transform composition, multiplies this transform by b, overwrites this
+      //! transform with the result, and returns a reference to this transform.
+      T4 & operator*=(const T4 & b) { (*this) = (*this) * b; return(*this); }
+    
+      //! Transform multiplication. Multiplies this transform by b, and returns
+      //! a reference to the result without modifying this transform
+      T4 operator*(const T4 &b) {
+        T4 d;
+        int i,j,k;
+        d.zero();
+        for(i=0;i<4;i++) for(j=0;j<4;j++) for(k=0;k<4;k++)
+          d.e[i][j] += b.e[i][k] * this->e[k][j];
+        return d;
+      }
+    
+      int equals(const T4 &b, float epsilon=0.0001) const {
+        int i,j;
+        for(i=0;i<4;i++)
+          for(j=0;j<4;j++)
+        if (fabs(e[i][j] - b.e[i][j]) >= epsilon)
+          return 0;
+        return 1;
+      }
+    
+      //! Applies this transform to point a and returns the transformed point
+      R3 apply(const R3 & a) {
+        R3 b;
+        float w;
+        b.X = a.X * e[0][0] + a.Y * e[0][1] + a.Z * e[0][2] + e[0][3];
+        b.Y = a.X * e[1][0] + a.Y * e[1][1] + a.Z * e[1][2] + e[1][3];
+        b.Z = a.X * e[2][0] + a.Y * e[2][1] + a.Z * e[2][2] + e[2][3];
+        w = e[3][0] + e[3][1] + e[3][2] + e[3][3];
+        b /= w;
+        return b;
+      }
+    
+      //! Sets all coefficients to zero (null transform)
+      void zero() {
+        int i,j; for(i=0;i<4;i++) for(j=0;j<4;j++) e[i][j]=0.0; }
+    
+      //! Sets an identity transform
+      void identity() { zero(); e[0][0] = e[1][1] = e[2][2] = e[3][3] = 1.0; }
+    
+      //! Sets a rotation around X-axis transform, by angle degrees.
+      //! Rotation center is given by (cx,cy,cz)
+      void xrot(float angle, float cx, float cy, float cz) {
+        T4 a,b,c;
+        a.translate(-cx,-cy,-cz);
+        b.xrot(angle);
+        c.translate(cx,cy,cz);
+        a *= b;
+        a *= c;
+        (*this) = a;
+      }
+    
+      //! Sets a rotation around Y-axis transform, by angle degrees.
+      //! Rotation center is given by (cx,cy,cz)
+      void yrot(float angle, float cx, float cy, float cz) {
+        T4 a,b,c;
+        a.translate(-cx,-cy,-cz);
+        b.yrot(angle);
+        c.translate(cx,cy,cz);
+        a *= b;
+        a *= c;
+        (*this) = a;
+      }
+    
+      //! Sets a rotation around Z-axis transform, by angle degrees.
+      //! Rotation center is given by (cx,cy,cz)
+      void zrot(float angle, float cx, float cy, float cz) {
+        T4 a,b,c;
+        a.translate(-cx,-cy,-cz);
+        b.zrot(angle);
+        c.translate(cx,cy,cz);
+        a *= b;
+        a *= c;
+        (*this) = a;
+      }
+    
+      //! Sets a rotation around X-axis transform, by angle degrees.
+      //! Rotation center is the origin.
+      void xrot(float angle) {
+        identity();
+        angle *= M_PI / 180.0;
+        e[1][1] = cos(angle);  e[2][1] = sin(angle);
+        e[1][2] = -sin(angle); e[2][2] = cos(angle);
+      }
+    
+      //! Sets a rotation around Y-axis transform, by angle degrees.
+      //! Rotation center is the origin.
+      void yrot(float angle) {
+        identity();
+        angle *= M_PI / 180.0;
+        e[0][0] = cos(angle);  e[2][0] = sin(angle);
+        e[0][2] = -sin(angle); e[2][2] = cos(angle);
+      }
+    
+      //! Sets a rotation around Z-axis transform, by angle degrees.
+      //! Rotation center is the origin.
+      void zrot(float angle) {
+        identity();
+        angle *= M_PI / 180.0;
+        e[0][0] = cos(angle);  e[1][0] = sin(angle);
+        e[0][1] = -sin(angle); e[1][1] = cos(angle);
+      }
+    
+      // rotation about arbitrary axis, around (cx,cy,cz)
+      void axisrot(const R3 &axis, float angle, float cx, float cy, float cz) {
+        T4 t,r,ti;
+        t.translate(-cx,-cy,-cz);
+        r.axisrot(axis,angle);
+        ti.translate(cx,cy,cz);
+        t *= r;
+        t *= ti;
+        (*this) = t;
+      }
+    
+      // rotation about arbitrary axis, around the origin
+      // Hearn et al, 1986, Computer Graphics, p. 224 (ISBN 0131653822)
+      void axisrot(const R3 &axis, float angle) {
+        R3 au;
+        T4 rx, ry, rz, ryi, rxi;
+        double a,b,c,d;
+    
+        au = axis;
+        au.normalize();
+        
+        a = au.X;
+        b = au.Y;
+        c = au.Z;
+        d = sqrt(b*b+c*c);
+        if (d == 0.0) {
+          xrot( a > 0 ? angle : -angle );
+          return;
+        }
+    
+        rx.set(1, 0,   0,   0,
+           0, c/d, b/d, 0,
+           0,-b/d, c/d, 0,
+           0, 0,   0,   1);
+    
+        ry.set(  d, 0, a, 0,
+             0, 1, 0, 0,
+            -a, 0, d, 0,
+             0, 0, 0, 1);
+    
+        rz.zrot(angle);
+    
+        ryi.set(  d, 0,-a, 0,
+              0, 1, 0, 0,
+              a, 0, d, 0,
+              0, 0, 0, 1);
+    
+        rxi.set(1, 0,    0,   0,
+            0, c/d, -b/d, 0,
+            0, b/d,  c/d, 0,
+            0, 0,    0,   1);
+    
+        rx *= ry;
+        rx *= rz;
+        rx *= ryi;
+        rx *= rxi;
+        (*this) = rx;
+      }
+    
+      //! Sets a shearing transform along the X axis
+      void xshear(float yf, float zf) {
+        identity(); e[0][1] = yf; e[0][2] = zf;
+      }
+    
+      //! Sets a shearing transform along the Y axis
+      void yshear(float xf, float zf) {
+        identity(); e[1][0] = xf; e[1][2] = zf;
+      }
+    
+      //! Sets a shearing transform along the Z axis
+      void zshear(float xf, float yf) {
+        identity(); e[2][0] = xf; e[2][1] = yf;
+      }
+    
+      //! Sets a scaling transform, by factor on all dimensions
+      void scale(float factor) {
+        zero(); e[0][0]=e[1][1]=e[2][2]=factor; e[3][3] = 1.0;
+      }
+    
+      //! Sets a scaling transform, by factors (fx,fy,fz)
+      void scale(float fx, float fy, float fz) {
+        zero(); e[0][0]=fx; e[1][1]=fy; e[2][2]=fz; e[3][3] = 1.0;
+      }
+    
+      //! Sets a translation transform, by (dx,dy,dz)
+      void translate(float dx, float dy, float dz) {
+        identity(); e[0][3] = dx; e[1][3] = dy; e[2][3] = dz;
+      }
+    
+      void set(float c11,float c21,float c31,float c41,
+           float c12,float c22,float c32,float c42,
+           float c13,float c23,float c33,float c43,
+           float c14,float c24,float c34,float c44) {
+        e[0][0] = c11; e[1][0] = c21; e[2][0] = c31; e[3][0] = c41;
+        e[0][1] = c12; e[1][1] = c22; e[2][1] = c32; e[3][1] = c42;
+        e[0][2] = c13; e[1][2] = c23; e[2][2] = c33; e[3][2] = c43;
+        e[0][3] = c14; e[1][3] = c24; e[2][3] = c34; e[3][3] = c44;
+      }
+    
+      //! Computes the inverse transform
+      void invert() { minv4(); }
+    
+      //! Prints the transform matrix on stdout
+      void print() {
+        int i,j;
+        for(i=0;i<4;i++) {
+          for(j=0;j<4;j++) {
+        printf("%.2f ",e[j][i]);
+          }
+          printf("\n");
+        }
+        printf("\n");
+      }
+    
+      friend ostream & operator<<(ostream& s, T4 &t) {
+        int i,j;
+        s << "T4 [ ";
+        for(i=0;i<4;i++)
+          for(j=0;j<4;j++)
+        s << t.e[j][i] << " ";
+        s << "]\n";
+        return s;
+      }
+    
+      friend istream & operator>>(istream& s, T4 &t) {
+        char l[128];
+        Tokenizer k;
+        int i,j;
+        s.getline(l,128);
+        k.setString(l);
+        k.setSeparator(" \r\n\t");
+        if (k.countTokens() != 19) goto t4inputerror;
+        if (strcmp(k.nextToken(),"T4")!=0) goto t4inputerror;
+        if (strcmp(k.nextToken(),"[")!=0) goto t4inputerror;
+        for(i=0;i<4;i++)
+          for(j=0;j<4;j++)
+              t.e[j][i] = atof(k.nextToken());
+        if (strcmp(k.nextToken(),"]")!=0) goto t4inputerror;
+        return s;
+     t4inputerror:
+        cerr << "T4::operator>> : bad syntax reading matrix data.\n";
+        t.identity();
+        return s;
+      }
+    
+     private:
+      float e[4][4];
+    
+      bool minv4() {
+        int *sle;
+        float *sq0, *a;
+        int n = 4; // matrix size
+        
+        int lc,*le; float s,t,tq=0.,zr=1.e-15;
+        float *pa,*pd,*ps,*p,*q,*q0;
+        int i,j,k,m;
+        
+        sle = new int[n];
+        sq0 = new float[n];
+        a = new float[n*n];
+        
+        for(i=0;i<n*n;i++) a[i] = e[i%n][i/n];
+        
+        le = sle;
+        q0 = sq0;
+        
+        for(j=0,pa=pd=a; j<n ;++j,++pa,pd+=n+1){
+          if(j>0){
+            for(i=0,q=q0,p=pa; i<n ;++i,p+=n) *q++ = *p;
+            for(i=1; i<n ;++i){ lc=i<j?i:j;
+              for(k=0,p=pa+i*n-j,q=q0,t=0.; k<lc ;++k) t+= *p++ * *q++;
+              q0[i]-=t;
+            }
+            for(i=0,q=q0,p=pa; i<n ;++i,p+=n) *p= *q++;
+          }
+          
+          s=fabs(*pd); lc=j;
+          for(k=j+1,ps=pd; k<n ;++k){
+            if((t=fabs(*(ps+=n)))>s){ s=t; lc=k;}
+          }
+          tq=tq>s?tq:s; if(s<zr*tq){ return false;}
+          *le++ =lc;
+          if(lc!=j){
+            for(k=0,p=a+n*j,q=a+n*lc; k<n ;++k){
+              t= *p; *p++ = *q; *q++ =t;
+            }
+          }
+          for(k=j+1,ps=pd,t=1./ *pd; k<n ;++k) *(ps+=n)*=t;
+          *pd=t;
+        }
+        for(j=1,pd=ps=a; j<n ;++j){
+          for(k=0,pd+=n+1,q= ++ps; k<j ;++k,q+=n) *q*= *pd;
+        }
+        for(j=1,pa=a; j<n ;++j){ ++pa;
+          for(i=0,q=q0,p=pa; i<j ;++i,p+=n) *q++ = *p;
+          for(k=0; k<j ;++k){ t=0.;
+            for(i=k,p=pa+k*n+k-j,q=q0+k; i<j ;++i) t-= *p++ * *q++;
+            q0[k]=t;
+          }
+          for(i=0,q=q0,p=pa; i<j ;++i,p+=n) *p= *q++;
+        }
+        for(j=n-2,pd=pa=a+n*n-1; j>=0 ;--j){ --pa; pd-=n+1;
+          for(i=0,m=n-j-1,q=q0,p=pd+n; i<m ;++i,p+=n) *q++ = *p;
+          for(k=n-1,ps=pa; k>j ;--k,ps-=n){ t= -(*ps);
+            for(i=j+1,p=ps,q=q0; i<k ;++i) t-= *++p * *q++;
+            q0[--m]=t;
+          }
+          for(i=0,m=n-j-1,q=q0,p=pd+n; i<m ;++i,p+=n) *p= *q++;
+        }
+        for(k=0,pa=a; k<n-1 ;++k,++pa){
+          for(i=0,q=q0,p=pa; i<n ;++i,p+=n) *q++ = *p;
+          for(j=0,ps=a; j<n ;++j,ps+=n){
+            if(j>k){ t=0.; p=ps+j; i=j;}
+            else{ t=q0[j]; p=ps+k+1; i=k+1;}
+            for(; i<n ;) t+= *p++ *q0[i++];
+            q0[j]=t;
+          }
+          for(i=0,q=q0,p=pa; i<n ;++i,p+=n) *p= *q++;
+        }
+        for(j=n-2,le--; j>=0 ;--j){
+          for(k=0,p=a+j,q=a+ *(--le); k<n ;++k,p+=n,q+=n){
+            t=*p; *p=*q; *q=t;
+          }
+        }
+        delete[] sq0;
+        delete[] sle;
+        for(i=0;i<n*n;i++) e[i%n][i/n] = a[i];
+        delete[] a;
+        return true;
+      } // minv4
+    };
+    */
+    
 
-}
+
+
+} // namespace
 

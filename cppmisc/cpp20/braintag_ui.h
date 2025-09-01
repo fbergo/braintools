@@ -2,21 +2,28 @@
 #ifndef BRAINTAG_UI_H
 #define BRAINTAG_UI_H 1
 
-#include "libbi.h"
+#include <iostream>
+#include <fstream>
 #include <algorithm>
-#include <gtk/gtk.h>
+#include <utility>
+#include <memory>
 #include <list>
 #include <set>
 #include <string>
 #include <vector>
 #include <regex>
 #include <format>
+#include "libbi.h"
+#include <gtk/gtk.h>
 
 using std::string;
 using std::vector;
+using std::set;
+using std::shared_ptr;
 using libbi::Color;
 using libbi::Volume;
-
+using libbi::Image;
+using libbi::P3;
 
 gboolean window_timeout(gpointer data);
 
@@ -76,13 +83,12 @@ public:
   PangoFontDescription *getTitlePFD() { return pfd; }
   PangoFontDescription *getHelpPFD() { return hfd; }
 
-  void drawString(int x, int y, Color color, const char *text,
-                  PangoFontDescription *fd = NULL) {
+  void drawString(int x, int y, Color color, const string &text,
+                  PangoFontDescription *fd = nullptr) {
     ensureGC();
-    if (fd == NULL)
-      fd = getTitlePFD();
+    if (fd == nullptr) fd = getTitlePFD();
     pango_layout_set_font_description(pl, fd);
-    pango_layout_set_text(pl, text, -1);
+    pango_layout_set_text(pl, text.c_str(), -1);
     gdk_rgb_gc_set_foreground(gc, color.toInt());
     gdk_draw_layout(widget->window, gc, x, y, pl);
   }
@@ -98,10 +104,10 @@ public:
     gdk_draw_line(widget->window, gc, x1, y1, x2, y2);
   }
 
-  void drawImage(Image *img, int x, int y) {
+  void drawImage(Image &img, int x, int y) {
     ensureGC();
-    gdk_draw_rgb_image(widget->window, gc, x, y, img->W, img->H,
-                       GDK_RGB_DITHER_NORMAL, img->getBuffer(), 3 * (img->W));
+    gdk_draw_rgb_image(widget->window, gc, x, y, img.W, img.H,
+                       GDK_RGB_DITHER_NORMAL, img.getBuffer(), 3 * (img.W));
   }
 
   void setClip(GdkRegion *reg) {
@@ -121,22 +127,20 @@ public:
       w = h = 0;
   }
 
-  int stringWidth(const char *text, PangoFontDescription *fd = NULL) {
+  int stringWidth(const string &text, PangoFontDescription *fd = nullptr) {
     PangoRectangle prl, pri;
-    if (fd == NULL)
-      fd = getTitlePFD();
+    if (fd == nullptr) fd = getTitlePFD();
     pango_layout_set_font_description(pl, fd);
-    pango_layout_set_text(pl, text, -1);
+    pango_layout_set_text(pl, text.c_str(), -1);
     pango_layout_get_pixel_extents(pl, &prl, &pri);
     return (prl.width);
   }
 
-  int stringHeight(const char *text, PangoFontDescription *fd = NULL) {
+  int stringHeight(const string &text, PangoFontDescription *fd = nullptr) {
     PangoRectangle prl, pri;
-    if (fd == NULL)
-      fd = getTitlePFD();
+    if (fd == nullptr) fd = getTitlePFD();
     pango_layout_set_font_description(pl, fd);
-    pango_layout_set_text(pl, text, -1);
+    pango_layout_set_text(pl, text.c_str(), -1);
     pango_layout_get_pixel_extents(pl, &prl, &pri);
     return (prl.height);
   }
@@ -215,7 +219,7 @@ public:
     minw = 64;
     minh = 20;
     resizable = true;
-  }}
+  }
 
   virtual vector<string> composeHelp() {
     vector<string> help;
@@ -225,8 +229,7 @@ public:
 
   vector<string> keyHelp() {
     vector<string> help;
-    string sep(5,' ');
-    string s = std::format(u8"F1-F2: Tool{}F5-F7: Label{}\u2190\u2191\u2192\u2193: Depth{}\u2212/+: Range",sep,sep,sep);
+    string s = reinterpret_cast<const char *>(u8"F1-F2: Tool     F5-F7: Label     \u2190\u2191\u2192\u2193: Depth     \u2212/+: Range");
     help.push_back(s);
     return help;
   }
@@ -489,7 +492,7 @@ public:
     blue = 0x5555ff;
     shade = ui.BG * 0.80f;
 
-    gap = std::max(2, (H - 60) / msgs.size());
+    gap = std::max(2, (H - 60) / (int) msgs.size());
     boxh = std::max(2, gap - 1);
 
     minl = maxl = -1;
@@ -679,11 +682,9 @@ public:
   void clearDepthSync() { sync.clear(); }
 
   void dumpDepthGroup() {
-    set<AdjustableDepth *>::iterator i;
-    cerr << "DEPTH SYNC:\n";
-    for (i = sync.begin(); i != sync.end(); i++)
-      cerr << (*i) << endl;
-    cerr << "==END==:\n";
+    std::cerr << "DEPTH SYNC:\n";
+    for (auto &i : sync) std::cerr << i << std::endl;
+    std::cerr << "==END==:\n";
   }
 
 private:
@@ -693,14 +694,13 @@ private:
   set<AdjustableDepth *> sync;
 
   void syncAll() {
-    set<AdjustableDepth *>::iterator i;
-    for (i = sync.begin(); i != sync.end(); i++) {
-      (*i)->depth = depth;
-      (*i)->maxdepth = maxdepth;
-      (*i)->px = px;
-      (*i)->py = py;
-      (*i)->pz = pz;
-      (*i)->invalidateDepth();
+    for (auto &i : sync) {
+      i->depth = depth;
+      i->maxdepth = maxdepth;
+      i->px = px;
+      i->py = py;
+      i->pz = pz;
+      i->invalidateDepth();
     }
   }
 
@@ -718,19 +718,15 @@ public:
 
   virtual ~AdjustableViewRange() {
     set<AdjustableViewRange *>::iterator i;
-    for (i = sync.begin(); i != sync.end(); i++)
-      (*i)->removeViewRangeSync(this);
+    for(auto &i : sync)
+      i->removeViewRangeSync(this);
     sync.clear();
   }
 
   float getViewRange() { return range; }
 
   void setViewRange(float val) {
-    range = val;
-    if (range < 0.05)
-      range = 0.05;
-    if (range > 1.0)
-      range = 1.0;
+    range = std::clamp(val, 0.05f, 1.0f);
     invalidateViewRange();
     syncAll();
   }
@@ -774,7 +770,7 @@ class Button {
 public:
   int X, Y, W, H;
 
-  Button(int x, int y, int w, int h, char **xpm, const Color &act,
+  Button(int x, int y, int w, int h, const char **xpm, const Color &act,
          const Color &inac, const Color &border) {
     X = x;
     Y = y;
@@ -784,15 +780,10 @@ public:
     c[1] = act;
     c[2] = inac;
 
-    icon[0] = xpm != NULL ? new Image(xpm, c[1]) : NULL;
-    icon[1] = xpm != NULL ? new Image(xpm, c[2]) : NULL;
-  }
-
-  virtual ~Button() {
-    if (icon[0] != NULL)
-      delete icon[0];
-    if (icon[1] != NULL)
-      delete icon[1];
+    if (xpm != nullptr) {
+      icon[0] = Image(xpm, c[1]);
+      icon[1] = Image(xpm, c[2]);
+    }
   }
 
   bool inside(int x, int y) {
@@ -810,20 +801,17 @@ public:
     gdk_draw_rectangle(w, gc, FALSE, bx + X + (down ? 3 : 0),
                        by + Y + (down ? 3 : 0), W, H);
 
-    if (icon[0] != NULL) {
-      Image *img;
-      img = active ? icon[0] : icon[1];
-      if (img != NULL)
-        gdk_draw_rgb_image(w, gc, bx + X + (W - img->W) / 2 + (down ? 3 : 0),
-                           by + Y + (H - img->H) / 2 + (down ? 3 : 0), img->W,
-                           img->H, GDK_RGB_DITHER_NORMAL, img->getBuffer(),
-                           3 * (img->W));
-    }
+    Image &img = active ? icon[0] : icon[1];
+    if (!img.empty())
+      gdk_draw_rgb_image(w, gc, bx + X + (W - img.W) / 2 + (down ? 3 : 0),
+                          by + Y + (H - img.H) / 2 + (down ? 3 : 0), img.W,
+                          img.H, GDK_RGB_DITHER_NORMAL, img.getBuffer(),
+                          3 * (img.W));
   }
 
 private:
   Color c[3];
-  Image *icon[2];
+  Image icon[2];
 };
 
 #include "arrow.xpm"
@@ -848,16 +836,16 @@ public:
     bc2 = 0xc0c0c0;
 
     buttons.push_back(
-        new Button(10 + 0 * 40, 10, 32, 32, arrow_xpm, bc1, bc2, ui.Border));
+        new Button(10 + 0 * 40, 10, 32, 32, const_cast<const char **>(arrow_xpm), bc1, bc2, ui.Border));
     buttons.push_back(
-        new Button(10 + 1 * 40, 10, 32, 32, poly_xpm, bc1, bc2, ui.Border));
+        new Button(10 + 1 * 40, 10, 32, 32, const_cast<const char **>(poly_xpm), bc1, bc2, ui.Border));
 
     buttons.push_back(
-        new Button(120 + 0 * 40, 10, 32, 32, fcd_xpm, bc1, bc2, ui.Border));
+        new Button(120 + 0 * 40, 10, 32, 32, const_cast<const char **>(fcd_xpm), bc1, bc2, ui.Border));
     buttons.push_back(
-        new Button(120 + 1 * 40, 10, 32, 32, ok_xpm, bc1, bc2, ui.Border));
+        new Button(120 + 1 * 40, 10, 32, 32, const_cast<const char **>(ok_xpm), bc1, bc2, ui.Border));
     buttons.push_back(
-        new Button(120 + 2 * 40, 10, 32, 32, void_xpm, bc1, bc2, ui.Border));
+        new Button(120 + 2 * 40, 10, 32, 32, const_cast<const char **>(void_xpm), bc1, bc2, ui.Border));
 
     for (i = 0; i < 5; i++)
       active[i] = 0;
@@ -945,14 +933,12 @@ private:
 
 class BrainToolbarClient {
 public:
-  BrainToolbarClient() { toolbar = NULL; }
-
-  int getToolbarMode() { return (toolbar == NULL ? 0 : toolbar->getMode()); }
-  int getToolbarLabel() { return (toolbar == NULL ? 0 : toolbar->getLabel()); }
-  void setBrainToolbar(BrainToolbar *btb) { toolbar = btb; }
+  int getToolbarMode() { return (!toolbar  ? 0 : toolbar->getMode()); }
+  int getToolbarLabel() { return (!toolbar ? 0 : toolbar->getLabel()); }
+  void setBrainToolbar(shared_ptr<BrainToolbar> &btb) { toolbar = btb; }
 
 private:
-  BrainToolbar *toolbar;
+  shared_ptr<BrainToolbar> toolbar;
 };
 
 class OrthogonalView : public Window,
@@ -962,40 +948,17 @@ class OrthogonalView : public Window,
 public:
   OrthogonalView(const string &title, int x, int y, int w, int h)
       : Window(title, x, y, w, h) {
-    vol = NULL;
-    seg = NULL;
-    edt = NULL;
-    xy = zy = xz = NULL;
-    p = q = r = NULL;
     invalid[0] = invalid[1] = invalid[2] = true;
     showseg = true;
     setMinimumSize(64, 72);
   }
 
-  virtual ~OrthogonalView() {
-    if (xy != NULL)
-      delete xy;
-    if (zy != NULL)
-      delete zy;
-    if (xz != NULL)
-      delete xz;
-    if (p != NULL)
-      delete p;
-    if (q != NULL)
-      delete q;
-    if (r != NULL)
-      delete r;
-  }
-
-  void setVolume(Volume<int> *v) {
+  void setVolume(shared_ptr<Volume<int>> &v) {
     vol = v;
 
-    if (p != NULL) {
-      delete p;
-      delete q;
-      delete r;
-      p = q = r = NULL;
-    }
+    if (!p.empty()) p = std::move(Image());
+    if (!q.empty()) q = std::move(Image());
+    if (!r.empty()) r = std::move(Image());
 
     maxval = vol->maximum();
     cx = vol->W / 2;
@@ -1005,16 +968,16 @@ public:
     invalidate();
   }
 
-  void setEDT(Volume<int> *v) {
+  void setEDT(shared_ptr<Volume<int>> &v) {
     edt = v;
-    if (edt != NULL) {
-      int maxdepth = (int)ceil(sqrt(edt->maximum()));
+    if (edt) {
+      int maxdepth = (int) std::ceil(sqrt(edt->maximum()));
       setMaxDepth(maxdepth);
     }
     invalidate();
   }
 
-  void setSegmentation(Volume<char> *v) {
+  void setSegmentation(shared_ptr<Volume<char>> &v) {
     seg = v;
     invalidate();
   }
@@ -1054,29 +1017,29 @@ public:
 
     /* the images */
     drawImage(xy, bx, by);
-    drawImage(zy, bx + 10 + xy->W, by);
-    drawImage(xz, bx, by + 10 + xy->H);
+    drawImage(zy, bx + 10 + xy.W, by);
+    drawImage(xz, bx, by + 10 + xy.H);
 
     a = (int)(zoom * cx);
     b = (int)(zoom * cy);
     c = (int)(zoom * cz);
 
     /* the cursor */
-    line(bx, by + b, bx + xy->W, by + b, Color(0x00ff00));
-    line(bx + a, by, bx + a, by + xy->H, Color(0x00ff00));
-    line(bx + 10 + xy->W, by + b, bx + 10 + xy->W + zy->W, by + b,
+    line(bx, by + b, bx + xy.W, by + b, Color(0x00ff00));
+    line(bx + a, by, bx + a, by + xy.H, Color(0x00ff00));
+    line(bx + 10 + xy.W, by + b, bx + 10 + xy.W + zy.W, by + b,
          Color(0x00ff00));
-    line(bx + 10 + xy->W + c, by, bx + 10 + xy->W + c, by + zy->H,
+    line(bx + 10 + xy.W + c, by, bx + 10 + xy.W + c, by + zy.H,
          Color(0x00ff00));
-    line(bx, by + 10 + xy->H + c, bx + xz->W, by + 10 + xy->H + c,
+    line(bx, by + 10 + xy.H + c, bx + xz.W, by + 10 + xy.H + c,
          Color(0x00ff00));
-    line(bx + a, by + 10 + xy->H, bx + a, by + 10 + xy->H + xz->H,
+    line(bx + a, by + 10 + xy.H, bx + a, by + 10 + xy.H + xz.H,
          Color(0x00ff00));
 
     /* border */
-    rect(bx, by, xy->W, xy->H, ui.Border, false);
-    rect(bx + 10 + xy->W, by, zy->W, zy->H, ui.Border, false);
-    rect(bx, by + 10 + xy->H, xz->W, xz->H, ui.Border, false);
+    rect(bx, by, xy.W, xy.H, ui.Border, false);
+    rect(bx + 10 + xy.W, by, zy.W, zy.H, ui.Border, false);
+    rect(bx, by + 10 + xy.H, xz.W, xz.H, ui.Border, false);
 
     /* text on bottom */
     char z[256];
@@ -1087,14 +1050,14 @@ public:
 
     /* segmentation check box */
     if (seg != NULL) {
-      drawCheckBox(bx + 10 + xy->W, by + 10 + xy->H, showseg);
-      drawString(bx + 10 + xy->W + 16, by + 10 + xy->H, Color(0xffff80),
+      drawCheckBox(bx + 10 + xy.W, by + 10 + xy.H, showseg);
+      drawString(bx + 10 + xy.W + 16, by + 10 + xy.H, Color(0xffff80),
                  "Show Segmentation");
     }
 
-    drawString(bx + 10 + xy->W, by + 10 + xy->H + 20, Color(0xffff80),
+    drawString(bx + 10 + xy.W, by + 10 + xy.H + 20, Color(0xffff80),
                "View Range: ");
-    drawSlider(bx + 10 + xy->W + 10, by + 10 + xy->H + 40, 100, 16,
+    drawSlider(bx + 10 + xy.W + 10, by + 10 + xy.H + 40, 100, 16,
                getViewRange(), 4, false);
   }
 
@@ -1107,7 +1070,7 @@ public:
     by = 10;
 
     if ((button == 1 || button == 3) &&
-        insideExtents(x, y, bx, by, xy->W, xy->H)) {
+        insideExtents(x, y, bx, by, xy.W, xy.H)) {
       float nx, ny;
       nx = (x - bx) / zoom;
       ny = (y - by) / zoom;
@@ -1140,9 +1103,9 @@ public:
     }
 
     if ((button == 1 || button == 3) &&
-        insideExtents(x, y, bx + 10 + xy->W, by, zy->W, zy->H)) {
+        insideExtents(x, y, bx + 10 + xy.W, by, zy.W, zy.H)) {
       float nz, ny;
-      nz = (x - (bx + 10 + xy->W)) / zoom;
+      nz = (x - (bx + 10 + xy.W)) / zoom;
       ny = (y - by) / zoom;
       cz = (int)nz;
       cy = (int)ny;
@@ -1172,10 +1135,10 @@ public:
     }
 
     if ((button == 1 || button == 3) &&
-        insideExtents(x, y, bx, by + 10 + xy->H, xz->W, xz->H)) {
+        insideExtents(x, y, bx, by + 10 + xy.H, xz.W, xz.H)) {
       float nx, nz;
       nx = (x - bx) / zoom;
-      nz = (y - (by + 10 + xy->H)) / zoom;
+      nz = (y - (by + 10 + xy.H)) / zoom;
       cx = (int)nx;
       cz = (int)nz;
       if (cx < 0)
@@ -1204,15 +1167,15 @@ public:
     }
 
     if (seg != NULL && button == 1 &&
-        insideExtents(x, y, bx + 10 + xy->W, by + 10 + xy->H, zy->W, 16)) {
+        insideExtents(x, y, bx + 10 + xy.W, by + 10 + xy.H, zy.W, 16)) {
       showseg = !showseg;
       invalid[0] = invalid[1] = invalid[2] = true;
       repaint();
     }
 
-    if (button == 1 && insideExtents(x, y, bx + 10 + xy->W + 10,
-                                     by + 10 + xy->H + 40, 100, 16))
-      setViewRange((x - (bx + 10 + xy->W + 10)) / 100.0);
+    if (button == 1 && insideExtents(x, y, bx + 10 + xy.W + 10,
+                                     by + 10 + xy.H + 40, 100, 16))
+      setViewRange((x - (bx + 10 + xy.W + 10)) / 100.0);
   }
 
   virtual void dragClient(int x, int y, int b) {
@@ -1226,11 +1189,11 @@ public:
   }
 
 private:
-  Volume<int> *vol, *edt;
-  Volume<char> *seg;
+  shared_ptr<Volume<int>> vol, edt;
+  shared_ptr<Volume<char>> seg;
   int maxval, cx, cy, cz, PW, PH;
   float zoom;
-  Image *xy, *zy, *xz, *p, *q, *r;
+  Image xy, zy, xz, p, q, r;
   bool invalid[3], showseg;
 
   void render(bool rxy = true, bool rzy = true, bool rxz = true) {
@@ -1241,12 +1204,9 @@ private:
     if (!vol)
       return;
 
-    if (p == NULL)
-      p = new Image(vol->W, vol->H);
-    if (q == NULL)
-      q = new Image(vol->D, vol->H);
-    if (r == NULL)
-      r = new Image(vol->W, vol->D);
+    if (p.empty()) p = std::move(Image(vol->W, vol->H));
+    if (q.empty()) q = std::move(Image(vol->D, vol->H));
+    if (r.empty()) r = std::move(Image(vol->W, vol->D));
 
     prepareLUT(maxval, getViewRange());
     vector<int> &lut = getLUT();
@@ -1274,7 +1234,7 @@ private:
             if (v >= sqd && v <= nsqd)
               c.mix(red, 0.75);
           }
-          p->set(i, j, c);
+          p.set(i, j, c);
         }
     }
     if (rzy) {
@@ -1292,7 +1252,7 @@ private:
             if (v >= sqd && v <= nsqd)
               c.mix(red, 0.75);
           }
-          q->set(i, j, c);
+          q.set(i, j, c);
         }
     }
     if (rxz) {
@@ -1310,7 +1270,7 @@ private:
             if (v >= sqd && v <= nsqd)
               c.mix(red, 0.75);
           }
-          r->set(i, j, c);
+          r.set(i, j, c);
         }
     }
 
@@ -1325,29 +1285,9 @@ private:
     else
       zoom = z1;
 
-    if (rxy) {
-      if (xy != NULL) {
-        delete xy;
-        xy = NULL;
-      }
-      xy = p->scale(zoom);
-    }
-
-    if (rzy) {
-      if (zy != NULL) {
-        delete zy;
-        zy = NULL;
-      }
-      zy = q->scale(zoom);
-    }
-
-    if (rxz) {
-      if (xz != NULL) {
-        delete xz;
-        xz = NULL;
-      }
-      xz = r->scale(zoom);
-    }
+    if (rxy) xy = std::move(p.scale(zoom));
+    if (rzy) zy = std::move(q.scale(zoom));
+    if (rxz) xz = std::move(r.scale(zoom));
 
     PW = W;
     PH = H;
@@ -1621,19 +1561,19 @@ public:
   }
 
   void planarTag(int x, int y, int z, int bdiam, char label) {
-    Location a, b;
+    using libbi::DiscAdjacency;
     int i, j;
 
     if (ptag == NULL || pmap == NULL || rtag == NULL)
       return;
-    a.set(x, y, z);
-    if (!ptag->valid(a))
-      return;
+
+    P3 a(x,y,z);
+    if (!ptag->valid(a)) return;
 
     if (bdiam > 1) {
       DiscAdjacency da(bdiam / 2.0, true);
       for (i = 0; i < da.size(); i++) {
-        b = da.neighbor(a, i);
+        auto b = da.neighbor(a, i);
         if (ptag->valid(b)) {
           ptag->voxel(b) = label;
           j = pmap->voxel(b);
@@ -1687,8 +1627,8 @@ public:
   }
 
 protected:
-  Volume<char> *getRTag() { return rtag; }
-  Volume<char> *getPTag() { return ptag; }
+  shared_ptr<Volume<char>> &getRTag() { return rtag; }
+  shared_ptr<Volume<char>> &getPTag() { return ptag; }
 
   void freezeTagger() { ++frozen; }
 
@@ -1707,8 +1647,8 @@ protected:
   }
 
 private:
-  Volume<char> *rtag, *ptag;
-  Volume<int> *pmap, *rdepth;
+  shared_ptr<Volume<char>> rtag, ptag;
+  shared_ptr<Volume<int>> pmap, rdepth;
   set<BrainTagger *> sync;
   vector<int> pendingtags;
   int frozen;
@@ -1727,7 +1667,7 @@ private:
       return 0;
     if (n < 0 || n >= rdepth->N)
       return 0;
-    return ((int)floor(sqrt(rdepth->voxel(n))));
+    return ((int)std::floor(std::sqrt(rdepth->voxel(n))));
   }
 
   int maxz(int n) {
@@ -1735,7 +1675,7 @@ private:
       return 0;
     if (n < 0 || n >= rdepth->N)
       return 0;
-    return ((int)ceil(sqrt(rdepth->voxel(n))));
+    return ((int)std::ceil(std::sqrt(rdepth->voxel(n))));
   }
 };
 
