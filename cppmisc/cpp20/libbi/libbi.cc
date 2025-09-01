@@ -85,6 +85,11 @@ namespace libbi {
         return(x>=0 && x<W && y>=0 && y<H && z>=0 && z<D);
     }
 
+    bool VolumeDomain::valid_address(int a) const {
+        return(a>=0 && a<N);
+    }
+
+
     int VolumeDomain::diagonalLength() const { 
         return( static_cast<int>(std::sqrt(static_cast<double>(W*W+H*H+D*D))) ); 
     }

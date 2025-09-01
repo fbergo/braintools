@@ -109,6 +109,7 @@ namespace libbi {
 
       int  address(int x, int y, int z) const;
       bool valid(int x, int y, int z) const;
+      bool valid_address(int a) const;
 
       template<std::integral T> bool valid(T x, T y, T z) const {
         return(valid( static_cast<int>(x), static_cast<int>(y), static_cast<int>(z) ));
@@ -118,19 +119,21 @@ namespace libbi {
       int yOf(int a) const { return( W==0 ? 0 : (a%WxH) / W ); }
       int zOf(int a) const { return( WxH==0 ? 0 : a / WxH ); }
 
+      int yOffset(int y) const { return( y>=0 && y<H ? tby[y] : 0 ); }
+      int zOffset(int z) const { return( z>=0 && z<D ? tbz[z] : 0 ); }
+
       //! Returns the integer length of the diagonal segment (0,0,0)-(W,H,D)
       int diagonalLength() const;
       
       private:
-      std::vector<int> tby, tbz;
+        std::vector<int> tby, tbz;
 
-      void recalc_tables();
+        void recalc_tables();
   };
 
   template<typename T> class Volume : public VolumeDomain {
     public:
       float dx,dy,dz; // voxel dimensions
-      T lastmax;
 
       // creates null volume
       Volume() : VolumeDomain() {
@@ -149,7 +152,66 @@ namespace libbi {
 
       // copy constructor
       Volume(const Volume<T> &src) : VolumeDomain(src) {
-        // not implemented
+        (dx,dy,dz) = (src.dx,src.dy,src.dz);
+        data = src.data;
+      }
+
+      void resize(int w,int h,int d, bool preserve=true) {
+        if (preserve) {
+          VolumeDomain ndom(w,h,d);
+          std::vector<T> ndata(ndom.N);
+          int cw = std::min(W, w);
+          int ch = std::min(H, h);
+          int cd = std::min(D, d);
+          for(int z=0;z<cd;z++) {
+            int src_zoff  = zOffset(z);
+            int dest_zoff = ndom.zOffset(z);
+            for(int y=0;y<ch;y++) {
+              int src_yoff = yOffset(y);
+              int dest_yoff = ndom.yOffset(z);
+              std::ranges::copy_n(data.begin()+src_zoff+src_yoff, cw, ndata.begin()+dest_zoff+dest_yoff);
+            }
+          }
+          VolumeDomain::resize(w,h,d); // update domain size
+          std::swap(data, ndata); // move-swap data
+        } else {
+          VolumeDomain::resize(w,h,d);
+          data.resize(N);
+          std::fill(data.begin(), data.end(), static_cast<T>(0));
+        }
+      }
+
+      void clear() {
+        resize(0,0,0);
+        data.clear();
+      }
+
+      void fill(const T& val) {
+        std::fill(data.begin(), data.end(), val);
+      }
+
+      bool empty() const { return(N==0); }
+
+      T maximum() const { return(std::max_element(data.begin(), data.end())); }
+      T minimum() const { return(std::min_element(data.begin(), data.end())); }
+
+      // voxel access without bounds checking
+      T& voxel(int a)                        { return(data[a]); }
+      T& voxel(int x, int y, int z)          { return(data[address(x,y,z)]); }
+      T& voxel(float x, float y, float z)    { return(data[address((int)x,(int)y,(int)z)]); }
+      T& voxel(double x, double y, double z) { return(data[address((int)x,(int)y,(int)z)]); }
+
+      double mean() const {
+        double sum=0.0;
+        if (empty()) return 0.0;
+        for(auto &x : data) sum += x;
+        return(sum / (double) N);
+      }
+
+      double stdev(double _mean) const {
+        double sum=0.0;
+        for(auto &x : data) sum += (_mean-x)*(_mean-x);
+        return(std::sqrt(sum / (double) N));  
       }
 
     private:
