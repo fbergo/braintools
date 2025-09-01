@@ -9,7 +9,14 @@
 #include <set>
 #include <string>
 #include <vector>
-using namespace std;
+#include <regex>
+#include <format>
+
+using std::string;
+using std::vector;
+using libbi::Color;
+using Volume = libbi::Volume;
+
 
 gboolean window_timeout(gpointer data);
 
@@ -192,11 +199,11 @@ PangoFontDescription *Widget::defhfd;
 class Window : public Widget {
 public:
   int X, Y, W, H;
-  char *Title;
+  string Title;
   bool resizable;
 
-  Window(const char *title, int x, int y, int w, int h) : Widget() {
-    Title = strdup(title);
+  Window(const string &title, int x, int y, int w, int h) : Widget() {
+    Title = title;
     X = x;
     Y = y;
     W = w;
@@ -208,9 +215,7 @@ public:
     minw = 64;
     minh = 20;
     resizable = true;
-  }
-
-  virtual ~Window() { free(Title); }
+  }}
 
   virtual vector<string> composeHelp() {
     vector<string> help;
@@ -220,91 +225,62 @@ public:
 
   vector<string> keyHelp() {
     vector<string> help;
-    string s, sep;
-    sep = "    ";
-    s = "F1-F2: Tool";
-    s += sep;
-    s += "F5-F7: Label";
-    s += sep;
-    s += alienKey(0x2190);
-    s += alienKey(0x2191);
-    s += alienKey(0x2192);
-    s += alienKey(0x2193);
-    s += ": Depth";
-    s += sep;
-    s += alienKey(0x2212);
-    s += "/+: Range";
+    string sep(5,' ');
+    string s = std::format(u8"F1-F2: Tool{}F5-F7: Label{}\u2190\u2191\u2192\u2193: Depth{}\u2212/+: Range",sep,sep,sep);
     help.push_back(s);
     return help;
   }
 
-  string alienKey(int code) {
-    char tmp[16];
-    int n;
-    string s;
-    n = g_unichar_to_utf8(code, tmp);
-    tmp[n] = 0;
-    s = tmp;
-    return s;
-  }
-
-  int saveGeometry(const char *tag, const char *appfile) {
-    ifstream f;
+  int saveGeometry(const string &tag, const string &appfile) {
+    std::ifstream inf(appfile);
     vector<string> cfg;
-    char tmp[1024], *p;
+    string line;
 
-    f.open(appfile);
-    if (f.good()) {
+    // read each line, ignore the one with the given tag
+    if (inf.is_open()) {
 
-      while (!f.eof()) {
-        f.getline(tmp, 1024);
-        Tokenizer t(tmp, ", \t\n\r");
-        p = t.nextToken();
-        if (p == NULL)
-          continue;
-        if (strcmp(p, tag) != 0)
-          cfg.push_back(string(tmp));
+      std::regex sep("[, \t\r\n]+");
+      while(std::getline(inf,line)) {
+        std::sregex_token_iterator t(line.begin(), line.end(), sep, -1), end;
+        vector<string> tmp;
+        for(;t != end;t++) tmp.push_back(*t);
+        if (tmp.size()==5 && tmp[0]!=tag)
+          cfg.push_back(line);
       }
+      inf.close();
+    } 
 
-      f.close();
-    }
+    line = std::format("{},{},{},{},{}", tag, X, Y, W, H);
+    cfg.push_back(line);
 
-    snprintf(tmp, 1023, "%s,%d,%d,%d,%d", tag, X, Y, W, H);
-    cfg.push_back(string(tmp));
-
-    ofstream g;
-    vector<string>::iterator i;
-    g.open(appfile);
-    if (!g.good())
-      return -1;
-    for (i = cfg.begin(); i != cfg.end(); i++)
-      g << (*i) << endl;
-    g.close();
+    std::ofstream outf(appfile);
+    if (!outf.is_open()) return -1;
+    for(auto &i : cfg) outf << i << std::endl;
+    outf.close();
     return 0;
   }
 
-  void loadGeometry(const char *tag, const char *appfile) {
-    ifstream f;
-    char tmp[1024], *p;
+  void loadGeometry(const string &tag, const string &appfile) {
+    std::ifstream inf(appfile);
+    vector<string> cfg;
+    string line;
 
-    f.open(appfile);
-    if (!f.good())
-      return;
-
-    while (!f.eof()) {
-      f.getline(tmp, 1024);
-      Tokenizer t(tmp, ", \t\n\r");
-      p = t.nextToken();
-      if (p == NULL)
-        continue;
-      if (!strcmp(p, tag)) {
-        X = t.nextInt();
-        Y = t.nextInt();
-        W = t.nextInt();
-        H = t.nextInt();
+    // read each line, interpret the one with the given tag
+    if (inf.is_open()) {
+      std::regex sep("[, \t\r\n]+");
+      while(std::getline(inf,line)) {
+        std::sregex_token_iterator t(line.begin(), line.end(), sep, -1), end;
+        vector<string> tmp;
+        for(;t != end;t++) tmp.push_back(*t);
+        if (tmp.size()==5 && tmp[0]==tag) {
+          X = std::stoi(tmp[1]);
+          Y = std::stoi(tmp[2]);
+          W = std::stoi(tmp[3]);
+          H = std::stoi(tmp[4]);
+        }
       }
-    }
-    f.close();
+      inf.close();
+    } 
     repaint();
   }
 
@@ -331,14 +307,9 @@ public:
       return;
 
     mw = 0;
-    for (i = 0; i < help.size(); i++) {
-      cw = stringWidth(help[i].c_str(), getHelpPFD());
-      if (cw > mw)
-        mw = cw;
-    }
+    for (auto &i : help) mw = std::max(mw, stringWidth(i, getHelpPFD()));
 
-    lh = stringHeight(help[0].c_str(), getHelpPFD());
-    lh += 2;
+    lh = stringHeight(help[0], getHelpPFD()) + 2;
 
     by = Y + H + 16;
     rect(X, Y + H + 8, mw + 16, 16 + lh * help.size(), ui.BG * 1.25, true);
@@ -349,10 +320,8 @@ public:
     line(X + 20, Y + H, X + 20, Y + H + 8, ui.Border);
 
     for (i = 0; i < help.size(); i++) {
-      drawString(X + 8 + 1, by + i * lh + 1, Color(0), help[i].c_str(),
-                 getHelpPFD());
-      drawString(X + 8, by + i * lh, Color(0xffffff), help[i].c_str(),
-                 getHelpPFD());
+      drawString(X + 8 + 1, by + i * lh + 1, Color(0), help[i], getHelpPFD());
+      drawString(X + 8, by + i * lh, Color(0xffffff), help[i], getHelpPFD());
     }
   }
 
@@ -415,18 +384,12 @@ public:
 
   void press(int x, int y, int button) {
     if (button == 1 && insideExtents(x, y, X, Y, tw, th)) {
-      ma = 1;
-      px = x;
-      py = y;
-      grab = true;
+      (ma,px,py,grab) = (1,x,y,true);
       return;
     }
     if (resizable && button == 1 &&
         insideExtents(x, y, X + W - 16, Y + H - 16, 16, 16)) {
-      ma = 2;
-      px = x;
-      py = y;
-      grab = true;
+      (ma,px,py,grab) = (2,x,y,true);
       return;
     }
     if (insideExtents(x, y, X, Y + th, W, H - th)) {
@@ -452,42 +415,38 @@ public:
     if (ma == 1 && button == 1) {
       X += x - px;
       Y += y - py;
-      px = x;
-      py = y;
+      (px,py) = (x,y);
       repaint();
       return;
     }
     if (ma == 2 && button == 1) {
       W += x - px;
       H += y - py;
-      if (W < minw)
-        W = minw;
-      if (H < minh + th)
-        H = minh + th;
-      px = x;
-      py = y;
+      W = std::max(W, minw);
+      H = std::max(H, minh + th);
+      (px,py) = (x,y);
       repaint();
       return;
     }
     dragClient(x - X, y - th - Y, button);
   }
 
-  bool inside(int x, int y) {
+  bool inside(int x, int y) const {
     return (insideExtents(x, y, X, Y, tw, th) ||
             insideExtents(x, y, X, Y + th, W, H - th));
   }
 
-  bool hasGrab() { return grab; }
+  bool hasGrab() const { return grab; }
 
 protected:
   int tw, th, ma, px, py;
   bool grab;
 
-  bool insideCoords(int x, int y, int x1, int y1, int x2, int y2) {
+  bool insideCoords(int x, int y, int x1, int y1, int x2, int y2) const {
     return ((x >= x1) && (x <= x2) && (y >= y1) && (y <= y2));
   }
 
-  bool insideExtents(int x, int y, int x1, int y1, int w, int h) {
+  bool insideExtents(int x, int y, int x1, int y1, int w, int h) const {
     return (insideCoords(x, y, x1, y1, x1 + w - 1, y1 + h - 1));
   }
 
@@ -498,7 +457,7 @@ private:
 class MessageWindow : public Window {
 
 public:
-  MessageWindow(const char *title, int x, int y, PangoFontDescription *mfont,
+  MessageWindow(string title, int x, int y, PangoFontDescription *mfont,
                 int scolor = 0)
       : Window(title, x, y, 450, 200) {
     pfd = mfont;
@@ -508,17 +467,13 @@ public:
   }
 
   virtual ~MessageWindow() {
-    vector<char *>::iterator i;
-    for (i = msgs.begin(); i != msgs.end(); i++)
-      free(*i);
-    msgs.clear();
-    clr.clear();
+
   }
 
   vector<string> composeHelp() { return (keyHelp()); }
 
-  void append(const char *text, int color = 0xffffff) {
-    msgs.push_back(strdup(text));
+  void append(const string &text, int color = 0xffffff) {
+    msgs.push_back(text);
     clr.push_back(color);
     repaint();
   }
@@ -532,14 +487,10 @@ public:
 
     black = 0;
     blue = 0x5555ff;
-    shade = ui.BG * 0.80;
+    shade = ui.BG * 0.80f;
 
-    gap = (H - 60) / msgs.size();
-    if (gap < 2)
-      gap = 2;
-    boxh = gap - 1;
-    if (boxh < 2)
-      boxh = 2;
+    gap = std::max(2, (H - 60) / msgs.size());
+    boxh = std::max(2, gap - 1);
 
     minl = maxl = -1;
 
@@ -615,7 +566,7 @@ public:
 private:
   PangoFontDescription *pfd;
   int shadowcolor;
-  vector<char *> msgs;
+  vector<string> msgs;
   vector<int> clr;
   int yscroll, sbvar[5], gx, gy;
 };
@@ -623,26 +574,20 @@ private:
 class LUT {
 public:
   LUT() {
-    lut = NULL;
-    lutsz = 0;
     pmax = -1;
-    pmaxs = 0.0;
-  }
-  virtual ~LUT() {
-    if (lut != NULL)
-      delete lut;
+    pmaxs = 0.0f;
   }
 
   void prepareLUT(int maxval, float maxvals) {
     int i, emv;
     Color c;
 
-    if (lut != NULL && pmax == maxval && pmaxs == maxvals)
+    if (lut.size() == maxval+1 && pmax == maxval && pmaxs == maxvals)
       return;
 
-    alloc(maxval + 1);
+    lut = vector<int>(maxval+1, 0);  
     emv = (int)(maxval * maxvals);
-    for (i = 0; i < lutsz; i++) {
+    for (i = 0; i < lut.size(); i++) {
       c.gray((i > emv) ? 255 : (int)(255.0 * i / emv));
       lut[i] = c.toInt();
     }
@@ -650,22 +595,12 @@ public:
     pmaxs = maxvals;
   }
 
-  int *getLUT() { return lut; }
+  vector<int> &getLUT() { return lut; }
 
 private:
-  int lutsz;
-  int *lut;
+  vector<int> lut;
   int pmax;
   float pmaxs;
-
-  void alloc(int sz) {
-    if (lutsz == sz && lut != NULL)
-      return;
-    if (lut != NULL)
-      delete lut;
-    lut = new int[sz];
-    lutsz = sz;
-  }
 };
 
 class AdjustableDepth {
@@ -900,7 +835,7 @@ private:
 
 class BrainToolbar : public Window {
 public:
-  BrainToolbar(const char *title, int x, int y)
+  BrainToolbar(const string &title, int x, int y)
       : Window(title, x, y, 250, 24 + 32 + 20) {
     int i;
     mode = 0;
@@ -1025,7 +960,7 @@ class OrthogonalView : public Window,
                        public AdjustableViewRange,
                        public AdjustableDepth {
 public:
-  OrthogonalView(const char *title, int x, int y, int w, int h)
+  OrthogonalView(const string &title, int x, int y, int w, int h)
       : Window(title, x, y, w, h) {
     vol = NULL;
     seg = NULL;
@@ -1302,8 +1237,7 @@ private:
     int i, j, sqd = 0, nsqd = 0, v;
     Color c, d, yellow, red;
     float caw, cah, fsw, fsh, z0, z1;
-    int *lut;
-
+  
     if (!vol)
       return;
 
@@ -1315,7 +1249,7 @@ private:
       r = new Image(vol->W, vol->D);
 
     prepareLUT(maxval, getViewRange());
-    lut = getLUT();
+    vector<int> &lut = getLUT();
 
     yellow = 0xffff00;
     red = 0xff0000;
@@ -1423,7 +1357,7 @@ private:
 
 class RenderObject {
 public:
-  char *name;
+  string name;
   Volume<char> *mask;
   Color color;
   float opacity;
@@ -1436,14 +1370,13 @@ public:
     color = 0;
     opacity = 1.0;
     active = true;
-    name = NULL;
     rendertype = RenderType_EQ;
     rendervalue = 2;
   }
 
-  RenderObject(const char *n, Volume<char> *m, Color &c, float op = 1.0,
+  RenderObject(const string &n, Volume<char> *m, Color &c, float op = 1.0,
                bool act = true, RenderType rt = RenderType_EQ, int rv = 2) {
-    name = strdup(n);
+    name = n;
     mask = m;
     color = c;
     opacity = op;
@@ -1452,16 +1385,8 @@ public:
     rendervalue = rv;
   }
 
-  int operator==(const char *s) {
-    if (name == NULL)
-      return 0;
-    else
-      return (strcmp(name, s) == 0);
-  }
-
-  virtual ~RenderObject() {
-    if (name != NULL)
-      free(name);
+  int operator==(const string &s) const {
+    return(!name.empty() && name==s);
   }
 };
 
@@ -1816,7 +1741,7 @@ private:
 
 class ObjectView : public Window, public Rotatable, public BrainTagger {
 public:
-  ObjectView(const char *title, int x, int y, int w, int h)
+  ObjectView(const string &title, int x, int y, int w, int h)
       : Window(title, x, y, w, h) {
     buf = NULL;
     unz = NULL;
@@ -2054,7 +1979,7 @@ class EDTView : public Window,
                 public BrainToolbarClient,
                 public BrainTagger {
 public:
-  EDTView(const char *title, int x, int y, int w, int h)
+  EDTView(const string &title, int x, int y, int w, int h)
       : Window(title, x, y, w, h) {
     unz = NULL;
     buf = NULL;
@@ -2445,7 +2370,7 @@ private:
 class FeatureView : public Window {
 
 public:
-  FeatureView(const char *title, int x, int y, int w, int h)
+  FeatureView(const string &title, int x, int y, int w, int h)
       : Window(title, x, y, w, h) {
     ptex = NULL;
     px = py = pz = 0;
@@ -2712,7 +2637,7 @@ class PlanarView : public Window,
                    public BrainToolbarClient,
                    public BrainTagger {
 public:
-  PlanarView(const char *title, int x, int y, int w, int h)
+  PlanarView(const string &title, int x, int y, int w, int h)
       : Window(title, x, y, w, h) {
     tex = NULL;
     unz = NULL;
@@ -2956,7 +2881,6 @@ private:
 
   void render() {
     int i, j, d;
-    int *lut;
     Color c, cmix, blue, red;
     float caw, cah, uw, uh, z0, z1;
     Volume<char> *ptag;
@@ -2975,7 +2899,7 @@ private:
       ptag = getPTag();
 
       prepareLUT(maxval, getViewRange());
-      lut = getLUT();
+      auto lut = getLUT();
       d = getDepth();
       if (d >= tex->D)
         d = tex->D - 1;
@@ -3035,19 +2959,13 @@ private:
 
 class Task {
 public:
-  char *Title, *File;
+  string Title, File;
   int ival[10];
   float fval[10];
   Timestamp start, finish;
 
-  Task(const char *title) {
-    Title = strdup(title);
-    File = NULL;
-  }
-  virtual ~Task() {
-    free(Title);
-    if (File != NULL)
-      free(File);
+  Task(const string &title) {
+    Title = title;
   }
 };
 

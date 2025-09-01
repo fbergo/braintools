@@ -57,6 +57,47 @@ namespace libbi {
         b = static_cast<uint8_t>(std::clamp(b, 0.0f, 255.0f));
     }
     
+    VolumeDomain::VolumeDomain() { 
+        W=H=D=WxH=N=0;
+    }
     
+    VolumeDomain::VolumeDomain(int _w, int _h, int _d) {
+        (W,H,D) = (_w,_h,_d);
+        WxH = W*H;
+        N = W*H*D;
+        recalc_tables();
+    }
+
+    void VolumeDomain::resize(int _w, int _h, int _d) {
+        if (W!=_w || H!=_h || D!=_d) {
+            (W,H,D) = (_w,_h,_d);
+            WxH = W*H;
+            N = W*H*D;
+            recalc_tables();
+        }        
+    }
+
+    int VolumeDomain::address(int x,int y,int z) const {
+        return(x+tby[y]+tbz[z]);
+    }
+
+    bool VolumeDomain::valid(int x, int y, int z) const {
+        return(x>=0 && x<W && y>=0 && y<H && z>=0 && z<D);
+    }
+
+    int VolumeDomain::diagonalLength() const { 
+        return( static_cast<int>(std::sqrt(static_cast<double>(W*W+H*H+D*D))) ); 
+    }
+ 
+    void VolumeDomain::recalc_tables() {
+        if (N>0) {
+            tby.resize(H);
+            tbz.resize(D);
+            for(int i=0;i<H;i++) tby[i] = W*i;
+            for(int i=0;i<D;i++) tbz[i] = WxH*i;
+        }
+    }
+
+
 }
 
