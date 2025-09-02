@@ -12,6 +12,7 @@ pkg_check_modules(GTK2 REQUIRED gtk+-2.0)
 # Define the static library
 add_library(libbi STATIC
     libbi/libbi.cc
+    libbi/libbi_algebra.cc
 )
 
 # Specify include directories for the library (if any)
