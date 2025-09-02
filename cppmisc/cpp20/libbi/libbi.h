@@ -114,79 +114,83 @@ namespace libbi {
   class Font {
     public:
     Font() { }
+    // TODO
   };
   
   // 2D RGB image
   class Image {
     public:
-    int W,H,N;
+      int W,H,N;
     private:
-    std::vector<uint8_t> data;
+      std::vector<uint8_t> data;
     
     public:
-    Image(); // creates empty image
-    Image(int w, int h); //creates black-filled image
-    Image(const std::string &filename); // reads from P5/P6 file
-    Image(const char **xpm, const Color &transp); // reads from inline XPM
+      Image(); // creates empty image
+      Image(int w, int h); //creates black-filled image
+      Image(const std::string &filename); // reads from P5/P6 file
+      Image(const char **xpm, const Color &transp); // reads from inline XPM
+      
+      bool readP6(const std::string &filename); // reads from P5/P6
+      
+      bool writeP6(const std::string &filename);  // writes to P6
+      bool writePNG(const std::string &filename); // writes to PNG
+      
+      bool empty() const;
+      void fill(const Color &c); // solid fill
+      bool valid(int x,int y) const; // tests valid coordinates
+      void set(int x, int y, const Color &c); // sets pixel
+      void set(int x, int y, int c); // sets pixel
+      int  get(int x, int y) const;  // gets pixel value
+      
+      void text(Font &f, const std::string &text, int x,int y, const Color &c, float opacity=1.0f);
+      
+      //! Flood fills from point (x,y) with \ref Color c. Flood fill is performed
+      //! with 4-neighbors adjacency. Any color different from the previous color
+      //! of (x,y) halts the flood. It does nothing if (x,y) has \ref Color c.
+      void floodFill(int x,int y,const Color &c);
+      
+      //! Alpha bit block transfer: copies rectangle (0,0)-(w-1,h-1) of Image
+      //! src to position (x,y) of this image. Pixels of color trans in src are
+      //! considered transparent and are not copied. If w or h are negative,
+      //! the width and/or height of src are used.
+      void ablit(const Image &src, const Color &trans, int x, int y, int w=-1, int h=-1);
+      
+      //! Alpha bit block increment: similar to \ref ablit, but instead of
+      //! copying the src image, uses it as a mask, and increments R,G and B
+      //! of the pixels on this image where a non-transparent pixel of src
+      //! would be painted.
+      void ablinc(const Image &src, const Color &trans,int x,int y,int w=-1,int h=-1);
+      
+      //! Bit block transfer: copies rectangle (sx,sy)-(sx+w-1,sy+h-1) of Image
+      //! src to position (dx,dy) of this image. If w or h are negative,
+      //! the width and/or height of src are used.
+      void blit(const Image &src, int sx, int sy, int dx,int dy,int w=-1,int h=-1);
+      
+      unsigned char *getBuffer();
+      
+      //! Draws a filled translucent rectangle with top left corner (x,y), 
+      //! size (w,h), \ref Color src and opacity srcamount
+      void blendbox(int x, int y, int w, int h, const Color &src, float srcamount);
+      
+      //! Shades a filled rectangle with top left corner (x,y) and size
+      //! (w,h) by multiplying the YCbCr luminance of each pixel by factor
+      void shadebox(int x, int y, int w, int h, float factor);
+      
+      //! Draws a rectangle with top left corner (x,y), size (w,h) and
+      //! \ref Color c. If fill is true, the rectangle is filled.
+      void rect(int x, int y, int w, int h, const Color &c, bool fill=true);
+      
+      //! Draws a line segment between points (x1,y1) and (x2,y2), with
+      //! \ref Color c.
+      void line(int x1,int y1,int x2,int y2, const Color &c);
+      
+      //! Scales this image by factor, and returns the new scaled image result. 
+      //! It does not modify this image.
+      Image scale(float factor) const;
     
-    bool readP6(const std::string &filename); // reads from P5/P6
-    
-    bool writeP6(const std::string &filename);  // writes to P6
-    bool writePNG(const std::string &filename); // writes to PNG
-    
-    bool empty() const;
-    void fill(const Color &c); // solid fill
-    bool valid(int x,int y) const; // tests valid coordinates
-    void set(int x, int y, const Color &c); // sets pixel
-    void set(int x, int y, int c); // sets pixel
-    int  get(int x, int y) const;  // gets pixel value
-    
-    void text(Font &f, const std::string &text, int x,int y, const Color &c, float opacity=1.0f);
-    
-    //! Flood fills from point (x,y) with \ref Color c. Flood fill is performed
-    //! with 4-neighbors adjacency. Any color different from the previous color
-    //! of (x,y) halts the flood. It does nothing if (x,y) has \ref Color c.
-    void floodFill(int x,int y,const Color &c);
-    
-    //! Alpha bit block transfer: copies rectangle (0,0)-(w-1,h-1) of Image
-    //! src to position (x,y) of this image. Pixels of color trans in src are
-    //! considered transparent and are not copied. If w or h are negative,
-    //! the width and/or height of src are used.
-    void ablit(const Image &src, const Color &trans, int x, int y, int w=-1, int h=-1);
-    
-    //! Alpha bit block increment: similar to \ref ablit, but instead of
-    //! copying the src image, uses it as a mask, and increments R,G and B
-    //! of the pixels on this image where a non-transparent pixel of src
-    //! would be painted.
-    void ablinc(const Image &src, const Color &trans,int x,int y,int w=-1,int h=-1);
-    
-    //! Bit block transfer: copies rectangle (sx,sy)-(sx+w-1,sy+h-1) of Image
-    //! src to position (dx,dy) of this image. If w or h are negative,
-    //! the width and/or height of src are used.
-    void blit(const Image &src, int sx, int sy, int dx,int dy,int w=-1,int h=-1);
-    
-    unsigned char *getBuffer();
-    
-    //! Draws a filled translucent rectangle with top left corner (x,y), 
-    //! size (w,h), \ref Color src and opacity srcamount
-    void blendbox(int x, int y, int w, int h, const Color &src, float srcamount);
-    
-    //! Shades a filled rectangle with top left corner (x,y) and size
-    //! (w,h) by multiplying the YCbCr luminance of each pixel by factor
-    void shadebox(int x, int y, int w, int h, float factor);
-    
-    //! Draws a rectangle with top left corner (x,y), size (w,h) and
-    //! \ref Color c. If fill is true, the rectangle is filled.
-    void rect(int x, int y, int w, int h, const Color &c, bool fill=true);
-    
-    //! Draws a line segment between points (x1,y1) and (x2,y2), with
-    //! \ref Color c.
-    void line(int x1,int y1,int x2,int y2, const Color &c);
-    
-    //! Scales this image by factor, and returns the new scaled image result. 
-    //! It does not modify this image.
-    Image scale(float factor) const;
-    
+    private:
+      Image scaleUp(float factor) const;
+      void  readXPM(const char **xpm, const Color &transp);
   };
   
   //! Point in discrete 3D space
@@ -366,8 +370,8 @@ namespace libbi {
     
     bool empty() const { return(N==0); }
     
-    T maximum() const { return(std::max_element(data.begin(), data.end())); }
-    T minimum() const { return(std::min_element(data.begin(), data.end())); }
+    T maximum() const { return(* std::max_element(data.begin(), data.end())); }
+    T minimum() const { return(* std::min_element(data.begin(), data.end())); }
     
     // voxel access without bounds checking
     T& voxel(int a)                        { return(data[a]); }
