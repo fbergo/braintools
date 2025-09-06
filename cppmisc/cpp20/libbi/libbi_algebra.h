@@ -42,6 +42,8 @@ namespace libbi {
     
       //! vector division by a scalar
       R3 operator/(float b) const { return(R3(x/b,y/b,z/b)); } 
+
+      bool operator==(const R3 &b) const { return(x==b.x && y==b.y && z==b.z); }
      
       //! vector inner product
       float inner(const R3 &b) const { return(x*b.x+y*b.y+z*b.z); }

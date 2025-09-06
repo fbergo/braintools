@@ -6,6 +6,10 @@ set(CMAKE_CXX_STANDARD 20)
 set(CMAKE_CXX_STANDARD_REQUIRED ON)
 set(CMAKE_CXX_EXTENSIONS OFF)
 
+enable_testing()
+include(CTest)
+find_package(GTest REQUIRED)
+
 find_package(PkgConfig REQUIRED)
 pkg_check_modules(GTK2 REQUIRED gtk+-2.0)
 
@@ -18,15 +22,21 @@ add_library(libbi STATIC
 # Specify include directories for the library (if any)
 target_include_directories(libbi PUBLIC ${CMAKE_CURRENT_SOURCE_DIR})
 
+add_executable(libbi_tests libbi/test_main.cc)
+target_link_libraries(libbi_tests PRIVATE GTest::GTest GTest::Main libbi)
+
 # Define the executable
-add_executable(braintag
-    braintag.cc
-    
-)
+#add_executable(braintag
+#    braintag.cc
+#    
+#)
 
 # Link the executable with the static library
-target_link_libraries(braintag PRIVATE libbi ${GTK2_LIBRARIES})
-target_include_directories(braintag PRIVATE libbi xpm ${GTK2_INCLUDE_DIRS})
-target_compile_options(braintag PRIVATE ${GTK2_CFLAGS_OTHER})
+#target_link_libraries(braintag PRIVATE libbi ${GTK2_LIBRARIES})
+#target_include_directories(braintag PRIVATE libbi xpm ${GTK2_INCLUDE_DIRS})
+#target_compile_options(braintag PRIVATE ${GTK2_CFLAGS_OTHER})
 
+# register tests
+include(GoogleTest)
+gtest_discover_tests(libbi_tests)
 

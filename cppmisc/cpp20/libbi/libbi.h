@@ -1,6 +1,8 @@
 // lib brain imaging, C++ 20-ish
 #pragma once
 
+#include <iostream>
+#include <fstream>
 #include <cmath>
 #include <cstdint>
 #include <algorithm>
@@ -307,97 +309,218 @@ namespace libbi {
   
   template<typename T> class Volume : public VolumeDomain {
     public:
-    float dx,dy,dz; // voxel dimensions
-    
-    // creates null volume
-    Volume() : VolumeDomain() {
-      dx = dy = dz = 1.0f;
-    }
-    
-    // creates in-memory blank volume
-    Volume(int w,int h,int d, float _dx=1.0f, float _dy=1.0f, float _dz=1.0f) : VolumeDomain(w,h,d) {
-      dx = _dx;
-      dy = _dy;
-      dz = _dz;
-    }
-    
-    // reads volume from file
-    Volume(const std::string &filename) : VolumeDomain() {
-      // not implemented
-    }
-    
-    // copy constructor
-    Volume(const Volume<T> &src) : VolumeDomain(src) {
-      dx = src.dx;
-      dy = src.dy;
-      dz = src.dz;
-      data = src.data;
-    }
-    
-    void resize(int w,int h,int d, bool preserve=true) {
-      if (preserve) {
-        VolumeDomain ndom(w,h,d);
-        std::vector<T> ndata(ndom.N);
-        int cw = std::min(W, w);
-        int ch = std::min(H, h);
-        int cd = std::min(D, d);
-        for(int z=0;z<cd;z++) {
-          int src_zoff  = zOffset(z);
-          int dest_zoff = ndom.zOffset(z);
-          for(int y=0;y<ch;y++) {
-            int src_yoff = yOffset(y);
-            int dest_yoff = ndom.yOffset(z);
-            std::ranges::copy_n(data.begin()+src_zoff+src_yoff, cw, ndata.begin()+dest_zoff+dest_yoff);
-          }
-        }
-        VolumeDomain::resize(w,h,d); // update domain size
-        std::swap(data, ndata); // move-swap data
-      } else {
-        VolumeDomain::resize(w,h,d);
-        data.resize(N);
-        std::fill(data.begin(), data.end(), static_cast<T>(0));
+      float dx,dy,dz; // voxel dimensions
+      int szPartial, szTotal, szCompressed;
+
+      // creates null volume
+      Volume() : VolumeDomain() {
+        dx = dy = dz = 1.0f;
       }
-    }
-    
-    void clear() {
-      resize(0,0,0);
-      data.clear();
-    }
-    
-    void fill(const T& val) {
-      std::fill(data.begin(), data.end(), val);
-    }
-    
-    bool empty() const { return(N==0); }
-    
-    T maximum() const { return(* std::max_element(data.begin(), data.end())); }
-    T minimum() const { return(* std::min_element(data.begin(), data.end())); }
-    
-    // voxel access without bounds checking
-    T& voxel(int a)                        { return(data[a]); }
-    T& voxel(int x, int y, int z)          { return(data[address(x,y,z)]); }
-    T& voxel(const P3 &p)                  { return(data[address(p.x,p.y,p.z)]); }
-    T& voxel(float x, float y, float z)    { return(data[address((int)x,(int)y,(int)z)]); }
-    T& voxel(double x, double y, double z) { return(data[address((int)x,(int)y,(int)z)]); }
-    
-    double mean() const {
-      double sum=0.0;
-      if (empty()) return 0.0;
-      for(auto &x : data) sum += x;
-      return(sum / (double) N);
-    }
-    
-    double stdev(double _mean) const {
-      double sum=0.0;
-      for(auto &x : data) sum += (_mean-x)*(_mean-x);
-      return(std::sqrt(sum / (double) N));  
-    }
-    
+      
+      // creates in-memory blank volume
+      Volume(int w,int h,int d, float _dx=1.0f, float _dy=1.0f, float _dz=1.0f) : VolumeDomain(w,h,d) {
+        dx = _dx;
+        dy = _dy;
+        dz = _dz;
+      }
+      
+      // reads volume from file
+      Volume(const std::string &filename) : VolumeDomain() {
+        // not implemented
+      }
+      
+      // copy constructor
+      Volume(const Volume<T> &src) : VolumeDomain(src) {
+        dx = src.dx;
+        dy = src.dy;
+        dz = src.dz;
+        data = src.data;
+      }
+      
+      void resize(int w,int h,int d, bool preserve=true) {
+        if (preserve) {
+          VolumeDomain ndom(w,h,d);
+          std::vector<T> ndata(ndom.N);
+          int cw = std::min(W, w);
+          int ch = std::min(H, h);
+          int cd = std::min(D, d);
+          for(int z=0;z<cd;z++) {
+            int src_zoff  = zOffset(z);
+            int dest_zoff = ndom.zOffset(z);
+            for(int y=0;y<ch;y++) {
+              int src_yoff = yOffset(y);
+              int dest_yoff = ndom.yOffset(z);
+              std::ranges::copy_n(data.begin()+src_zoff+src_yoff, cw, ndata.begin()+dest_zoff+dest_yoff);
+            }
+          }
+          VolumeDomain::resize(w,h,d); // update domain size
+          std::swap(data, ndata); // move-swap data
+        } else {
+          VolumeDomain::resize(w,h,d);
+          data.resize(N);
+          std::fill(data.begin(), data.end(), static_cast<T>(0));
+        }
+        szPartial = szCompressed = szTotal = 0;
+      }
+      
+      void clear() {
+        resize(0,0,0);
+        data.clear();
+        szPartial = szCompressed = szTotal = 0;
+      }
+      
+      void fill(const T& val) {
+        std::fill(data.begin(), data.end(), val);
+      }
+      
+      bool empty() const { return(N==0); }
+      
+      T maximum() const { return(* std::max_element(data.begin(), data.end())); }
+      T minimum() const { return(* std::min_element(data.begin(), data.end())); }
+      
+      // voxel access without bounds checking
+      T& voxel(int a)                        { return(data[a]); }
+      T& voxel(int x, int y, int z)          { return(data[address(x,y,z)]); }
+      T& voxel(const P3 &p)                  { return(data[address(p.x,p.y,p.z)]); }
+      T& voxel(float x, float y, float z)    { return(data[address((int)x,(int)y,(int)z)]); }
+      T& voxel(double x, double y, double z) { return(data[address((int)x,(int)y,(int)z)]); }
+      
+      double mean() const {
+        double sum=0.0;
+        if (empty()) return 0.0;
+        for(auto &x : data) sum += x;
+        return(sum / (double) N);
+      }
+      
+      double stdev(double _mean) const {
+        double sum=0.0;
+        for(auto &x : data) sum += (_mean-x)*(_mean-x);
+        return(std::sqrt(sum / (double) N));  
+      }
+      
+      bool writeSCN(const std::string &filename) {
+        switch(sizeof(T)) {
+          case 1: return(writeSCN(filename,8,false));
+          case 2: return(writeSCN(filename,16,true));
+          case 4: return(writeSCN(filename,32,true));
+          default: return false;
+        }
+      }
+
     private:
-    std::vector<T> data;
+      std::vector<T> data;
+
+      bool writeSCN(const std::string &filename, int bits, bool sign) {
+
+        if (bits < 0) {
+          int64_t a = (int64_t) minimum();
+          int64_t b = (int64_t) maximum();
+               if (a>=0      && b<=255)   { bits = 8;  sign = false;   } 
+          else if (a>=-128   && b<=127)   { bits = 8;  sign = true;    } 
+          else if (a>=0      && b<=65535) { bits = 16; sign = false;   }
+          else if (a>=-32768 && b<=32767) { bits = 16; sign = true;    } 
+          else                            { bits = 32; sign = (a < 0); }
+        }
     
+        if (bits!=8 && bits!=16 && bits!=32) {
+          //cerr << "** writeSCN: invalid bits value\n\n";
+          return false;
+        }
     
+        std::ofstream f(filename, std::ios_base::binary);
+        if (!f.is_open()) return false;
+        int i,j;
     
+        szTotal = N * (bits/8);
+        szPartial = szCompressed = 0;
+        
+        std::string s;
+        f << std::format("SCN\n{} {} {}\n", W,H,D);
+        f << std::format("{} {} {}\n", dx,dy,dz);
+        f << std::format("{}\n", bits);
+    
+        // lambdas to convert volume raster line to output format
+        std::vector<uint8_t> raster_out(W,0);
+
+        auto raster_u8 = [&](int y) {
+          if (raster_out.size() != W) raster_out.resize(W);
+          for(int i=0;i<W;i++) raster_out[i] = reinterpret_cast<uint8_t>(std::clamp(data[y*W+i], 0, UINT8_MAX));
+        };
+        auto raster_s8 = [&](int y) {
+          if (raster_out.size() != W) raster_out.resize(W);
+          for(int i=0;i<W;i++) raster_out[i] = reinterpret_cast<uint8_t>(std::clamp(data[y*W+i], INT8_MIN, INT8_MAX));
+        };
+        auto raster_u16 = [&](int y) {
+          if (raster_out.size() != 2*W) raster_out.resize(2*W);
+          uint16_t *p16 = reinterpret_cast<uint16_t *>(raster_out.data());
+          for(int i=0;i<W;i++) p16[i] = reinterpret_cast<uint16_t>(std::clamp(data[y*W+i], 0, UINT16_MAX));
+        };
+        auto raster_s16 = [&](int y) {
+          if (raster_out.size() != 2*W) raster_out.resize(2*W);
+          uint16_t *p16 = reinterpret_cast<uint16_t *>(raster_out.data());
+          for(int i=0;i<W;i++) p16[i] = reinterpret_cast<uint16_t>(std::clamp(data[y*W+i], INT16_MIN, INT16_MAX));
+        };
+        auto raster_u32 = [&](int y) {
+          if (raster_out.size() != 4*W) raster_out.resize(4*W);
+          uint32_t *p32 = reinterpret_cast<uint32_t *>(raster_out.data());
+          for(int i=0;i<W;i++) p32[i] = reinterpret_cast<uint32_t>(std::clamp(data[y*W+i], 0, UINT32_MAX));
+        };
+        auto raster_s32 = [&](int y) {
+          if (raster_out.size() != 4*W) raster_out.resize(4*W);
+          uint32_t *p32 = reinterpret_cast<uint32_t *>(raster_out.data());
+          for(int i=0;i<W;i++) p32[i] = reinterpret_cast<uint32_t>(std::clamp(data[y*W+i], INT32_MIN, INT32_MAX));
+        };
+
+        auto rfunc = raster_u8;
+             if (bits == 8)  rfunc = (sign ? raster_s8  : raster_u8);
+        else if (bits == 16) rfunc = (sign ? raster_s16 : raster_u16);
+        else if (bits == 32) rfunc = (sign ? raster_s32 : raster_u32);
+
+        for(i=0;i<H*D;i++) {
+          rfunc(i);
+          f.write( reinterpret_cast<char *>(raster_out.data), raster_out.size() );
+          szPartial += raster_out.size();
+        }
+
+        szCompressed = szPartial;
+    
+        f.close();
+        return true;
+      }
+          
+
+
+  }; // Volume<T>
+
+  enum class RenderType {
+    None,
+    EQ,LT,LE,GT,GE
   };
+
+  // it's 2025 and I have no idea what this class is supposed to do :)
+  class RenderingContext {
+    public:
+    
+      constexpr static float InfZ = 50000.0f;
+
+      int W,H;  
+      std::vector<float> xbuf,ybuf,zbuf,nbuf;
+      std::vector<int>   ibuf;
+      std::vector<char>  rbuf;
+
+      RenderingContext(int w,int h);
+      RenderingContext(const Image &img);
+
+      void prepareFirst();  
+      void prepareNext();
+    
+      void clearI();
+      void clearN();
+        
+    private:
+      void allocate();
+
+  };
+  
   
 } // namespace libbi

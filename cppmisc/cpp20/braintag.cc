@@ -13,6 +13,7 @@
 #include <iostream>
 #include <fstream>
 #include <algorithm>
+#include <ranges>
 #include "libbi.h"
 #include "braintag_ui.h"
 #include "icon_cinapce.xpm"
@@ -40,15 +41,15 @@ int cmd_quit = 0;
 bool Checkers = false;
 int  CheckerSize = 16;
 
-list<Window *> wlist;
-Window *hover = NULL;
-MessageWindow  *msg;
-OrthogonalView *v2d = NULL;
-ObjectView *vbrain = NULL;
-EDTView    *vedt1  = NULL;
-PlanarView *vtex   = NULL;
-BrainToolbar *tools = NULL;
-FeatureView *fv = NULL;
+list<shared_ptr<Window>>   wlist;
+shared_ptr<Window>         hover;
+shared_ptr<OrthogonalView> v2d;
+shared_ptr<ObjectView>     vbrain;
+shared_ptr<EDTView>        vedt1;
+shared_ptr<PlanarView>     vtex;
+shared_ptr<MessageWindow>  msg;
+shared_ptr<BrainToolbar>   tools;
+shared_ptr<FeatureView>    fv;
 
 /* volume data */
 // orig, binbrain, skin, edt, ptex, pmap, rtag, ptag
@@ -214,8 +215,8 @@ void gui() {
   Widget::defpfd = sans10b;
   Widget::defhfd = pango_font_description_from_string("Sans Bold 10");
 
-  wlist.push_back(msg = new MessageWindow("Messages",10,500,sans10b));
-  wlist.push_front(tools = new BrainToolbar("Tools",10,10));
+  wlist.push_back(msg = make_shared<MessageWindow>("Messages",10,500,sans10b));
+  wlist.push_front(tools = make_shared<BrainToolbar>("Tools",10,10));
 
   //msg->loadGeometry("msg",appcfg);
   //tools->loadGeometry("tools",appcfg);
@@ -756,8 +757,7 @@ gboolean bt_expose(GtkWidget *w, GdkEventExpose *e, gpointer data) {
   gdk_rgb_gc_set_foreground(gc,bgcolor);
   gdk_draw_rectangle(w->window,gc,TRUE,0,0,W,H);
 
-  list<Window *>::reverse_iterator i;
-  for(i=wlist.rbegin();i!=wlist.rend();i++) {
+  for(auto &i : wlist | std::views::reverse) {
     (*i)->paint( (*i)==wlist.front() );
     if (*i == hover)
       (*i)->paintHelp();
@@ -767,28 +767,27 @@ gboolean bt_expose(GtkWidget *w, GdkEventExpose *e, gpointer data) {
 }
 
 gboolean bt_press(GtkWidget *w, GdkEventButton *e, gpointer data) {
-  list<Window *>::iterator i;
-  Window *iw;
   int x,y,b;
-
+  
   x = (int) e->x;
   y = (int) e->y;
   b = (int) e->button;
-
-  for(i=wlist.begin();i!=wlist.end();i++)
+  
+  for(auto i : wlist) {
     if ( (*i)->inside(x,y) ) {
       if (i != wlist.begin() ) {
-	iw = *i;
-	wlist.erase(i);
-	wlist.push_front(iw);
-	i = wlist.begin();
-	hover = wlist.front();
-	gtk_widget_queue_resize(canvas);
+        auto iw = *i;
+        wlist.erase(i);
+        wlist.push_front(iw);
+        i = wlist.begin();
+        hover = wlist.front();
+        gtk_widget_queue_resize(canvas);
       }
       (*i)->press(x,y,b);
       break;
     }
-  return TRUE;
+    return TRUE;
+  }
 }
 
 gboolean bt_release(GtkWidget *w, GdkEventButton *e, gpointer data) {

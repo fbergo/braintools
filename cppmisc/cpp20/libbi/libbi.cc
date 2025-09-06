@@ -688,5 +688,47 @@ namespace libbi {
         }
     }
 
+    RenderingContext::RenderingContext(int w,int h) {
+        W = w;
+        H = h;
+        allocate();
+        prepareFirst();
+      }
+    
+      RenderingContext::RenderingContext(const Image &img) {
+        W = img.W;
+        H = img.H;
+        allocate();
+        prepareFirst();
+      }
+      
+      void RenderingContext::prepareFirst() {
+        std::fill(zbuf.begin(), zbuf.end(), InfZ);
+        std::fill(nbuf.begin(), nbuf.end(), 0.0f);
+        std::fill(rbuf.begin(), rbuf.end(), 0);
+      }
+    
+      void RenderingContext::prepareNext() {
+        std::fill(rbuf.begin(), rbuf.end(), 0);
+      }
+    
+      void RenderingContext::clearI() {
+        std::fill(ibuf.begin(), ibuf.end(), -1);
+      }
+    
+      void RenderingContext::clearN() {
+        std::fill(nbuf.begin(), nbuf.end(), 0.0f);
+      }
+          
+      void RenderingContext::allocate() {
+        zbuf.resize(W*H);
+        nbuf.resize(W*H);
+        xbuf.resize(W*H);
+        ybuf.resize(W*H);
+        rbuf.resize(W*H);
+        ibuf.resize(W*H);
+      }
+  
+
 } // namespace
 
