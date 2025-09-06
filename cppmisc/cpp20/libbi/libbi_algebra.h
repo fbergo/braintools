@@ -18,7 +18,9 @@ namespace libbi {
       R3() { x=y=z=0.0f; }
       //! Constructor, creates a point at the given coordinates
       R3(float _x,float _y,float _z) { x=_x; y=_y; z=_z; }
-    
+
+      R3(int _x,int _y,int _z) { x=(float)_x; y=(float)_y; z=(float)_z; }
+
       //! adds b to the point
       R3 & operator+=(const R3 &b) { x+=b.x; y+=b.y; z+=b.z; return(*this); }
     
