@@ -70,7 +70,9 @@ namespace libbi {
       void  normalize() { float l=length(); if (l != 0.0f) (*this)/=l; }
     
       std::string to_string() const { return(std::format("R3=({:.2f}, {:.2f}, {:.2f})",x,y,z)); }
-    
+      
+      std::string to_string_d() const { return(std::format("R3=({}, {}, {})",x,y,z)); }
+      
       //! applies usqrt to all components
       void usqrt() { x = usqrt(x); y = usqrt(y); z = usqrt(z); }
     
